@@ -1,0 +1,348 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+    TempData["Title"] = "Quản lý mua/bán trái phiếu";
+}
+
+<script type="text/javascript">
+    var rowselected = [];
+    var isCheckedAll = false;
+
+    function binding_handler(e) {
+        //srowselected = [];
+    }
+
+    function delete_handler(e) {
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        //disable the command buttons
+        $("#gridInfo .k-grid-content")
+            .find(".k-grid-RefreshRecord")
+            .addClass("k-state-disabled")
+            .bind("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            })
+
+         $.ajax({
+            type: 'POST',
+             url: '@Url.Action("Delete", "BuyAndSellBond")',
+             data: { id: dataItem.Id},
+             success: function (data) {
+                if (data.success) {
+                    $("#gridInfo").data("kendoGrid").dataSource.read();
+                    $("#grid").data("kendoGrid").dataSource.read();
+                    top.$("#grid").data("kendoGrid").dataSource.read();
+                    show_stack_bottom_right('success', 'Xóa', 'Xóa thành công.');
+                    $("#gridInfo .k-grid-content").find(".k-grid-RefreshRecord").removeClass("k-state-disabled").off("click");
+                }
+                else {
+                    show_stack_bottom_right('error', 'Xóa', 'Xóa thất bại.');
+                    $("#gridInfo .k-grid-content").find(".k-grid-RefreshRecord").removeClass("k-state-disabled").off("click");
+                }
+            },
+             error: function () {
+                 show_stack_bottom_right('error', 'Xóa', 'Xóa thất bại.');
+                 $("#gridInfo .k-grid-content").find(".k-grid-RefreshRecord").removeClass("k-state-disabled").off("click");}
+         });
+    }
+
+    $(document).ready(function () {
+
+        $("#btnadd").click(function () {
+             var dataSource = $("#grid").data("kendoGrid").dataSource.data();
+            var models = [];
+            if (rowselected.length > 0) {
+                for (var i = 0; i < rowselected.length; i++) {
+                    for (var j = 0; j < dataSource.length; j++) {
+                        var dataItem = dataSource[j];
+                        if (dataItem.Id == rowselected[i]) {
+                            models.push(dataItem.Id);
+                        }
+                    }
+                }
+                var dataSubmit = JSON.stringify(models);
+
+                $.ajax({
+            type: 'POST',
+             url: '@Url.Action("Undo", "BuyAndSellBond")',
+                    data: { data: dataSubmit},
+             success: function (data) {
+                if (data.success) {
+                    $("#gridInfo").data("kendoGrid").dataSource.read();
+                    $("#grid").data("kendoGrid").dataSource.read();
+                    top.$("#grid").data("kendoGrid").dataSource.read();
+                    show_stack_bottom_right('success', 'Hoàn tác', 'Hoàn tác thành công.');
+                    $("#gridInfo .k-grid-content").find(".k-grid-RefreshRecord").removeClass("k-state-disabled").off("click");
+                }
+                else {
+                    show_stack_bottom_right('error', 'Hoàn tác', 'Hoàn tác thất bại.');
+                    $("#gridInfo .k-grid-content").find(".k-grid-RefreshRecord").removeClass("k-state-disabled").off("click");
+                }
+            },
+             error: function () {
+                 show_stack_bottom_right('error', 'Hoàn tác', 'Hoàn tác thất bại.');
+                 $("#gridInfo .k-grid-content").find(".k-grid-RefreshRecord").removeClass("k-state-disabled").off("click");}
+            });
+            }
+            else {
+                alert("Vui lòng chọn để hoàn tác!");
+            }
+        });
+
+       
+    });
+
+
+    function onDataBound(e) {
+        //$('#grid .k-grid-content').height(screen.height * 0.2);
+        //$('#gridInfo .k-grid-content').height(screen.height * 0.2);
+
+        $('input[name="checkedNodes"]').each(function () {
+            if (rowselected.indexOf(this.value) != -1) {
+                $(this).attr('checked', 'checked');
+            } else {
+                $(this).removeAttr('checked');
+            }
+        });
+        if (this.dataSource.view().length == 0) {
+            //insert empty row
+            var colspan = this.thead.find("th").length;
+            var emptyRow = "<tr><td colspan='" + colspan + "'></td></tr>";
+            this.tbody.html(emptyRow);
+
+        }
+        var dataSource = $("#grid").data("kendoGrid").dataSource;
+        if (dataSource.data().length <= 10) {
+            $(".k-grid-header").css("padding", "0px");
+        };
+    };
+</script>
+
+
+<div id="main" style="margin-left:0px;">
+
+    <div class="container-fluid">
+        <div class="row-tool d-flex">
+            <div class="d-flex">
+                @*<div class="admin-search">
+                        <form action="">
+                            <img src="~/Images/Vector-Search.png" alt="search">
+                            <input id='FieldFilter' type="text" name="" placeholder="Tìm kiếm">
+                        </form>
+                    </div>*@
+            </div>
+            <div class="d-flex">
+                <div class="flex float-right-custom">
+                    <ul class="actions mt-2 mb-2">
+                        <li>
+                            <a href="#" id="btnadd" class="btn btn-mini  btn-red btn-inverse">Hoàn tác</a>
+                        </li>
+                    </ul>
+                </div>
+                @*id="btnadd"
+                <div class="btn-upload" id="btnadd">
+                    <img src="~/Content/themes/admin/icon/iconadd.svg" />
+                    <a>Hoàn tác</a>
+                </div>*@
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="box">
+                    <div class="box-content nopadding">
+
+                        @(Html.Kendo().TabStrip()
+              .Name("tabstrip")
+              .Animation(animation =>
+                  animation.Open(effect =>
+                      effect.Fade(FadeDirection.In)))
+              .Items(tabstrip =>
+              {
+              tabstrip.Add().Text("Danh mục đã xóa")
+                  .Selected(true)
+                  .Content(@<text>
+                   @(Html.Kendo().Grid<BuyAndSellBondViewModel>()
+                                .Name("grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound("").ClientTemplate("<input name='checkedNodes' type='checkbox' class='k-checkbox' value='#=Id#' onclick='childNodeClick(this)'/>")
+                                    .Filterable(false)
+                                    .HeaderTemplate("<input type='checkbox' class='checked_all' onclick='checkAll(event)' id='chkAll'/>").HtmlAttributes(new { style = "text-align:center;" }).Width(50);
+                                    columns.Bound(p => p.Id).Title(Resources.Common.ID).HtmlAttributes(new { style = "text-align:center;" }).Hidden();
+                                    columns.Bound(p => p.PurchaseDate).Title("Ngày mua").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(150);
+                                    columns.Bound(p => p.CustomerName).Title("Khách hàng").Width(200);
+                                    columns.Bound(p => p.AssetName).Title("Loại tài sản").Width(150);
+                                    columns.Bound(p => p.SourceString).Title("Nguồn tiền").Width(300);
+                                    columns.Bound(p => p.TransferredTime).Title("Thời gian được chuyển nhượng").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(300);
+                                    columns.Bound(p => p.ContractName).Title("Tên hợp đồng").Width(200);
+                                    columns.Bound(p => p.Content).Title("Nội dung").Width(500);
+                                    columns.Bound(p => p.Quantily).Title("Số lượng").Width(150);
+                                    columns.Bound(p => p.Value).Title("Giá trị").Width(150);
+                                    columns.Bound(p => p.FixedInterestRate).Title("Lãi suất cố định").Width(150);
+                                    columns.Bound(p => p.InterestRate).Title("Lãi suất").Width(150);
+                                    columns.Bound(p => p.Period).Title("Kỳ hạn (Tháng)").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(150);
+                                    columns.Bound(p => p.InterestPayPeriod).Title("Kỳ trả lãi").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(150);
+                                })
+                                .Pageable()
+                                .Filterable()
+                                .Sortable()
+                                .Scrollable(s => s.Height(400))
+                                .Reorderable(reorder => reorder.Columns(true))
+                                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Model(model => model.Id(p => p.Id))
+                                    .PageSize(10)
+                                    .Read(read => read.Action("Read_UndoData", "BuyAndSellBond"))
+                                    .ServerOperation(false)
+                                 ).Events(events => events.DataBinding("binding_handler").DataBound("onDataBound"))
+                        )
+                  </text>);
+
+              tabstrip.Add().Text("Tất cả danh mục")
+                  .Content(@<text>
+
+                        @(Html.Kendo().Grid<BuyAndSellBondViewModel>()
+                                .Name("gridInfo")
+                                .Columns(columns =>
+                                {
+                                    columns.Command(command =>
+                                    {
+                                        command.Custom("Xoá").Click("delete_handler").HtmlAttributes(new { title = "Xóa" });
+
+                                    }).Width(100).HtmlAttributes(new { style = "text-align:center; display: flex;" });
+                                    columns.Bound(p => p.Id).Title(Resources.Common.ID).HtmlAttributes(new { style = "text-align:center;" }).Hidden();
+                                    columns.Bound(p => p.PurchaseDate).Title("Ngày mua").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(150);
+                                    columns.Bound(p => p.CustomerName).Title("Khách hàng").Width(200);
+                                    columns.Bound(p => p.AssetName).Title("Loại tài sản").Width(150);
+                                    columns.Bound(p => p.SourceString).Title("Nguồn tiền").Width(300);
+                                    columns.Bound(p => p.TransferredTime).Title("Thời gian được chuyển nhượng").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(300);
+                                    columns.Bound(p => p.ContractName).Title("Tên hợp đồng").Width(200);
+                                    columns.Bound(p => p.Content).Title("Nội dung").Width(500);
+                                    columns.Bound(p => p.Quantily).Title("Số lượng").Width(150);
+                                    columns.Bound(p => p.Value).Title("Giá trị").Width(150);
+                                    columns.Bound(p => p.FixedInterestRate).Title("Lãi suất cố định").Width(150);
+                                    columns.Bound(p => p.InterestRate).Title("Lãi suất").Width(150);
+                                    columns.Bound(p => p.Period).Title("Kỳ hạn (Tháng)").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(150);
+                                    columns.Bound(p => p.InterestPayPeriod).Title("Kỳ trả lãi").HtmlAttributes(new { style = "text-align:center;" }).Format("{0:dd-MM-yyyy}").Width(150);
+                                })
+                                .Pageable()
+                                .Filterable()
+                                .Sortable()
+                                .Scrollable(s => s.Height(400))
+                                .Reorderable(reorder => reorder.Columns(true))
+                                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Model(model => model.Id(p => p.Id))
+                                    .PageSize(10)
+                                    .Read(read => read.Action("Read_Data", "BuyAndSellBond"))
+                                    .ServerOperation(false)
+
+                                 ).Events(events => events.DataBinding("binding_handler").DataBound("onDataBound"))
+                        )
+                  </text>);
+          })
+    )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+     $(document).ready(function () {
+        top.winsetup("@Html.Raw("Hoàn tác quản lý danh mục tài sản")", 1000, 650, true);
+    });
+    function getDataFilter() {
+        var dataSource = $("#grid").data("kendoGrid").dataSource;
+        var filters = dataSource.filter();
+        var allData = dataSource.data();
+        var query = new kendo.data.Query(allData);
+        var result = query.filter(filters).data;
+        return result;
+    }
+    function getCheckAll() {
+        var dataFilterID = [];
+        var dataFilter = getDataFilter();
+        var check;
+        for (var i = 0; i < dataFilter.length; i++) {
+            dataFilterID.push(String(dataFilter[i].Id));
+        }
+        for (var i = 0; i < dataFilterID.length; i++) {
+            var index = rowselected.indexOf(dataFilterID[i]);
+            if (index != -1) {
+                check = true;
+            }
+            else {
+                check = false;
+                break;
+            }
+        }
+        return check;
+    }
+
+    function childNodeClick(element) {
+        var dataID = getCheckAll();
+        var id = element.value;
+        if (rowselected.indexOf(id) !== -1) {
+            rowselected.splice(rowselected.indexOf(id), 1);
+        } else {
+            rowselected.push(id);
+        }
+        isCheckedAll = getCheckAll();
+        $('#chkAll').prop('checked', isCheckedAll);
+    }
+
+    $(function () {
+        $(".k-filter").click(function () {
+            setTimeout(function () {
+                $(".k-filter-menu .k-button").click(function () {
+                    setTimeout(function () {
+                        rowselected = [];
+                        isCheckedAll = getCheckAll();
+                        $('#chkAll').prop('checked', isCheckedAll);
+                        $('input[name="checkedNodes"]').each(function () {
+                            if (rowselected.indexOf(this.value) != -1) {
+                                $(this).attr('checked', 'checked');
+                            } else {
+                                $(this).removeAttr('checked');
+                            }
+                        });
+                    }, 10)
+                })
+            }, 100);
+        });
+    });
+
+    function checkAll(e) {
+        var rowItems = getDataFilter();
+        isCheckedAll = $(e.target).prop('checked');
+        if (isCheckedAll) {
+            for (var i = 0; i < rowItems.length; i++) {
+                var index = rowselected.indexOf(String(rowItems[i].Id));
+                if (index == -1) {
+                    rowselected.push(String(rowItems[i].Id));
+                }
+            }
+        }
+        else if (!isCheckedAll) {
+            var dataFilterID = [];
+            var dataFilter = getDataFilter();
+            for (var i = 0; i < dataFilter.length; i++) {
+                dataFilterID.push(String(dataFilter[i].Id));
+            }
+            for (var i = 0; i < dataFilterID.length; i++) {
+                var index = rowselected.indexOf(dataFilterID[i]);
+                if (index != -1) {
+                    rowselected.splice(index, 1);
+                }
+            }
+        }
+
+        $('input[name="checkedNodes"]').each(function () {
+            $(this).prop('checked', isCheckedAll);
+        });
+    }
+</script>

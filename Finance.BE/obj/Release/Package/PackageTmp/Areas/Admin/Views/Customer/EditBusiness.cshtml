@@ -1,0 +1,151 @@
+﻿@model WebModels.UserProfile
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+@using (Html.BeginForm("Edit", "Customer", new { cUserName = ViewBag.cUserName, UserId = Model.UserId },
+    FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-change-car" }))
+{
+    @Html.HiddenFor(m => m.UserName)
+    @Html.HiddenFor(m => m.Type)
+    <div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.FullName, new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.FullName, new { type = "text", name = "Tên nhóm", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.FullName)
+
+            </div>
+        </div>
+                <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Email, new { type = "text", name = "Tên nhóm", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Email)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.LegalRepresentative, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.LegalRepresentative, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.LegalRepresentative)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.RepresentativePosition, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.RepresentativePosition, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.RepresentativePosition)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.BusinessRegistrationNumber, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.BusinessRegistrationNumber, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.BusinessRegistrationNumber)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.AuthorizedPerson, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.AuthorizedPerson, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.AuthorizedPerson)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.AuthorizationNumber, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.AuthorizationNumber, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.AuthorizationNumber)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Mobile, new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Mobile, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Mobile)
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Address, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Address, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Address)
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Infomation, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Infomation, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Infomation)
+            </div>
+        </div>
+
+        <div class="validation-group">
+            <div class="controls">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">@Resources.Common.SaveChanges</button>
+        </div>
+    </div>
+    @Html.AntiForgeryToken()
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (screen.width > 1500) {
+            top.winsetup("Sửa tài khoản khách hàng", 1440 * 0.5, screen.height * 0.55, true);
+        } else if (screen.width < 450) {
+            top.winsetup("Sửa tài khoản khách hàng", 335, 450, true);
+        }
+        else {
+            top.winsetup("Sửa tài khoản khách hàng", 600, 600, true);
+        }
+    });
+    function create_success() {
+        top.$("#window").data("kendoWindow").close();
+        top.$("#grid1").data("kendoGrid").dataSource.read();
+        top.$("#grid2").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Sửa tài khoản khách hàng doanh nghiệp', 'Sửa thành công.');
+
+    }
+    function thumbprocess(obj, target, noimg) {
+        var state = $(obj).attr("state");
+        var cthumb = $(obj).next().attr('url');
+        if (state == '' || state == null) {
+            $(obj).next().val('');
+            $('#' + target).find('img').attr('src', noimg);
+            $(obj).text("Khôi phục"); $(obj).attr("state", "1")
+        } else {
+            $(obj).text("Xóa");
+            $('#' + target).find('img').attr('src', cthumb);
+            $(obj).next().val(cthumb); $(obj).attr("state", "")
+        }
+    }
+</script>

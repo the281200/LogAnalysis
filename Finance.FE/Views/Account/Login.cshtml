@@ -1,0 +1,239 @@
+﻿@model LoginCustomerModel
+@{
+    ViewBag.Title = "Index";
+    TempData["Title"] = Utility.UseStringHasValue("Đăng nhập");
+    var valueRemember = Request.Cookies["Login"] != null ? "checked" : "";
+    Model.RememberMe = valueRemember != "";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="authincation login-form">
+    <div class="container h-100">
+        <div class="row justify-content-center h-100 align-items-center">
+            <div class="col-md-6">
+                <div class="">
+                    <div class="row no-gutters">
+                        <div class="col-xl-12">
+                            <div class="auth-form">
+
+                                <div class="d-flex mb-4">
+                                    <img src="~/Content/themes/web/FM/images/Logo-final.jpg" class="img-company" />
+
+
+                                </div>
+                                <div class="login-header mb-5">HỆ THỐNG QUẢN LÝ DANH MỤC ĐẦU TƯ </div>
+
+                                @using (Ajax.BeginForm("LoginPost", "Account", new { area = "" },
+                             new AjaxOptions
+                             {
+                                 OnSuccess = "OnLoginSuccess",
+                                 OnFailure = "OnLoginFailure"
+                             }, new { @class = "form-signin", @id = "loginForm" }))
+                                {
+
+                                    <script>
+                                        function OnLoginFailure() {
+                                            alert("Đăng nhập không thành công vui lòng thử lại!");
+                                        }
+                                        var url;
+                                        function OnLoginSuccess(data, status, xhr) {
+                                            if ("@(TempData["UrlLoginBack"] != null)") {
+                                                url = "@(TempData["UrlLoginBack"])";
+                                            }
+                                            if (data.Success) {
+                                                location.href = url ?? "/";
+
+                                            } else {
+                                                if (data.Type == 'namepass') {
+                                                    $("#pass").text(data.Error);
+                                                    $("#pass").attr("style", "display:block;");
+                                                }
+                                                if (data.Type == 'logined') {
+                                                    $("#logout").fadeIn('fast');
+                                                }
+                                                if (data.Type == 'name') {
+                                                    $("#code").text(data.Error);
+                                                    $("#code").attr("style", "display:block;");
+                                                }
+
+                                                if (data.Error && data.Error != '' && data.Type == 'recaptcha') {
+                                                    alert(data.Error);
+                                                }
+                                            }
+                                        }
+                                    </script>
+
+                                    <div class="form-group">
+                                        <label class="mb-1 text-label"><strong>Email</strong></label>
+                                        @Html.TextBoxFor(m => m.Email, new { @placeholder = "", @type = "text", @class = "form-control", @name = "code", id = "user_name" })
+                                        @Html.ValidationMessageFor(m => m.Email)
+
+                                        <p class="validate-input" id="code"></p>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="mb-1 text-label">
+                                            <strong>Mật khẩu</strong>
+                                            <div class="input-group-addon input-show-pass">
+                                                <i class="fas fa-eye-slash"></i>
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            @Html.TextBoxFor(m => m.Password, new { @placeholder = "", @type = "password", @class = "form-control", @name = "pass", id = "user_pass" })
+                                        </div>
+                                            @Html.ValidationMessageFor(m => m.Password)
+                                            <p class="validate-input" id="pass"></p>
+                                        
+                                    </div>
+
+                                    <div class="form-row d-flex justify-content-between mt-4 mb-2">
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox ml-1">
+                                                @Html.CheckBoxFor(m => m.RememberMe, new Dictionary<string, object> {
+                                                    { "class", "custom-control-input" },{"data-skin","square"},{"data-color","orange"},{"id","basic_checkbox_1"}
+                                                })
+                                                @*@Html.CheckBoxFor(m => m.RememberMe, new { @class = "custom-control-input", id = "" })*@
+                                                @*<input type="checkbox" class="custom-control-input" id="basic_checkbox_1">*@
+                                                <label class="custom-control-label" for="basic_checkbox_1">Nhớ mật khẩu</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <a class="remember-pass" href="@Url.Action("SendMailForgotPass","Account", new { area = ""})">Quên mật khẩu?</a>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-block">Đăng nhập</button>
+                                    </div>
+                                }
+                                @*<div class="new-account mt-3">
+            <p class="text-white">Don't have an account? <a class="text-white" href="./page-register.html">Sign up</a></p>
+        </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('#login-button').click(function () {
+        $("#pass").attr("style", "display:none;");
+        $("#code").attr("style", "display:none;");
+    });
+    $(document).ready(function () {
+        $(".fa-eye").hide();
+
+        $(".fa-eye-slash").click(function () {
+            $(this).toggleClass("fas fa-eye-slash");
+            $(this).toggleClass("fas fa-eye");
+
+            var input = $("#user_pass");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+
+        $(".fa-eye").click(function () {
+            $(this).toggleClass("fas fa-eye-slash");
+            $(this).toggleClass("fas fa-eye");
+
+            var input = $("#user_pass");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+    });
+
+    $('#send-mail').click(function () {
+        var email = $("#user-forgot").val();
+        var model = {};
+        model.Email = email;
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_ForgotPasswordPost", "Account", new { area = ""})',
+            data: JSON.stringify(model),
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function (data) {
+                if (data.Success)
+                {
+                    $('#register_suss').modal('show');
+                }
+                else {
+
+                    $('#register_fal').modal('show');
+
+                }
+            },
+            error: function () { alert("Gửi mail k thành công vui lòng thử lại!"); }
+        });
+    });
+
+    $('.form-check').click(function () {
+        var checkBoxes = $(".form-check-box").find("input");
+        checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+        if (checkBoxes.prop("checked") == true) {
+            $(checkBoxes).addClass("checked");
+        }
+        else if (checkBoxes.prop("checked") == false) {
+            $(checkBoxes).removeClass("checked");
+        }
+    });
+
+    $('#login-button').click(function () {
+        $(".validate-input").attr("style", "display:none;");
+    });
+
+
+    $(document).ready(function (event) {
+        $('#UserName').keyup(function () {
+            $(".validate-input").attr("style", "display:none;");
+        });
+
+        $('#Password').keyup(function () {
+            $(".validate-input").attr("style", "display:none;");
+        });
+    });
+
+    $('#forgot_pass').click(function () {
+        $('#change_pass_msg').modal('show');
+    });
+</script>
+@*<script type="text/javascript">
+        window.onbeforeunload = function (e) {
+            e = e || window.event;
+
+            // For IE and Firefox prior to version 4
+            if (e) {
+                e.returnValue = 'Any string';
+            }
+
+            // For Safari
+            return 'Any string';
+        };
+    </script>*@
+<script>
+    @*$(document).ready(function () {
+        $("#login-button").click(function (e) {
+            e.preventDefault();
+
+            grecaptcha.ready(function () {
+                grecaptcha.execute('@ViewBag.sitekey').then(function (token) {
+                    $("#loginCaptchaResponse").val(token);
+                    $("#loginForm").submit();
+                });
+            });
+    });
+    });*@
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

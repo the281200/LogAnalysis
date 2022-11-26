@@ -1,0 +1,463 @@
+﻿@model ReportViewModel
+@{
+    ViewBag.Title = "BÁO CÁO TỔNG HỢP TÌNH HÌNH HỢP ĐỒNG";
+    WebContext db = new WebContext();
+    var roles = Roles.GetRolesForUser();
+    var userRoleIds = db.WebRoles.Where(x => roles.Contains(x.RoleName)).Select(y => y.RoleId);
+    var roleWebModule = db.AccessWebModuleRoles.AsNoTracking().FirstOrDefault(x => userRoleIds.Contains(x.RoleId) && x.WebModule.URL == "/admin/ContractSummary");
+
+    var totalWeigh = ViewBag.totalWeigh;
+    var totalCostPrice = ViewBag.totalCostPrice;
+}
+
+<script>
+    //datacombobox PRODUCT
+    var comboboxProduct = {};
+    var checkFirstBound = 0;
+    function onDataBound() {
+        if (checkFirstBound == 0) {
+            comboboxProduct = $("#ComboboxCustomer").data("kendoComboBox").dataSource.data();
+            checkFirstBound = 1;
+        }
+    }
+</script>
+
+<div id="general-import">
+    @*<div class="container-fluid">
+            <div class="page-header">
+                <div class="pull-left">
+                    <div class="breadcrumbs">
+                        <h1>@ViewBag.title</h1>
+                    </div>
+                </div>
+                <div class="pull-right">
+
+                </div>
+            </div>
+        </div>*@
+    @using (Html.BeginForm("ExportExcel", "ContractSummary", FormMethod.Post, new { @id = "general", enctype = "multipart/form-data", @class = "form-horizontal fix" }))
+    {
+        @Html.HiddenFor(m => m.DataExport)
+        @Html.HiddenFor(m => m.CustomerId)
+        @Html.HiddenFor(m => m.StartTime)
+        @Html.HiddenFor(m => m.EndTime)
+        <div class="messageValidation">
+            @Html.ValidationSummary()
+        </div>
+        <div class="row row-report">
+            <div class="block-row">
+                <div class="flex">
+
+                    <div class="comboboxCustomer">
+                        <p class="text-description-report">Khách hàng:</p>
+                        @(Html.Kendo().ComboBoxFor(m => m.CustomerId)
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Placeholder("Chọn khách hàng...")
+                            .Suggest(true)
+                            .Filter("contains")
+                            .Name("CustomerId")
+                            .HtmlAttributes(new { id = "ComboboxCustomer" })
+                            .Events(ev => ev.DataBound("onDataBound"))
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("Get_Customers", "TLBsPromise");
+                                })
+                                .ServerFiltering(true);
+                            })
+            //.Events(e => e.DataBound("onDataBoundCombobox").Change("onChangeCombobox"))
+            )
+                    </div>
+                </div>
+                <div class="flex">
+                    <div>
+                        @*<p class="text-hide-custom">Xuất</p>*@
+                        <span class="btn-download btn-plan-drive radius-button export" id="export">
+                            <span class="text-14-500 padding-text-plan-drive report-export">Chạy báo cáo</span>
+                        </span>
+                    </div>
+                    <div>
+                        @*<p class="text-hide-custom">Tải</p>*@
+                        <span class="btn-download btn-plan-drive radius-button" id="download">
+                            <input type="submit" value="Tải file excel" class="text-14-500 padding-text-plan-drive report-download" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="container-fluid" id="dealDetail">
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="box">
+                    <div class="box-content nopadding">
+                        <div class="report-title">
+                            <h1 class="title-report">@ViewBag.title</h1>
+                            <h2 id="customer-name" class="customer-des"></h2>
+                            <h2 id="customer-phone" class="customer-des"></h2>
+                            <h2 id="customer-email" class="customer-des"></h2>
+
+                        </div>
+                        <div id="detail-report"></div>
+                        <script>
+                            var rowselected;
+                            var columns = [
+                                { field: "STT", title: "Thứ tự", width: "100px", hidden: true },
+                                { field: "STT", title: "Thứ tự", width: "100px", hidden: true },
+                                { field: "STT", title: "Thứ tự", width: "100px", hidden: true },
+                                { field: "STT", title: "Thứ tự", width: "100px", attributes: { "style": "text-align:center;" } },
+                                {
+                                    field: "ContractCodeName",
+                                    title: "Mã hợp đồng + tên hợp đồng",
+                                    width: "250px",
+                                    footerTemplate: "Tổng cộng"
+                                },
+                                { field: "BondsCodeName", title: "Mã trái phiếu + tên trái phiếu", width: "250px" },
+
+                               
+                               @* { field: "NumOfBonds", title: "Số lượng trái phiếu/Mệnh giá trái phiếu", width: "350px", attributes: { "style": "text-align:center;" } },*@
+                                {
+                                    field: "NumOfBondString",
+                                    title: "Số lượng trái phiếu/Mệnh giá trái phiếu",
+                                   @* template: "#= (data.NumOfBonds) ? kendo.format('{0:n0} ', parseFloat(data.NumOfBonds)) : '' #",*@
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "Value",
+                                    title: "Giá trị mệnh giá (đ)",
+                                    template: "#= (data.Value) ? kendo.format('{0:n0} ', parseFloat(data.Value)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: conditionalSumValue,
+                                    width: "250px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "RoundedPurchaseValue",
+                                    title: "Giá trị hợp đồng làm tròn (đ)",
+                                    template: "#= (data.RoundedPurchaseValue) ? kendo.format('{0:n0} ', parseFloat(data.RoundedPurchaseValue)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: conditionalSumRoundedPurchaseValue,
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                { field: "InvestmentPurchaseDateString", title: "Ngày mua", width: "150px", attributes: { "style": "text-align:center;" } },
+                                {
+                                    field: "CalculateInterestDateString",
+                                    title: "Thời gian thực hiện hợp đồng (ngày)",
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                { field: "PeriodDateString", title: "Ngày tất toán",  width: "150px", attributes: { "style": "text-align:center;" } },
+                                {
+                                    field: "InterestPayPeriod",
+                                    title: "Số lần trả lãi/trái tức",
+                                    template: "#= (data.InterestPayPeriod) ? kendo.format('{0:n0} ', parseFloat(data.InterestPayPeriod)) : '' #",
+                                   
+                                    width: "250px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "PreTaxProfit",
+                                    title: "Tiền lãi đầu tư trước thuế (đ)",
+                                    template: "#= (data.PreTaxProfit) ? kendo.format('{0:n0} ', parseFloat(data.PreTaxProfit)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: conditionalSumPreTaxProfit,
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "ProfitAfterTax",
+                                    title: "Tiền lãi đầu tư sau thuế (đ)",
+                                    template: "#= (data.ProfitAfterTax) ? kendo.format('{0:n0} ', parseFloat(data.ProfitAfterTax)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: conditionalSumProfitAfterTax,
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "SumMoney",
+                                    title: "Tổng tiền nhận (đ)",
+                                    template: "#= (data.SumMoney) ? kendo.format('{0:n0} ', parseFloat(data.SumMoney)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: conditionalSumMoney,
+                                    width: "200px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "Rates",
+                                    title: "Tỷ suất lãi suất đầu tư (%)",
+                                    template: "#= (data.Rates) ? kendo.format('{0:n2}', parseFloat(data.Rates)) : '' #",
+                                    
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "Status",
+                                    title: "Trạng thái",
+                                    width: "250px",
+                                    
+                                },
+                            ];
+
+                            function loaddata(model) {
+                                if ($("#detail-report").data("kendoGrid") != null) {
+                                    $('#detail-report').html('');
+                                    delete $("#detail-report").data("kendoGrid")
+                                    $("#detail-report").data('kendoGrid').dataSource.data([]);;
+                                }
+                                $("#detail-report").kendoGrid({
+                                    dataSource: {
+                                        transport: {
+                                            read: {
+                                                url: "/admin/ContractSummary/InvestmentReportRead/",
+                                                dataType: "json",
+                                                data: model,
+                                            }
+                                        },
+                                        aggregate: [
+                                           
+                                            { field: "Value", aggregate: "sum" },
+                                            { field: "RoundedPurchaseValue", aggregate: "sum" },
+                                            
+                                           
+                                            
+                                            { field: "PreTaxProfit", aggregate: "sum" },
+                                            { field: "ProfitAfterTax", aggregate: "sum" },
+                                            { field: "SumMoney", aggregate: "sum" },
+                                         
+
+
+                                        ],
+                                        emptyMsg: 'This grid is empty',
+                                        schema: {
+                                            model: {
+                                                ID: "ID",
+                                                fields: {
+
+                                                    STT: { type: "number" },
+                                                    ContractCodeName: { type: "string" },
+                                                    BondsCodeName: { type: "string" },
+                                                    NumOfBondString: { type: "string" },
+                                                    Value: { type: "number" },
+                                                    RoundedPurchaseValue: { type: "number" },
+                                                    InvestmentPurchaseDateString: { type: "string" },
+                                                    CalculateInterestDateString: { type: "string" },
+                                                    PeriodDateString: { type: "string" },
+                                                    InterestPayPeriod: { type: "number" },
+                                                    PreTaxProfit: { type: "number" },
+                                                    ProfitAfterTax: { type: "number" },
+                                                    SumMoney: { type: "number" },
+                                                    Rates: { type: "number" },
+                                                    Status: { type: "string" },
+                                                 
+                                                }
+                                            }
+                                        },
+                                    },
+                                    dataBound: function (e) {
+                                        var items = this._data;
+                                        var tableRows = $(this.table).find("tr");
+                                        tableRows.each(function (index) {
+                                            var row = $(this);
+                                            var Item = items[index];
+                                            if (Item.CalculateInterestDateString == null) {
+                                                row.addClass("table_bold_text");
+                                                
+                                            }
+                                            @*if (row.hasClass("table_bold_text")) {
+                                                Item.NumOfBonds = Item.NumOfBonds + "(Số lượng hợp đồng)";
+                                            }*@
+                                        });
+                                    },
+                                    scrollable: true,
+                                    columns: columns,
+                                    
+                                    filterable: true,
+                                    dataBinding: function () {
+                                        rowselected = new Array();
+                                    },
+                                    change: function (e) {
+                                        rowselected = [];
+                                        var len = this.select().length;
+                                        for (i = 0; i < len; i++) {
+                                            rowselected.push(this.dataItem(this.select()[i]).ID);
+                                        }
+                                    }
+                                });
+                            }
+
+                            function conditionalSumValue() {
+                                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+                                @*var data = dataSource.data();*@
+                                var item, sum = 0;
+                                for (var idx = 0; idx < dataSource.length; idx++) {
+                                    item = dataSource[idx];
+                                    if (item.CalculateInterestDateString == null && item.Value) {
+                                        sum += item.Value;
+                                    }
+                                }
+                                return kendo.toString(sum, "n0") + " "+ "đ";
+                            }
+                            function conditionalSumRoundedPurchaseValue() {
+                                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+                                @*var data = dataSource.data();*@
+                                var item, sum = 0;
+                                for (var idx = 0; idx < dataSource.length; idx++) {
+                                    item = dataSource[idx];
+                                    if (item.CalculateInterestDateString == null && item.RoundedPurchaseValue) {
+                                        sum += item.RoundedPurchaseValue;
+                                    }
+                                }
+                                return kendo.toString(sum, "n0") + " " + "đ";
+                            }
+                            function conditionalSumPreTaxProfit() {
+                                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+                                @*var data = dataSource.data();*@
+                                var item, sum = 0;
+                                for (var idx = 0; idx < dataSource.length; idx++) {
+                                    item = dataSource[idx];
+                                    if (item.CalculateInterestDateString == null && item.PreTaxProfit) {
+                                        sum += item.PreTaxProfit;
+                                    }
+                                }
+                                return kendo.toString(sum, "n0") + " " + "đ";
+                            }
+                            function conditionalSumProfitAfterTax() {
+                                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+                                @*var data = dataSource.data();*@
+                                var item, sum = 0;
+                                for (var idx = 0; idx < dataSource.length; idx++) {
+                                    item = dataSource[idx];
+                                    if (item.CalculateInterestDateString == null && item.ProfitAfterTax) {
+                                        sum += item.ProfitAfterTax;
+                                    }
+                                }
+                                return kendo.toString(sum, "n0") + " " + "đ";
+                            }
+                            function conditionalSumMoney() {
+                                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+                                @*var data = dataSource.data();*@
+                                var item, sum = 0;
+                                for (var idx = 0; idx < dataSource.length; idx++) {
+                                    item = dataSource[idx];
+                                    if (item.CalculateInterestDateString == null && item.SumMoney) {
+                                        sum += item.SumMoney;
+                                    }
+                                }
+                                return kendo.toString(sum, "n0") + " " + "đ";
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="d-flex justify-content-center">
+    <div class="loader" style="display:none; margin-top: 30px;"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        //datacombobox PRODUCT
+
+        $("#export").click(function () {
+            /* $(".loader").show();*/
+            if ($("#detail-report").data("kendoGrid") != null) {
+                $('#detail-report').html('');
+                delete $("#detail-report").data("kendoGrid")
+                $("#detail-report").data('kendoGrid').dataSource.data([]);;
+            }
+
+            var modelReport = {};
+
+            modelReport.CustomerId = $("#ComboboxCustomer").val();
+
+            if (modelReport.CustomerId != null  && modelReport.CustomerId != "") {
+
+                $.ajax({
+                    url: "@Url.Action("GetUserInfo", "ContractSummary")",
+                    contentType: "application/json",
+                    method: "post",
+                    data: JSON.stringify({ id: modelReport.CustomerId }),
+                    success: function (data) {
+                        if (data.success) {
+                            $("#customer-name").text(data.name);
+                            $("#customer-phone").text(data.phone);
+                            $("#customer-email").text(data.email);
+                        }
+                        else {
+                            $("#customer-name").text('');
+                            $("#customer-phone").text('');
+                            $("#customer-email").text('');
+                        }
+                    },
+                    error: function (d) {
+                        console.log(d.responseText);
+                    }
+                });
+
+
+                loaddata(modelReport);
+            }
+            else {
+
+                $("#customer-name").text('');
+                $("#customer-phone").text('');
+                $("#customer-email").text('');
+
+                alert("Vui lòng chọn khách hàng!");
+            }
+
+        });
+
+        $("#download").click(function (e) {
+            e.preventDefault();
+
+            if ($("#detail-report").data("kendoGrid") != null) {
+
+                //Kiểm tra dữ liệu rồi tải xuống
+                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+
+               
+                var models = [];
+                for (var i = 0; i < dataSource.length; i++) {
+                    var dataItem = dataSource[i];
+                    var model = {};
+                    model.STT = dataItem.STT;
+                    model.ContractCodeName = dataItem.ContractCodeName;
+                    model.BondsCodeName = dataItem.BondsCodeName;
+                    model.NumOfBondString = dataItem.NumOfBondString;
+                    model.Value = dataItem.Value;
+                    model.RoundedPurchaseValue = dataItem.RoundedPurchaseValue;
+                    model.InvestmentPurchaseDateString = dataItem.InvestmentPurchaseDateString;
+                    model.CalculateInterestDateString = dataItem.CalculateInterestDateString;
+                    model.PeriodDateString = dataItem.PeriodDateString;
+                    model.InterestPayPeriod = dataItem.InterestPayPeriod;
+                    model.PreTaxProfit = dataItem.PreTaxProfit;
+                    model.ProfitAfterTax = dataItem.ProfitAfterTax;
+                    model.SumMoney = dataItem.SumMoney;
+                    model.Rates = dataItem.Rates;
+                    model.Status = dataItem.Status;
+                    models.push(model);
+                }
+
+                var dataString = JSON.stringify(models);
+                var dataExport = dataString.replace('"', "?");
+                $("input[name='DataExport']").val(dataExport);
+
+                $("input[name='CustomerId']").val($("#ComboboxCustomer").val());
+                setTimeout(function () {
+                    $("#general").submit();
+                }, 100);
+            }
+            else {
+                alert("Vui lòng chạy báo cáo trước khi tải!!");
+            }
+        });
+    });
+</script>

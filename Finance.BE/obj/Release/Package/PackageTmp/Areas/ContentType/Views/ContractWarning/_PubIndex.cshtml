@@ -1,0 +1,263 @@
+﻿@{
+    var webmodule = (WebModule)ViewBag.WebModule;
+    var moduletran = webmodule;
+    var urlcat = webmodule.URL;
+    if (string.IsNullOrEmpty(webmodule.URL) || string.IsNullOrWhiteSpace(webmodule.URL))
+    {
+        urlcat = Url.Action("Index", "Home", new { metatitle = webmodule.MetaTitle != null ? webmodule.MetaTitle : "web", id = webmodule.ID, area = "" });
+    }
+    TempData["Title"] = Utility.UseStringHasValue(webmodule.SeoTitle, webmodule.Title);
+    TempData["Description"] = Utility.UseStringHasValue(webmodule.MetaDescription, webmodule.Description);
+    TempData["Keywords"] = Utility.UseStringHasValue(webmodule.MetaKeywords, webmodule.SeoTitle);
+    TempData["URL"] = ApplicationService.Domain + urlcat;
+    TempData["Cat"] = webmodule.Title;
+    TempData["ID"] = webmodule.ID;
+}
+
+<script type="text/javascript">
+
+        //data table ajax Cảnh báo đến hạn nhận lợi tức/lãi
+    function genDataTableEarningDueWarning() {
+            var table = $("#EarningDueWarning").DataTable({
+            "destroy": true,
+            "processing": true,
+            "ajax": {
+                "url": "@Url.Action("EarningDueWarning", "ContractWarning", new {area = "ContentType" })",
+                "type": "POST",
+                "data": "",
+                "dataSrc": ""
+            },
+            "columns": [
+                { "data": "Count" },
+                { "data": "ContractName" },
+                { "data": "EarningDate" },
+                { "data": "AccruedValue" },
+                { "data": "DaysLeft" },
+
+                ],
+                columnDefs: [
+                   
+                    {
+                        targets: 3,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    }
+                ],
+            "createdRow": function (row, data, index) {
+                $(row).removeClass('selected')
+            },
+            "searching": false,
+            "bInfo": false,
+            "lengthChange": false,
+            "ordering": true,
+                "language": {
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "emptyTable":     "Hiện chưa có hợp đồng nào đến hoặc quá hạn nhận lợi tức/lãi"
+            },
+            "pageLength": 10
+        });
+
+            table.on('click', 'tbody tr', function () {
+                var $row = table.row(this).nodes().to$();
+                var hasClass = $row.hasClass('selected');
+                if (hasClass) {
+                    $row.removeClass('selected')
+                } else {
+                    $row.addClass('selected')
+                }
+            })
+
+            table.rows().every(function () {
+                this.nodes().to$().removeClass('selected')
+            });
+    }
+     //data table ajax Cảnh báo đến hạn tất toán hợp đồng
+    function genDataTableSettlementWarning() {
+        var table = $("#SettlementWarning").DataTable({
+            "destroy": true,
+            "processing": true,
+            "ajax": {
+                "url": "@Url.Action("SettlementWarning", "ContractWarning", new {area = "ContentType" })",
+                "type": "POST",
+                "data": "",
+                "dataSrc": ""
+            },
+            "columns": [
+                { "data": "Count" },
+                { "data": "ContractName" },
+                { "data": "SettlementDate" },
+                { "data": "DaysLeft" },
+
+            ],
+            "createdRow": function (row, data, index) {
+                $(row).removeClass('selected')
+            },
+            "searching": false,
+            "bInfo": false,
+            "lengthChange": false,
+            "ordering": true,
+            "language": {
+                "paginate": {
+                    "previous": "Trước",
+                    "next": "Sau"
+                },
+                "emptyTable": "Hiện chưa có hợp đồng nào đến hạn tất toán hợp đồng"
+            },
+            "pageLength": 10
+        });
+
+            table.on('click', 'tbody tr', function () {
+                var $row = table.row(this).nodes().to$();
+                var hasClass = $row.hasClass('selected');
+                if (hasClass) {
+                    $row.removeClass('selected')
+                } else {
+                    $row.addClass('selected')
+                }
+            })
+
+            table.rows().every(function () {
+                this.nodes().to$().removeClass('selected')
+            });
+    }
+     //data table ajax Cảnh báo đến hạn giải ngân hợp đồng
+    function genDataTableDisbursementWarning() {
+        var table = $("#DisbursementWarning").DataTable({
+            "destroy": true,
+            "processing": true,
+            "ajax": {
+                "url": "@Url.Action("DisbursementWarning", "ContractWarning", new {area = "ContentType" })",
+                "type": "POST",
+                "data": "",
+                "dataSrc": ""
+            },
+            "columns": [
+                { "data": "Count" },
+                { "data": "ContractName" },
+                { "data": "DisbursementDate" },
+                { "data": "DaysLeft" },
+
+            ],
+            "createdRow": function (row, data, index) {
+                $(row).removeClass('selected')
+            },
+            "searching": false,
+            "bInfo": false,
+            "lengthChange": false,
+            "ordering": true,
+            "language": {
+                "paginate": {
+                    "previous": "Trước",
+                    "next": "Sau"
+                },
+                "emptyTable": "Hiện chưa có hợp đồng nào đến hoặc quá hạn giải ngân hợp đồng"
+            },
+            "pageLength": 10
+        });
+
+            table.on('click', 'tbody tr', function () {
+                var $row = table.row(this).nodes().to$();
+                var hasClass = $row.hasClass('selected');
+                if (hasClass) {
+                    $row.removeClass('selected')
+                } else {
+                    $row.addClass('selected')
+                }
+            })
+
+            table.rows().every(function () {
+                this.nodes().to$().removeClass('selected')
+            });
+    }
+
+
+</script>
+<div class="report">
+    @Html.Action("SiteMapUser", "Home", new { area = "", id = webmodule.ID })
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Cảnh báo đến hạn nhận lợi tức/lãi</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="EarningDueWarning" class="display min-w850">
+                            <thead>
+                                <tr>
+                                    <th>Thứ tự</th>
+                                    <th>Tên hợp đồng</th>
+                                    <th>Ngày nhận lợi tức/lãi</th>
+                                    <th>Giá trị</th>
+                                    <th>Số ngày còn lại</th>
+
+                                </tr>
+                            </thead>
+                          
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Cảnh báo đến hạn tất toán hợp đồng</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="SettlementWarning" class="display min-w850">
+                            <thead>
+                                <tr>
+                                    <th>Thứ tự</th>
+                                    <th>Tên hợp đồng</th>
+                                    <th>Ngày tất toán</th>
+                                    <th>Số ngày còn lại</th>
+
+                                </tr>
+                            </thead>
+                            
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Cảnh báo đến hạn giải ngân hợp đồng</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="DisbursementWarning" class="display min-w850">
+                            <thead>
+                                <tr>
+                                    <th>Thứ tự</th>
+                                    <th>Tên hợp đồng</th>
+                                    <th>Ngày giải ngân</th>
+                                    <th>Số ngày còn lại</th>
+
+                                </tr>
+                            </thead>
+                            
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        genDataTableEarningDueWarning();
+        genDataTableSettlementWarning();
+        genDataTableDisbursementWarning();
+    });
+</script>

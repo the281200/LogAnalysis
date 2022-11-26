@@ -1,0 +1,29 @@
+.mywallet .bg-secondary {
+  background-color: red;
+}
+.mywallet .widget-stat {
+  width: 70%;
+  margin-left: 15%;
+}
+@media (max-width: 991px) {
+  .mywallet .widget-stat {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+.mywallet .page-titles {
+  background-color: transparent;
+}
+
+.userprofile .page-titles {
+  background-color: transparent;
+}
+
+.report .page-titles {
+  background-color: transparent;
+}
+.report .card-header .header-datepicker .form-control {
+  height: 45px;
+}
+
+/*# sourceMappingURL=stylescss.css.map */

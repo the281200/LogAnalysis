@@ -1,0 +1,324 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Tổng quan";
+
+}
+
+<div id="main">
+    <div id="left"></div>
+    <div class="container-fluid">
+
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="row_content">
+                    <div class="Investors_content" style="background-color: #F6931E;">
+                        <div class="Investors">
+                            <div class="d-flex align-items-center">
+                                <div class="Investors-img">
+                                    <img src="~/Content/images/people.png" alt="Alternate Text" class="svg-size" />
+                                </div>
+
+                                <div class="Investors-text">
+                                    <span class="number">@ViewBag.NumInvestors</span>
+                                    <span>Số lượng nhà đầu tư trong hệ thống</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="Investors_content" style="background-color: #2E3294;" title="@ViewBag.SumValueDetail">
+                        <div class="Investors">
+                            <div class="d-flex align-items-center">
+                                <div class="Investors-img">
+                                    <img src="~/Content/images/bars.png" alt="Alternate Text" class="svg-size" />
+                                </div>
+
+                                <div class="Investors-text">
+
+                                        <span class="number">
+                                            @ViewBag.SumValueView
+                                        </span>
+                                    
+
+
+
+                                    <span>Tổng giá trị tài sản của khách hàng</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="Investors_content" style="background-color: #00A551;">
+                        <div class="Investors">
+                            <div class="d-flex align-items-center">
+                                <div class="Investors-img">
+                                    <img src="~/Content/images/contract.png" alt="Alternate Text" class="svg-size" />
+                                </div>
+
+                                <div class="Investors-text">
+                                    <span class="number">@ViewBag.NumContract</span>
+                                    <span>Số lượng hợp đồng trong danh mục</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row chart-cursor">
+                    <div  class="mt-5 col-6">
+                       
+                            <canvas id="MyChart"></canvas>
+                       
+                        
+                    </div>
+
+                    <div class="mt-5 col-6">
+                        
+                            <canvas id="lineChart"></canvas>
+                       
+                       
+                    </div>
+                </div>
+
+
+              
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //option
+    var chartLineType = 'line';
+    var chartBarType = 'bar';
+
+    var options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scaleShowLabels: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+        },
+        onHover: function (e) {
+            const points = this.getElementsAtEventForMode(
+                e,
+                'index', { axis: 'x', intersect: true },
+                false
+            );
+
+            if (points.length) e.native.target.style.cursor = 'pointer';
+            else e.native.target.style.cursor = 'pointer';
+        },
+        animation: {
+            easing: 'easeInOutQuad',
+            duration: 400
+        },
+        interaction: {
+            intersect: false,
+        },
+        scales: {
+            xAxes: [{
+                barPercentage: 0.1,
+                gridLines: {
+                    display: false
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    color: 'rgba(200, 200, 200, 0.08)',
+                    lineWidth: 1
+                },
+                min: 0,
+                ticks: {
+                    beginAtZero: true
+                }
+            }],
+            x: {
+                grid: { display: false },
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 6
+                },
+                barPercentage: 0.1,
+            },
+            y: {
+                grid: { display: false },
+                min: 0,
+            }
+        },
+        elements: {
+            line: {
+                tension: 0
+            }
+        },
+        point: {
+            backgroundColor: 'white'
+        },
+        legend: {
+            onHover: function (e) {
+                e.target.style.cursor = 'pointer';
+            }
+        },
+        hover: {
+            onHover: function (e) {
+                var point = this.getElementAtEvent(e);
+                if (point.length) e.target.style.cursor = 'pointer';
+                else e.target.style.cursor = 'pointer';
+            }
+        },
+        tooltips: {
+            titleFontFamily: 'Open Sans',
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            titleFontColor: 'red',
+            caretSize: 5,
+            cornerRadius: 2,
+            xPadding: 10,
+            yPadding: 10,
+            callbacks: {
+                title: function (tooltipItem, data) {
+                    var title = "";
+                    return title;
+                },
+                label: function (tooltipItem, data) {
+                    return tooltipItem.xLabel;
+                }
+            }
+        }
+    };
+
+    // line chart
+    var xAxesLineChart = [];
+    var yAxesLineChart = [];
+
+    var xAxesBarChart = [];
+    var yAxesBarChart = [];
+
+    var ctxLineChart = document.getElementById('lineChart').getContext('2d');
+    var ctxBarChart = document.getElementById('MyChart').getContext('2d');
+
+    var gradient = ctxLineChart.createLinearGradient(0, 0, 0, 450);
+    gradient.addColorStop(0, 'rgba(39, 174, 96, 0.2)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    var contractUserData = {
+        labels: xAxesLineChart,
+        datasets: [{
+            label: 'Tài sản đầu tư của khách hàng',
+            fill: true,
+            borderColor: "#2763c9",
+            pointBorderColor: "#2763c9",
+            pointBackgroundColor: "#FFFFFF",
+            pointHoverBackgroundColor: "#2763c9",
+            pointHoverBorderColor: "#2763c9",
+            pointBorderWidth: 1,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 1,
+            pointRadius: 3,
+            borderWidth: 2,
+            borderRadius: 2,
+            backgroundColor: "#FFFFFF",
+            data: yAxesLineChart,
+            barPercentage: 0.5,
+            maxBarThickness: 100,
+            tension: 0.3
+        }]
+    };
+
+    var contractUser = new Chart(ctxLineChart, {
+        type: chartLineType,
+        data: contractUserData,
+        options: options
+    });
+
+    const dataBarChart = {
+        labels: xAxesBarChart,
+        datasets: yAxesBarChart
+    };
+
+    var barChart = new Chart(ctxBarChart, {
+        type: chartBarType,
+        data: dataBarChart,
+        options: {
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                }]
+            },
+        }
+    });
+
+    $(document).ready(function () {
+        readDataLineChart();
+        readDataBarChart();
+    });
+
+    function readDataLineChart() {
+        xAxesLineChart.splice(0, xAxesLineChart.length);
+        yAxesLineChart.splice(0, yAxesLineChart.length);
+
+        $.ajax({
+            url: '@Url.Action("GetPackageBuy", "Home", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    xAxesLineChart.push(response[i].xAxes);
+                    yAxesLineChart.push(response[i].yAxes);
+                }
+
+                contractUser.update();
+            },
+            error: function (xhr) {
+            }
+        });
+
+    }
+
+   function readDataBarChart() {
+        xAxesBarChart.splice(0, xAxesBarChart.length);
+        yAxesBarChart.splice(0, yAxesBarChart.length);
+
+        $.ajax({
+            url: '@Url.Action("GetTotalMoneyUser", "Home", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesBarChart.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.label = dataItem.label;
+                    model.type = dataItem.type;
+                    model.stack = dataItem.stack;
+                    model.backgroundColor = dataItem.backgroundColor;
+
+                    var data = [];
+                    for (var j = 0; j < dataItem.data.length; j++) {
+                        data.push(dataItem.data[j]);
+                    }
+                    model.data = data;
+
+                    yAxesBarChart.push(model);
+                }
+
+                console.log(yAxesBarChart);
+                barChart.update();
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+</script>
+

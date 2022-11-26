@@ -1,0 +1,47 @@
+﻿@model WebModels.CustomerModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+<ul class="nav nav-tabs staffTabs">
+    <li class="active " id="tabOne"><a data-toggle="tab" href="#tab-first" class="position-link"></a><a data-toggle="tab" href="#tab-first">Khách hàng cá nhân</a></li>
+    <li class="" id="TabsTwo"><a data-toggle="tab" href="#tab-second" class="position-link"></a><a data-toggle="tab" href="#tab-second">Khách hàng doanh nghiệp</a></li>
+   
+
+</ul>
+<div class="tab-content">
+    <div id="tab-first" class="tab-pane  in active">
+        @Html.Action("AddIndividualCustomers", "Customer")
+
+    </div>
+    <div id="tab-second" class="tab-pane fade">
+        @Html.Action("AddBusinessCustomers", "Customer")
+
+    </div>
+    
+</div>
+<script type="text/javascript">
+    $(".nav.staffTabs>li").click(function () {
+        $(".nav.staffTabs>li").removeClass("active");
+        $(this).addClass("active");
+    })
+    $(document).ready(function () {
+        if (screen.width > 1500) {
+            top.winsetup("Thêm tài khoản khách hàng", 1440 * 0.5, screen.height * 0.7, true);
+        } else if (screen.width < 450) {
+            top.winsetup("Thêm tài khoản khách hàng", 335, 350, true);
+        }
+        else {
+            top.winsetup("Thêm tài khoản khách hàng", 600, 500, true);
+        }
+    });
+    function create_success() {
+        top.$("#window").data("kendoWindow").close();
+        top.$("#grid").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Thêm tài khoản khách hàng', 'Thêm thành công.');
+
+    }
+    function exitWindow() {
+        top.$("#window").data("kendoWindow").close();
+    }
+</script>

@@ -1,0 +1,23 @@
+﻿    <div class="notification-header" id="notifi">
+        <img src="/Content/themes/admin/img/notification.png" />
+        @if (ViewBag.IsRead != true)
+        {
+            <div class="circle-noti">
+                <span> @ViewBag.TotalCount </span>
+            </div>
+        }
+
+    </div>
+
+<script>
+    $("#notifi").click(function () {
+
+        $.post('@Url.Action("ChangeStatusReadNoti", "Account", new { area = "Admin"})',function (data) {
+            if (data.success) {
+                location.href = "/Admin/ContractWarnings";
+                    }
+            
+        });
+
+    });
+</script>

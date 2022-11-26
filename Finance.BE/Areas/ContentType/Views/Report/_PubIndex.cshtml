@@ -1,0 +1,200 @@
+﻿@*@model WebModels.UserProfile*@
+@model ReportViewModel
+@{
+    var webmodule = (WebModule)ViewBag.WebModule;
+    var moduletran = webmodule;
+    var urlcat = webmodule.URL;
+    if (string.IsNullOrEmpty(webmodule.URL) || string.IsNullOrWhiteSpace(webmodule.URL))
+    {
+        urlcat = Url.Action("Index", "Home", new { metatitle = webmodule.MetaTitle != null ? webmodule.MetaTitle : "web", id = webmodule.ID, area = "" });
+    }
+    TempData["Title"] = Utility.UseStringHasValue(webmodule.SeoTitle, webmodule.Title);
+    TempData["Description"] = Utility.UseStringHasValue(webmodule.MetaDescription, webmodule.Description);
+    TempData["Keywords"] = Utility.UseStringHasValue(webmodule.MetaKeywords, webmodule.SeoTitle);
+    TempData["URL"] = ApplicationService.Domain + urlcat;
+    TempData["Cat"] = webmodule.Title;
+    TempData["ID"] = webmodule.ID;
+}
+<script type="text/javascript">
+
+        //data table ajax
+        function genDataTable() {
+            var table = $("#report-investment").DataTable({
+            "destroy": true,
+            "processing": true,
+            "ajax": {
+                "url": "@Url.Action("GetInvestment", "Report", new {area = "ContentType" })",
+                "type": "POST",
+                "data": { time : $('.input-limit-datepicker').val() },
+                "dataSrc": ""
+            },
+            "columns": [
+                { "data": "STT" },
+                { "data": "InvestmentName" },
+                { "data": "InvestmentType" },
+                {
+                    "data": "Value",
+                },
+                { "data": "Count" },
+                { "data": "RealIncome" },
+                { "data": "Total" },
+            ],
+                columnDefs: [
+                    {
+                        targets: 3,
+                        render: $.fn.dataTable.render.number(',',3, '')
+                       
+                    },
+                    {
+                        targets: 4,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 5,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 6,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    }
+                ],
+            "createdRow": function (row, data, index) {
+                $(row).removeClass('selected')
+            },
+                "searching": false,
+                "bInfo": false,
+            "lengthChange": false,
+                "ordering": true,
+                "language": {
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "emptyTable": "Hiện chưa có danh mục tài sản đầu tư"
+                },
+                "pageLength": 10
+        });
+
+            table.on('click', 'tbody tr', function () {
+                var $row = table.row(this).nodes().to$();
+                var hasClass = $row.hasClass('selected');
+                if (hasClass) {
+                    $row.removeClass('selected')
+                } else {
+                    $row.addClass('selected')
+                }
+            })
+
+            table.rows().every(function () {
+                this.nodes().to$().removeClass('selected')
+            });
+    }
+    function exportExcel() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ExportExcel", "Report", new {area = "ContentType" })',
+            data: { time: $('.input-limit-datepicker').val() },
+            dataType: "json",
+            success: function (data) {
+                var bytes = _base64ToArrayBuffer(data.fileStream);
+                saveByteArray(data.fileName, bytes);
+            },
+            error: function (data) {
+            }
+        });
+    }
+    //convert & dowloadfile
+    function _base64ToArrayBuffer(base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    function saveByteArray(reportName, byte) {
+        var blob = new Blob([byte], { type: "application/ms-excel" });
+        var isIE = false || !!document.documentMode;
+        if (isIE) {
+            window.navigator.msSaveBlob(blob, reportName);
+        } else {
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            link.click();
+        }
+    };
+</script>
+<div class="report">
+    @Html.Action("SiteMapUser", "Home", new { area = "", id = webmodule.ID })
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-datepicker">
+                        <p class="mb-1">Thời gian chạy báo cáo</p>
+                        <input class="form-control input-limit-datepicker" type="text" name="daterange" style="width: 13.9rem;">
+                    </div>
+                    <div class="header-act">
+                        <button type="button" class="btn btn-rounded btn-primary btn-sm light" onclick="genDataTable()">Chạy báo cáo</button>
+                        <button id="download" type="submit" class="btn btn-rounded btn-success btn-sm light" onclick="exportExcel()">Tải file</button>
+                    </div>
+                </div>
+                <div class="card-body" >
+                    <div class="table-responsive">
+                        <table id="report-investment" class="display min-w850">
+                            <thead>
+                                <tr>
+                                    <th>Thứ tự</th>
+                                    <th>Danh mục tài sản</th>
+                                    <th>Loại hình tài sản</th>
+                                    <th>Giá trị</th>
+                                    <th>Số lượng</th>
+                                    <th>Lợi tức</th>
+                                    <th>Cộng</th>
+                                </tr>
+                            </thead>
+                           
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.input-limit-datepicker').daterangepicker({
+            opens: 'left',
+            language: 'vi-VN',
+            startDate: moment().add(-1, 'month'),
+            endDate: moment(),
+            maxDate: moment().add(1, 'year'),
+            locale: {
+                format: 'DD-MM-YYYY',
+                separator: " Đến ",
+                daysOfWeek: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"],
+                monthNames: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                firstDay: 1,
+                cancelLabel: "Hủy",
+                applyLabel: "Chọn",
+                applyClass: 'btn-danger',
+                cancelClass: 'btn-inverse',
+            },
+
+        }, function (start, end, label) {
+            console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + "Datenow:" + Date.now);
+        });
+
+
+        genDataTable();
+    });
+</script>

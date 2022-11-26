@@ -1,0 +1,15 @@
+﻿@{ 
+    var call = "";
+}
+@if (ViewBag.Gender == 1) {  call = "ông"; }
+else if (ViewBag.Gender == 0) {  call = "bà"; }
+else { call = ""; }
+           
+<div class="main-dashboard">
+    <div class="text-dashboard">
+        Xin chào @call @ViewBag.Displayname
+    </div>
+    <img src="~/Content/themes/web/FM/images/dashboard.jpg" class="size-img-dashboard" />
+</div>
+
+

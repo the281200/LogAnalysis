@@ -1,0 +1,54 @@
+﻿@model WebModels.UserProfile
+
+@{
+    var webmodule = (WebModule)ViewBag.WebModule;
+    var ListNew = (List<New>)ViewBag.ListNew;
+    var moduletran = webmodule;
+    var background = String.IsNullOrEmpty(webmodule.Image) ? "/content/themes/web/img/bg-title1.png" : webmodule.Image;
+    var codecolor = String.IsNullOrEmpty(webmodule.CodeColor) ? "#b200b2" : webmodule.CodeColor;
+    var urlcat = webmodule.URL;
+    if (string.IsNullOrEmpty(webmodule.URL) || string.IsNullOrWhiteSpace(webmodule.URL))
+    {
+        urlcat = Url.Action("Index", "Home", new { metatitle = webmodule.MetaTitle != null ? webmodule.MetaTitle : "web", id = webmodule.ID, area = "" });
+    }
+    TempData["Title"] = Utility.UseStringHasValue(webmodule.SeoTitle, webmodule.Title);
+    TempData["Description"] = Utility.UseStringHasValue(webmodule.MetaDescription, webmodule.Description);
+    TempData["Keywords"] = Utility.UseStringHasValue(webmodule.MetaKeywords, webmodule.SeoTitle);
+    TempData["URL"] = ApplicationService.Domain + urlcat;
+    TempData["Cat"] = webmodule.Title;
+    TempData["ID"] = webmodule.ID;
+}
+<div class="mywallet">
+    @Html.Action("SiteMapUser", "Home", new { area = "", id = webmodule.ID })
+    <div class="row">
+        @foreach (var item in ListNew)
+        {
+            var img = item.Image != null ? item.Image : ApplicationService.NoImage;
+            var url = Url.Action("Detail", "Home", new
+            {
+                metatitle = @*item.MetaTitle != null ? item.MetaTitle : *@"chi-tiet",
+                id = item.Id,
+                m_metatitle = moduletran.MetaTitle != null ? moduletran.MetaTitle : "chi-tiet",
+                m_id = moduletran.ID,
+                area = ""
+            });
+            <div class="col-lg-6 col-md-6 col-sm-12 ">
+                <div class="card">
+                    <div class="card-header header-news">
+                        <p class="news-time">@String.Format("{0:HH:mm dd/MM/yyyy}", item.CreatedAt)</p>
+                        <a href="@url">
+                            <h4 class="card-title">@item.Title</h4>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <a href="@url">
+                            <img src="@img" class="img-news" alt="Alternate Text" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+    </div>
+</div>

@@ -1,0 +1,217 @@
+﻿@model IEnumerable<WebModels.WebModule>
+@{
+    var groupByType = (from a in Model.Where(x => x.ParentID == null && x.ContentTypeID == "OnePage")
+                       group a by new { a.Type });
+    var count = groupByType.Count();
+
+}
+
+<ul class="" id="accordionMenuLeft">
+            <li class="menu-main">
+                    <div class="d-flex colorwhite collapsed"  @*data-target="#@item.ID" aria-expanded="true" aria-controls="@item.ID"*@>
+                        @*<img src="/Content/themes/admin/img/homeicon.png" alt="" class="menu-img ">
+                        <img src="/Content/themes/admin/img/homeicon_active.png" class="menu-img active" alt="">*@
+                        <span>
+                            <a href="/Admin">Dashboard</a>
+                        </span>
+
+                       
+                    </div>
+
+                    
+            </li>
+           
+    @{
+        int i = 0;
+        foreach (var listItem in groupByType)
+        {
+            i++;
+            <li class='sub-menu'>
+                    <div class="menu-sub">
+                        <a class=" sub_link" href='#settings' style="-webkit-transition: 0.2s linear; -moz-transition: 0.2s linear; -ms-transition: 0.2s linear; -o-transition: 0.2s linear; transition: 0.2s linear;">@listItem.First().Type</a>
+                        <div class='fa fa-caret-down right'></div>
+                    </div>
+                <ul class="accordionMenuToggle">
+                    @foreach (var item in listItem)
+                    {
+                        var subsites = Model.Where(x => x.ParentID == item.ID).OrderBy(x => x.Order).ToList();
+
+                        <li>
+                            <div class="d-flex colorwhite collapsed" data-toggle="collapse" data-target="#@item.ID" aria-expanded="true" aria-controls="@item.ID">
+                                <img src="@item.ImgActive" alt="" class="menu-img active">
+                                <img src="@item.Img" class="menu-img" alt="">
+                                <span>
+                                    <a href="@item.URL">@item.Title</a>
+                                </span>
+
+                                @if (subsites.Count() > 0)
+                                {
+                                    <img src="~/Content/themes/admin/icon/ArrowRight.svg" class="menu-img arrow-img" />
+                                    <img src="~/Content/themes/admin/icon/ArrowRightActive.svg" class="menu-img active arrow-img" />
+                                    <img src="~/Content/themes/admin/icon/IconBlack.svg" class="menu-img active-black arrow-img" />
+                                    <img src="~/Content/themes/admin/icon/IconWhite.svg" class="menu-img active-white arrow-img" />
+                                }
+                            </div>
+
+                            @if (subsites.Count() > 0)
+                            {
+
+                                <ul id="@item.ID" class="collapse" data-parent="#accordionMenuLeft">
+
+
+                                    @foreach (var subsite in subsites)
+                                    {
+                                        <li>
+                                            <span><a href="@subsite.URL">@subsite.Title</a></span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            @*@if (i != count)
+                                {
+                                <div class="menu-line"></div>
+                                }*@
+                        </li>
+                    }
+                    @*<li><a href='#settings'>Account</a></li>
+                        <li><a href='#settings'>Profile</a></li>
+                        <li><a href='#settings'>Secruity & Privacy</a></li>
+                        <li><a href='#settings'>Password</a></li>
+                        <li><a href='#settings'>Notification</a></li>*@
+                </ul>
+            </li>
+
+
+
+        }
+    }
+    @* @{
+            int i = 0;
+            foreach (var listItem in groupByType)
+            {
+                i++;
+                <p class="title-menu">@listItem.First().Type</p>
+                foreach (var item in listItem)
+                {
+                    var subsites = Model.Where(x => x.ParentID == item.ID).OrderBy(x => x.Order).ToList();
+
+                    <li>
+                        <div class="d-flex collapsed" data-toggle="collapse" data-target="#@item.ID" aria-expanded="true" aria-controls="@item.ID">
+                            <img src="@item.ImgActive" alt="" class="menu-img active">
+                            <img src="@item.Img" class="menu-img" alt="">
+                            <span>
+                                <a href="@item.URL">@item.Title</a>
+                            </span>
+
+                            @if (subsites.Count() > 0)
+                            {
+                                <img src="~/Content/themes/admin/icon/ArrowRight.svg" class="menu-img arrow-img" />
+                                <img src="~/Content/themes/admin/icon/ArrowRightActive.svg" class="menu-img active arrow-img" />
+                                <img src="~/Content/themes/admin/icon/IconBlack.svg" class="menu-img active-black arrow-img" />
+                                <img src="~/Content/themes/admin/icon/IconWhite.svg" class="menu-img active-white arrow-img" />
+                            }
+                        </div>
+
+                        @if (subsites.Count() > 0)
+                        {
+
+                            <ul id="@item.ID" class="collapse" data-parent="#accordionMenuLeft">
+
+
+                                    @foreach (var subsite in subsites)
+                                    {
+                                        <li>
+                                            <span><a href="@subsite.URL">@subsite.Title</a></span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                        </li>
+                    }
+                    @*<li><a href='#settings'>Account</a></li>
+                        <li><a href='#settings'>Profile</a></li>
+                        <li><a href='#settings'>Secruity & Privacy</a></li>
+                        <li><a href='#settings'>Password</a></li>
+                        <li><a href='#settings'>Notification</a></li>*@
+            
+
+    @* @{
+            int i = 0;
+            foreach (var listItem in groupByType)
+            {
+                i++;
+                <p class="title-menu">@listItem.First().Type</p>
+                foreach (var item in listItem)
+                {
+                    var subsites = Model.Where(x => x.ParentID == item.ID).OrderBy(x => x.Order).ToList();
+
+                    <li>
+                        <div class="d-flex collapsed" data-toggle="collapse" data-target="#@item.ID" aria-expanded="true" aria-controls="@item.ID">
+                            <img src="@item.ImgActive" alt="" class="menu-img active">
+                            <img src="@item.Img" class="menu-img" alt="">
+                            <span>
+                                <a href="@item.URL">@item.Title</a>
+                            </span>
+
+                            @if (subsites.Count() > 0)
+                            {
+                                <img src="~/Content/themes/admin/icon/ArrowRight.svg" class="menu-img arrow-img" />
+                                <img src="~/Content/themes/admin/icon/ArrowRightActive.svg" class="menu-img active arrow-img" />
+                                <img src="~/Content/themes/admin/icon/IconBlack.svg" class="menu-img active-black arrow-img" />
+                                <img src="~/Content/themes/admin/icon/IconWhite.svg" class="menu-img active-white arrow-img" />
+                            }
+                        </div>
+
+                        @if (subsites.Count() > 0)
+                        {
+
+                            <ul id="@item.ID" class="collapse" data-parent="#accordionMenuLeft">
+
+
+                                @foreach (var subsite in subsites)
+                                {
+                                    <li>
+                                        <span><a href="@subsite.URL">@subsite.Title</a></span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </li>
+                }
+                if (i != count)
+                {
+                    <div class="menu-line"></div>
+                }
+            }
+                        }
+                    </li>
+                }
+                if (i != count)
+                {
+                    <div class="menu-line"></div>
+                }
+            }
+                        }
+                    </li>
+                }
+                if (i != count)
+                {
+                    <div class="menu-line"></div>
+                }
+            }
+        }*@
+</ul>
+<script>
+    $(document).ready(function () {
+        $(".active .collapsed").removeClass("collapsed");
+        $(".active > ul").addClass("show");
+        $('.active').children("ul").show();
+    });
+    $('.sub-menu ul').hide();
+
+    $(".sub-menu .menu-sub").click(function () {
+        $(this).parent(".sub-menu").children("ul").slideToggle("100");
+        $(this).find(".right").toggleClass("fa-caret-up fa-caret-down");
+    });
+</script>

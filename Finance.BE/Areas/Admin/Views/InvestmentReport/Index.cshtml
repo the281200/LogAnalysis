@@ -1,0 +1,370 @@
+﻿@model ReportViewModel
+@{
+    ViewBag.Title = "TỔNG HỢP DANH MỤC TÀI SẢN ĐẦU TƯ";
+    WebContext db = new WebContext();
+    var roles = Roles.GetRolesForUser();
+    var userRoleIds = db.WebRoles.Where(x => roles.Contains(x.RoleName)).Select(y => y.RoleId);
+    var roleWebModule = db.AccessWebModuleRoles.AsNoTracking().FirstOrDefault(x => userRoleIds.Contains(x.RoleId) && x.WebModule.URL == "/admin/InvestmentReport");
+
+    var totalWeigh = ViewBag.totalWeigh;
+    var totalCostPrice = ViewBag.totalCostPrice;
+}
+
+<script>
+    //datacombobox PRODUCT
+    var comboboxProduct = {};
+    var checkFirstBound = 0;
+    function onDataBound() {
+        if (checkFirstBound == 0) {
+            comboboxProduct = $("#ComboboxCustomer").data("kendoComboBox").dataSource.data();
+            checkFirstBound = 1;
+        }
+    }
+</script>
+
+<div id="general-import">
+    @*<div class="container-fluid">
+            <div class="page-header">
+                <div class="pull-left">
+                    <div class="breadcrumbs">
+                        <h1>@ViewBag.title</h1>
+                    </div>
+                </div>
+                <div class="pull-right">
+
+                </div>
+            </div>
+        </div>*@
+    @using (Html.BeginForm("ExportExcel", "InvestmentReport", FormMethod.Post, new { @id = "general", enctype = "multipart/form-data", @class = "form-horizontal fix" }))
+    {
+        @Html.HiddenFor(m => m.DataExport)
+        @Html.HiddenFor(m => m.CustomerId)
+        @Html.HiddenFor(m => m.StartTime)
+        @Html.HiddenFor(m => m.EndTime)
+        <div class="messageValidation">
+            @Html.ValidationSummary()
+        </div>
+        <div class="row row-report">
+            <div class="block-row">
+                <div class="flex">
+                    <div class="manage-car-search">
+                        <p class="text-description-report text-description-report-time">Thời gian chạy báo cáo:</p>
+                        <form action="">
+                            @Html.TextBoxFor(m => m.Time, new { name = "daterange" })
+                        </form>
+                    </div>
+                    <div class="comboboxCustomer">
+                        <p class="text-description-report">Khách hàng:</p>
+                        @(Html.Kendo().ComboBoxFor(m => m.CustomerId)
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Placeholder("Chọn khách hàng...")
+                            .Suggest(true)
+                            .Filter("contains")
+                            .Name("CustomerId")
+                            .HtmlAttributes(new { id = "ComboboxCustomer" })
+                            .Events(ev => ev.DataBound("onDataBound"))
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("Get_Customers", "TLBsPromise");
+                                })
+                                .ServerFiltering(true);
+                            })
+            //.Events(e => e.DataBound("onDataBoundCombobox").Change("onChangeCombobox"))
+            )
+                    </div>
+                </div>
+                <div class="flex">
+                    <div>
+                        @*<p class="text-hide-custom">Xuất</p>*@
+                        <span class="btn-download btn-plan-drive radius-button export" id="export">
+                            <span class="text-14-500 padding-text-plan-drive report-export">Chạy báo cáo</span>
+                        </span>
+                    </div>
+                    <div>
+                        @*<p class="text-hide-custom">Tải</p>*@
+                        <span class="btn-download btn-plan-drive radius-button" id="download">
+                            <input type="submit" value="Tải file excel" class="text-14-500 padding-text-plan-drive report-download" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="container-fluid" id="dealDetail">
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="box">
+                    <div class="box-content nopadding">
+                        <div class="report-title">
+                            <h1 class="title-report">@ViewBag.title</h1>
+                            <h2 id="customer-name" class="customer-des"></h2>
+                            <h2 id="customer-phone" class="customer-des"></h2>
+                            <h2 id="customer-email" class="customer-des"></h2>
+                            <h2 id="report-time" class="customer-des"></h2>
+                        </div>
+                        <div id="detail-report"></div>
+                        <script>
+                            var rowselected;
+                            var columns = [
+                                { field: "STT", title: "Thứ tự", width: "100px", hidden: true },
+                                { field: "STT", title: "Thứ tự", width: "100px", hidden: true },
+                                { field: "STT", title: "Thứ tự", width: "100px", hidden: true },
+                                { field: "STT", title: "Thứ tự", width: "100px", attributes: { "style": "text-align:center;" } },
+                                {
+                                    field: "InvestmentCode",
+                                    title: "Mã HĐ",
+                                    width: "100px",
+                                    footerTemplate: "Tổng cộng"
+                                },
+                                { field: "BondsCode", title: "Mã TP", width: "100px" },
+                                { field: "BondsName", title: "Tên TP", width: "150px" },
+                                { field: "InvestmentPurchaseDate", title: "Ngày hợp đồng", template: '#= kendo.toString(kendo.parseDate(InvestmentPurchaseDate), "dd/MM/yyyy")#', width: "150px", attributes: { "style": "text-align:center;" }},
+                                { field: "InvestmentPeriodDate", title: "Ngày đáo hạn", template: '#= kendo.toString(kendo.parseDate(InvestmentPeriodDate), "dd/MM/yyyy")#', width: "150px", attributes: { "style": "text-align:center;" }},
+                                {
+                                    field: "Count",
+                                    title: "Số lượng",
+                                    template: "#= (data.Count) ? kendo.format('{0:n0} ', parseFloat(data.Count)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: "#= (sum) ? kendo.format('{0:n0}', parseFloat(sum)) : '' #",
+                                    width: "100px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "Value",
+                                    title: "Giá trị mệnh giá (đ)",
+                                    template: "#= (data.Value) ? kendo.format('{0:n0}', parseFloat(data.Value)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: "#= (sum) ? kendo.format('{0:n0} đ', parseFloat(sum)) : '' #",
+                                    width: "250px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "RoundedPurchaseValue",
+                                    title: "Giá trị hợp đồng làm tròn (đ)",
+                                    template: "#= (data.RoundedPurchaseValue) ? kendo.format('{0:n0}', parseFloat(data.RoundedPurchaseValue)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: "#= (sum) ? kendo.format('{0:n0} đ', parseFloat(sum)) : '' #",
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "InvestmentInterestRate",
+                                    title: "Lãi suất coupon (%)",
+                                    template: "#= (data.InvestmentInterestRate) ? kendo.format('{0:n2}', parseFloat(data.InvestmentInterestRate)) : '' #",
+                                   
+                                    width: "180px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "AccruedInterest",
+                                    title: "Tổng trái tức/Lợi tức/Lãi theo HĐ (đ)",
+                                    template: "#= (data.AccruedInterest) ? kendo.format('{0:n0}', parseFloat(data.AccruedInterest)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: "#= (sum) ? kendo.format('{0:n0} đ', parseFloat(sum)) : '' #",
+                                    width: "300px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "RealIncome",
+                                    title: "Trái tức/Lợi tức/Lãi thực thu trong kỳ (đ)",
+                                    template: "#= (data.RealIncome) ? kendo.format('{0:n0}', parseFloat(data.RealIncome)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: "#= (sum) ? kendo.format('{0:n0} đ', parseFloat(sum)) : '' #",
+                                    width: "320px",
+                                    attributes: { "style": "text-align:right;" }
+                                },
+                                {
+                                    field: "Total",
+                                    title: "Tổng cộng (đ)",
+                                    template: "#= (data.Total) ? kendo.format('{0:n0}', parseFloat(data.Total)) : '' #",
+                                    aggregates: ["sum"],
+                                    footerTemplate: "#= (sum) ? kendo.format('{0:n0} đ', parseFloat(sum)) : '' #",
+                                    width: "150px",
+                                    attributes: { "style": "text-align:right;" }
+                                }];
+
+                            function loaddata(model) {
+                                if ($("#detail-report").data("kendoGrid") != null) {
+                                    $('#detail-report').html('');
+                                    delete $("#detail-report").data("kendoGrid")
+                                    $("#detail-report").data('kendoGrid').dataSource.data([]);;
+                                }
+                                $("#detail-report").kendoGrid({
+                                    dataSource: {
+                                        transport: {
+                                            read: {
+                                                url: "/admin/InvestmentReport/InvestmentReportRead/",
+                                                dataType: "json",
+                                                data: model,
+                                            }
+                                        },
+                                        aggregate: [
+                                            { field: "Value", aggregate: "sum" },
+                                            { field: "RoundedPurchaseValue", aggregate: "sum" },
+                                            { field: "Count", aggregate: "sum" },
+                                        
+                                            { field: "AccruedInterest", aggregate: "sum" },
+                                            { field: "RealIncome", aggregate: "sum" },
+                                            { field: "Total", aggregate: "sum" }
+                                        ],
+                                        emptyMsg: 'This grid is empty',
+                                        schema: {
+                                            model: {
+                                                ID: "ID",
+                                                fields: {
+                                                    
+                                                    STT: { type: "number" },
+                                                    InvestmentCode: { type: "string" },
+                                                    BondsCode: { type: "string" },
+                                                    BondsName: { type: "string" },
+                                                    InvestmentPurchaseDate: { type: "date" },
+                                                    InvestmentPeriodDate: { type: "date" },
+                                                    Count: { type: "number" },
+                                                    Value: { type: "number" },
+                                                    RoundedPurchaseValue: { type: "number" },
+                                                    InvestmentInterestRate: { type: "number" },
+                                                    AccruedInterest: { type: "number" },
+                                                    RealIncome: { type: "number" },
+                                                    Total: { type: "number" }
+                                                }
+                                            }
+                                        },
+                                    },
+                                    scrollable: true,
+                                    columns: columns,
+                                    filterable: true,
+                                    dataBinding: function () {
+                                        rowselected = new Array();
+                                    },
+                                    change: function (e) {
+                                        rowselected = [];
+                                        var len = this.select().length;
+                                        for (i = 0; i < len; i++) {
+                                            rowselected.push(this.dataItem(this.select()[i]).ID);
+                                        }
+                                    }
+                                });
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="d-flex justify-content-center">
+    <div class="loader" style="display:none; margin-top: 30px;"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        //datacombobox PRODUCT
+
+        $("#export").click(function () {
+            /* $(".loader").show();*/
+            if ($("#detail-report").data("kendoGrid") != null) {
+                $('#detail-report').html('');
+                delete $("#detail-report").data("kendoGrid")
+                $("#detail-report").data('kendoGrid').dataSource.data([]);;
+            }
+
+            var modelReport = {};
+            var timeString = $("#Time").val();
+            var timeArray = timeString.split(" đến ");
+            var startTime = timeArray[0];
+            var endTime = timeArray[1];
+            modelReport.StartTime = startTime;
+            modelReport.EndTime = endTime;
+            modelReport.Time = timeString;
+            modelReport.CustomerId = $("#ComboboxCustomer").val();
+
+            if (modelReport.CustomerId != null  && modelReport.CustomerId != "") {
+
+                $.ajax({
+                    url: "@Url.Action("GetUserInfo", "InvestmentReport")",
+                    contentType: "application/json",
+                    method: "post",
+                    data: JSON.stringify({ id: modelReport.CustomerId }),
+                    success: function (data) {
+                        if (data.success) {
+                            $("#customer-name").text(data.name);
+                            $("#customer-phone").text(data.phone);
+                            $("#customer-email").text(data.email);
+                        }
+                        else {
+                            $("#customer-name").text('');
+                            $("#customer-phone").text('');
+                            $("#customer-email").text('');
+                        }
+                    },
+                    error: function (d) {
+                        console.log(d.responseText);
+                    }
+                });
+
+                $("#report-time").text("Từ ngày " + startTime + " đến ngày " + endTime);
+                loaddata(modelReport);
+            }
+            else {
+
+                $("#customer-name").text('');
+                $("#customer-phone").text('');
+                $("#customer-email").text('');
+
+                alert("Vui lòng chọn khách hàng!");
+            }
+
+        });
+
+        $("#download").click(function (e) {
+            e.preventDefault();
+
+            if ($("#detail-report").data("kendoGrid") != null) {
+
+                //Kiểm tra dữ liệu rồi tải xuống
+                var dataSource = $("#detail-report").data("kendoGrid").dataSource.data();
+                var timeString = $("#Time").val();
+                var timeArray = timeString.split(" to ");
+                var startTime = timeArray[0];
+                var endTime = timeArray[1];
+
+                var models = [];
+                for (var i = 0; i < dataSource.length; i++) {
+                    var dataItem = dataSource[i];
+                    var model = {};
+                    model.InvestmentCode = dataItem.InvestmentCode;
+                    model.BondsCode = dataItem.BondsCode;
+                    model.BondsName = dataItem.BondsName;
+                    model.InvestmentPurchaseDate = dataItem.InvestmentPurchaseDate;
+                    model.InvestmentPeriodDate = dataItem.InvestmentPeriodDate;
+                    model.Count = dataItem.Count;
+                    model.Value = dataItem.Value;
+                    model.RoundedPurchaseValue = dataItem.RoundedPurchaseValue;
+                    model.InvestmentInterestRate = dataItem.InvestmentInterestRate;
+                    model.AccruedInterest = dataItem.AccruedInterest;
+                    model.RealIncome = dataItem.RealIncome;
+                    model.Total = dataItem.Total;
+
+                    models.push(model);
+                }
+
+                var dataString = JSON.stringify(models);
+                var dataExport = dataString.replace('"', "?");
+                $("input[name='DataExport']").val(dataExport);
+                $("input[name='StartTime']").val(startTime);
+                $("input[name='EndTime']").val(endTime);
+                $("input[name='CustomerId']").val($("#ComboboxCustomer").val());
+                setTimeout(function () {
+                    $("#general").submit();
+                }, 100);
+            }
+            else {
+                alert("Vui lòng chạy báo cáo trước khi tải!!");
+            }
+        });
+    });
+</script>

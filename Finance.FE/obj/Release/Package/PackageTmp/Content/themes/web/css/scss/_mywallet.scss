@@ -1,0 +1,19 @@
+.mywallet {
+    .bg-secondary {
+        background-color: red;
+    }
+
+    .widget-stat {
+        width: 70%;
+        margin-left: 15%;
+
+        @media (max-width:991px) {
+            width: 100%;
+            margin-left: 0;
+        }
+    }
+
+    .page-titles {
+        background-color: transparent;
+    }
+}

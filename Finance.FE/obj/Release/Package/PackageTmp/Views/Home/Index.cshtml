@@ -1,0 +1,25 @@
+﻿@model WebModels.WebModule
+
+@if (Model != null)
+{
+    try
+    {
+        if (Model.PublishIndexLayout != null)
+        {
+            Layout = Model.PublishIndexLayout;
+        }
+        else
+        {
+            Layout = "~/Views/Shared/_Layout_02.cshtml";
+        }
+        if (ViewBag.dashboard == 1)
+        {
+            @Html.Action("Index", "Home", new { area = "ContentType", m_id = Model.ID })
+        }
+        @Html.Action(Model.PublishIndexView == null ? "_PubIndex" : Model.PublishIndexView, Model.ContentType.Controller, new { area = "ContentType", m_id = Model.ID })
+        @*@Html.Action("Index", "Home", new { area = "ContentType", m_id = Model.ID })*@
+    }
+    catch (Exception) { }
+}
+
+

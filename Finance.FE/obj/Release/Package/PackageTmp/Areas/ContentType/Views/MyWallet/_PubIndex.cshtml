@@ -1,0 +1,448 @@
+﻿@model WebModels.UserProfile
+@{
+    var webmodule = (WebModule)ViewBag.WebModule;
+    var moduletran = webmodule;
+    var background = String.IsNullOrEmpty(webmodule.Image) ? "/content/themes/web/img/bg-title1.png" : webmodule.Image;
+    var codecolor = String.IsNullOrEmpty(webmodule.CodeColor) ? "#b200b2" : webmodule.CodeColor;
+    var urlcat = webmodule.URL;
+    if (string.IsNullOrEmpty(webmodule.URL) || string.IsNullOrWhiteSpace(webmodule.URL))
+    {
+        urlcat = Url.Action("Index", "Home", new { metatitle = webmodule.MetaTitle != null ? webmodule.MetaTitle : "web", id = webmodule.ID, area = "" });
+    }
+    TempData["Title"] = Utility.UseStringHasValue(webmodule.SeoTitle, webmodule.Title);
+    TempData["Description"] = Utility.UseStringHasValue(webmodule.MetaDescription, webmodule.Description);
+    TempData["Keywords"] = Utility.UseStringHasValue(webmodule.MetaKeywords, webmodule.SeoTitle);
+    TempData["URL"] = ApplicationService.Domain + urlcat;
+    TempData["Cat"] = webmodule.Title;
+    TempData["ID"] = webmodule.ID;
+}
+
+
+
+<div class="mywallet">
+    @Html.Action("SiteMapUser","Home", new {area="", id = webmodule.ID })
+    <div class="row card-count">
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="widget-stat card bg-secondary">
+                <div class="card-body p-4">
+                    <div class="media">
+                        <span class="mr-5" style="margin-right: 10px;">
+                            <i class="la la-graduation-cap"></i>
+                        </span>
+                        <div class="media-body text-white">
+                            <h3 class="text-white numbersize mb-1">@ViewBag.CountTypeOfAssets</h3>
+                            <p>Tổng số lượng các loại trái phiếu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-sm-12 ">
+            <div class="widget-stat card bg-danger hoverPointer" title="@ViewBag.SumValueViewDetail">
+                <div class="card-body p-4">
+                    <div class="media">
+                        <span class="mr-5" style="margin-right: 10px;">
+                            <i class="la la-dollar"></i>
+                        </span>
+                        <div class="media-body text-white">
+                            <h3 class="text-white numbersize mb-1">$ @ViewBag.SumValueView</h3>
+                            <p>Tổng giá trị tài sản gốc (Đvt: 1,000,000,000 VNĐ)</p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-sm-12 ">
+            <div class="widget-stat card bg-primary hoverPointer" title="@ViewBag.SumInteresViewDetail">
+                <div class="card-body p-4">
+                    <div class="media">
+                        <span class="mr-5" style="margin-right: 10px;">
+                            <i class="flaticon-381-controls-3"></i>
+                        </span>
+                        <div class="media-body text-white">
+                            <h3 class="text-white numbersize mb-1">$ @ViewBag.SumInteresView</h3>
+                            <p>Giá trị lợi tức/Trái tức thực nhận (Đvt: 1,000,000,000 VNĐ)</p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+        @*<div class="col-lg-6 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Phân bổ tài sản</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="chart1" width="50%" height="auto"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Biến động tài sản đầu tư</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="lineChartUser" width="30px" height="auto"></canvas>
+                </div>
+            </div>
+        </div>*@
+        <div class="row">
+            <div class="col-lg-6 col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Phân bổ tài sản</h4>
+                    </div>
+                    <div class="card-body chart-cursor">
+                        <canvas id="chart1"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Biến động tài sản đầu tư</h4>
+                    </div>
+                    <div class="card-body chart-cursor">
+                        <canvas id="lineChartUser"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+</div>
+<script type="text/javascript">
+  @*  const ctx1 = document.getElementById('chart1').getContext('2d');
+    const chart1 = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });*@
+    var chartLineType = 'line';
+    var chartDoughnutType = 'doughnut';
+
+    var options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scaleShowLabels: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+        },
+        onHover: function (e) {
+            const points = this.getElementsAtEventForMode(
+                e,
+                'index', { axis: 'x', intersect: true },
+                false
+            );
+
+            if (points.length) e.native.target.style.cursor = 'pointer';
+            else e.native.target.style.cursor = 'pointer';
+        },
+        animation: {
+            easing: 'easeInOutQuad',
+            duration: 400
+        },
+        interaction: {
+            intersect: false,
+        },
+        scales: {
+            xAxes: [{
+                barPercentage: 0.1,
+                gridLines: {
+                    display: false
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    color: 'rgba(200, 200, 200, 0.08)',
+                    lineWidth: 1
+                },
+                min: 0,
+                ticks: {
+                    beginAtZero: true
+                }
+            }],
+            x: {
+                grid: { display: false },
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 6
+                },
+                barPercentage: 0.1,
+            },
+            y: {
+                grid: { display: false },
+                min: 0,
+            }
+        },
+        elements: {
+            line: {
+                tension: 0
+            }
+        },
+        point: {
+            backgroundColor: 'white'
+        },
+        legend: {
+            onHover: function (e) {
+                e.target.style.cursor = 'pointer';
+            }
+        },
+        hover: {
+            onHover: function (e) {
+                var point = this.getElementAtEvent(e);
+                if (point.length) e.target.style.cursor = 'pointer';
+                else e.target.style.cursor = 'pointer';
+            }
+        },
+        tooltips: {
+            titleFontFamily: 'Open Sans',
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            titleFontColor: 'red',
+            caretSize: 5,
+            cornerRadius: 2,
+            xPadding: 10,
+            yPadding: 10,
+            callbacks: {
+                title: function (tooltipItem, data) {
+                    var title = "";
+                    return title;
+                },
+                label: function (tooltipItem, data) {
+                    return tooltipItem.xLabel;
+                }
+            }
+        }
+    };
+
+    // line chart
+    var xAxesLineChart = [];
+    var yAxesLineChart = [];
+
+    var xAxesDougnutChart = [];
+    var yAxesDougnutChart = [];
+    var zAxesDougnutChart = [];
+
+
+    var ctxLineChart = document.getElementById('lineChartUser').getContext('2d');
+    var ctxDougnutChart = document.getElementById('chart1').getContext('2d');
+
+    var gradient = ctxLineChart.createLinearGradient(0, 0, 0, 450);
+    gradient.addColorStop(0, 'rgba(39, 174, 96, 0.2)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    var contractUserData = {
+        labels: xAxesLineChart,
+        datasets: [{
+            label: 'Tài sản đầu tư của khách hàng',
+            fill: true,
+            borderColor: "#2763c9",
+            pointBorderColor: "#2763c9",
+            pointBackgroundColor: "#FFFFFF",
+            pointHoverBackgroundColor: "#2763c9",
+            pointHoverBorderColor: "#2763c9",
+            pointBorderWidth: 1,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 1,
+            pointRadius: 3,
+            borderWidth: 2,
+            borderRadius: 2,
+            backgroundColor: "#FFFFFF",
+            data: yAxesLineChart,
+            barPercentage: 0.5,
+            maxBarThickness: 100,
+            tension: 0
+        }]
+    };
+
+    var contractUser = new Chart(ctxLineChart, {
+        type: chartLineType,
+        data: contractUserData,
+        options: options
+    });
+
+    const dataDougnutChart = {
+
+        labels: xAxesDougnutChart,
+            datasets: [{
+                label: 'Phân bổ tài sản',
+                data: yAxesDougnutChart,
+                backgroundColor: zAxesDougnutChart,
+
+
+            }]
+
+    };
+
+    var doughnutChart = new Chart(ctxDougnutChart, {
+        type: chartDoughnutType,
+        data: dataDougnutChart,
+        options: {
+            plugins: {
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        footer: (ttItem) => {
+                            let sum = 0;
+                            let dataArr = ttItem[0].dataset.data;
+                            dataArr.map(data => {
+                                sum += Number(data);
+                            });
+
+                            let percentage = (ttItem[0].parsed * 100 / sum).toFixed(2) + '%';
+                            return `Tỷ lệ: ${percentage}`;
+                        }
+                    }
+                }
+            }
+        }
+
+    });
+
+
+     var x = 0;
+
+    document.getElementById("chart1").onclick = clickHandler;
+
+    function clickHandler(evt) {
+        const points = doughnutChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+
+        if (points.length) {
+            const firstPoint = points[0];
+            const label = doughnutChart.data.labels[firstPoint.index];
+            @*const value = doughnutChart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];*@
+
+            xAxesDougnutChart.splice(0, xAxesDougnutChart.length);
+            yAxesDougnutChart.splice(0, yAxesDougnutChart.length);
+            zAxesDougnutChart.splice(0, zAxesDougnutChart.length);
+
+            //x=0 => detail ; x=1 => main
+            if (x == 0) {
+                $.ajax({
+                     url: '@Url.Action("GetTotalMoneyUserDetail", "MyWallet", new { area = "ContentType" })',
+                    type: "get",
+                    dataType: "json",
+                    data: { label: label },
+                    success: function (response) {
+                        for (var i = 0; i < response.length; i++) {
+                            xAxesDougnutChart.push(response[i].xAxes);
+                            yAxesDougnutChart.push(response[i].yAxes);
+                            zAxesDougnutChart.push(response[i].zAxes);
+                        }
+                        doughnutChart.update();
+                        x = 1;
+                    },
+                    error: function (xhr) {
+                    }
+                });
+            } else {
+                 $.ajax({
+                    url: '@Url.Action("GetTotalMoneyUser", "MyWallet", new { area = "ContentType" })',
+                    dataType: "json",
+                    success: function (response) {
+                        for (var i = 0; i < response.length; i++) {
+                            xAxesDougnutChart.push(response[i].xAxes);
+                            yAxesDougnutChart.push(response[i].yAxes);
+                            zAxesDougnutChart.push(response[i].zAxes);
+                        }
+                        doughnutChart.update();
+                        x = 0;
+                    },
+                    error: function (xhr) {
+                    }
+                });
+            }
+
+        }
+    }
+
+
+    $(document).ready(function () {
+        readDataLineChart();
+        readDataDougnutChart();
+    });
+
+    function readDataLineChart() {
+        xAxesLineChart.splice(0, xAxesLineChart.length);
+        yAxesLineChart.splice(0, yAxesLineChart.length);
+
+        $.ajax({
+            url: '@Url.Action("GetSumUserValueContract", "MyWallet", new { area = "ContentType" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    xAxesLineChart.push(response[i].xAxes);
+                    yAxesLineChart.push(response[i].yAxes);
+                }
+
+                contractUser.update();
+            },
+            error: function (xhr) {
+            }
+        });
+
+    }
+
+   function readDataDougnutChart() {
+        xAxesDougnutChart.splice(0, xAxesDougnutChart.length);
+       yAxesDougnutChart.splice(0, yAxesDougnutChart.length);
+       zAxesDougnutChart.splice(0, zAxesDougnutChart.length);
+
+
+        $.ajax({
+            url: '@Url.Action("GetTotalMoneyUser", "MyWallet", new { area = "ContentType" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    xAxesDougnutChart.push(response[i].xAxes);
+                    yAxesDougnutChart.push(response[i].yAxes);
+                    zAxesDougnutChart.push(response[i].zAxes);
+                }
+                doughnutChart.update();
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+</script>

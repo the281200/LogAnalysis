@@ -1,0 +1,25 @@
+﻿
+<div class="notification-header" id="notifi">
+    <img src="/Content/themes/admin/img/notification.png" class="img-noti"/>
+    @if (ViewBag.IsRead != true)
+    {
+        <div class="circle-noti">
+            <span> @ViewBag.TotalCount </span>
+        </div>
+    }
+
+</div>
+
+<script>
+    $("#notifi").click(function () {
+
+        $.post('@Url.Action("ChangeStatusReadNoti", "Account", new { area = ""})',function (data) {
+            if (data.success) {
+                location.href = "/thong-bao-hop-dong-3128";
+               @* @Url.Action("_PubIndex", "ContractWarning", new { area = "ContentType"})*@
+            }
+
+        });
+
+    });
+</script>

@@ -1,0 +1,8 @@
+﻿
+
+@(Html.Kendo().DropDownListFor(m=>m)
+    //.Name("Dropdown")
+    .DataValueField("Id")
+    .DataTextField("Name")
+     .BindTo((System.Collections.IEnumerable)ViewData["Incurred"])
+)

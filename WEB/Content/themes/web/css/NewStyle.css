@@ -1,0 +1,121 @@
+﻿.col-form-label {
+    padding-top: 15px;
+}
+
+.h-100 {
+    top: 25vh;
+}
+
+.validate-input {
+    color: red;
+}
+
+.field-validation-error {
+    color: red;
+    font-size: 12px;
+}
+
+.login-form {
+    background-repeat: no-repeat;
+    height: 100vh;
+    background: linear-gradient(-90deg,#fe6a24d6,#532278);
+}
+
+.authincation-content {
+    background: White;
+    border-radius: 15px;
+}
+
+.auth-form h4 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    text-align: center;
+    color: #333;
+}
+
+.text-label {
+    color: #585858;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-control {
+    border-radius: 0;
+    background: #fff;
+    color: #B1B1B1;
+    height: 56px;
+    border-radius: 8px;
+    border: 1px solid #dddddd;
+    background-color: white !important;
+    background: white;
+}
+
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: #bb511d;
+        outline: 0;
+        box-shadow: 0 0 0 0.4rem rgb(229 196 174 / 10%);
+    }
+
+.img-company {
+    width: 56%;
+    margin: 0.8rem auto;
+}
+
+.form-signin button {
+    background-color: #eda01d !important;
+    color: white;
+}
+
+.btn:focus {
+    box-shadow: 0 0 0 0.4rem rgb(229 196 174 / 10%);
+}
+
+.btn:hover {
+    color: white;
+}
+
+::selection {
+    color: #fff;
+    background: #ce6b3c;
+}
+
+.custom-control-label {
+    line-height: 24px;
+    padding: 0 8px;
+    font-size: 14px;
+}
+
+.remember-pass {
+    color: #7e7e7e;
+    font-size: 14px !important;
+}
+
+.nav-header img.logo-abbr {
+    max-width: 40px;
+}
+
+/*.nav-header .brand-logo {
+    padding-right: 0px;
+    padding-left: 34px;
+    justify-content: space-between;
+}*/
+
+.nav-header .brand-title {
+    max-width: 60%;
+    margin-left: 40px;
+    text-align: center;
+}
+
+/*.nav-header {
+    margin-top: 20px;
+}*/
+.hoverPointer:hover {
+    cursor: pointer;
+}
+
+

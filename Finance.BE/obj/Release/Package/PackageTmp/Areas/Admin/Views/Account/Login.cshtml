@@ -1,0 +1,154 @@
+﻿@model WebModels.LoginModel
+@{
+    ViewBag.Title = " " + WebModels.AccountResources.SignIn;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://kit.fontawesome.com/a81368914c.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class='login' id="loginModal">
+    <img class="wave" src="~/Content/themes/admin/img/wave.png">
+    <div class="container-login">
+        <div class="img-login">
+            <img src="~/Content/themes/admin/img/delivery-truck.svg">
+        </div>
+        <div class="login-content">
+            <div action="index.html" class="form-login">
+                <img src="~/Content/themes/admin/img/tlbonds.jpg" class="img-company">
+                <div class="login-header mb-5">HỆ THỐNG QUẢN LÝ DANH MỤC ĐẦU TƯ </div>
+                @*<h2>@WebModels.AccountResources.SignIn </h2>*@
+                @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-validate", @id = "login-admin" }))
+                {
+                    @*<div class="input-div-login one">
+                            <div class="i">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="div email">
+                                <h5>Tên đăng nhập</h5>
+                                @Html.TextBoxFor(m => m.UserName, new { @class = "input", @value = Model.UserName })
+                            </div>
+                        </div>
+                        <div class="input-div-login pass">
+                            <div class="i">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="div pw">
+                                <h5>Mật khẩu</h5>
+                                <div class="input-group-addon input-show-pass">
+                                    <i class="fas fa-eye-slash"></i>
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                @Html.PasswordFor(m => m.Password, new { @class = "input", @value = Model.Password })
+
+                            </div>
+                        </div>*@
+
+                    <div class="form-group">
+                        <label class="mb-1 text-label"><strong>Tên đăng nhập</strong></label>
+                        @Html.TextBoxFor(m => m.UserName, new { @placeholder = "", @class = "form-control input", @name = "code", @value = Model.UserName })
+                        @Html.ValidationMessageFor(m => m.UserName)
+
+                        <p class="validate-input" id="code"></p>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="mb-1 text-label">
+                            <strong>Mật khẩu</strong>
+                            <div class="input-group-addon input-show-pass">
+                                <i class="fas fa-eye-slash"></i>
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            @Html.PasswordFor(m => m.Password, new { @placeholder = "", @class = "form-control input", @name = "pass", @value = Model.Password })
+                            @Html.ValidationMessageFor(m => m.Password)
+                            <p class="validate-input" id="pass"></p>
+                        </div>
+                    </div>
+
+                    @Html.ValidationSummary(true)
+                    <div class="forgot-password flex">
+                        <div class="flex">
+                            @Html.CheckBoxFor(m => m.RememberMe, new Dictionary<string, object> {
+                                { "class", "icheck-me" },{"data-skin","square"},{"data-color","orange"},{"id","remember"}
+                            })
+                            <label for="remember">@WebModels.AccountResources.RememberMe</label>
+                        </div>
+                        <a href="#forgotPasswordModal">@WebModels.AccountResources.ForgotPassword?</a>
+
+                    </div>
+                    <input type="submit" class="btn-login" value="@WebModels.AccountResources.SignInMe">
+                    @Html.AntiForgeryToken()
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Action("_PVForgotPasswordModal", "Account", new { area = "Admin" })
+
+<script>
+    $('a[href$="#forgotPasswordModal"]').on("click", function () {
+        $('#forgotPasswordModal').modal('show');
+    });
+
+    const inputs = document.querySelectorAll(".input");
+
+    $(document).ready(function () {
+        $(".fa-eye").hide();
+
+        $(".fa-eye-slash").click(function () {
+            $(this).toggleClass("fas fa-eye-slash");
+            $(this).toggleClass("fas fa-eye");
+
+            var input = $("#Password");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+
+        $(".fa-eye").click(function () {
+            $(this).toggleClass("fas fa-eye-slash");
+            $(this).toggleClass("fas fa-eye");
+
+            var input = $("#Password");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+    });
+
+
+    function addcl() {
+        let parent = this.parentNode.parentNode;
+        parent.classList.add("focus");
+    }
+
+    function remcl() {
+        let parent = this.parentNode.parentNode;
+        if (this.value == "") {
+            parent.classList.remove("focus");
+        }
+    }
+
+
+    inputs.forEach(input => {
+        input.addEventListener("focus", addcl);
+        input.addEventListener("blur", remcl);
+    });
+
+    document.getElementById('UserName').value = "";
+    document.getElementById('Password').value = "";
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

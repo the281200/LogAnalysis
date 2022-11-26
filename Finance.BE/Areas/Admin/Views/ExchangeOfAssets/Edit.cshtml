@@ -1,0 +1,338 @@
+﻿@model  WEB.Models.ExchangeOfAssetViewModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+@using (Html.BeginForm("Edit", "ExchangeOfAssets", FormMethod.Post, new { @id = "debt", enctype = "multipart/form-data", @class = "form-change-car" }))
+{
+    <div>
+        <div class="flex">
+            <div class="width-text-modal ">
+                @Html.Label("Ngày phát sinh", new { @class = "control-label" })
+            </div>
+            <div class="">
+                @(Html.Kendo().DatePicker()
+                    .Name("incurred") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                    .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                    .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                    .HtmlAttributes(new { type = "text" })
+                    .Culture("vi-VN")
+                    .Value(Model.IncurredDate)
+                    )
+                <br />
+                @Html.ValidationMessageFor(m => m.IncurredDate)
+                @Html.ValidationMessage("CustomErrorDate", new { @class = "field-validation-timer" })
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Người bán", new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @(Html.Kendo().ComboBoxFor(m=>m.Seller)
+          .Name("Seller")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn người bán...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Seller", "ExchangeOfAssets");
+
+              })
+               .ServerFiltering(true);
+          })
+           .Suggest(true)
+           
+          
+    )
+                 @Html.ValidationMessageFor(m => m.Seller)
+               
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal ">
+                @Html.Label("Người mua", new { @class = "control-label" })
+
+            </div>
+            <div>
+                @(Html.Kendo().ComboBoxFor(m=>m.Buyer)
+          .Name("Buyer")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn người mua...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Buyer", "ExchangeOfAssets").Data("filterSeller");
+
+              })
+               .ServerFiltering(true);
+          })
+           .Enable(false)
+          .AutoBind(false)
+          .CascadeFrom("Seller")
+           .Suggest(true)
+            
+    )
+                @Html.ValidationMessageFor(m => m.Buyer)
+             
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal ">
+                @Html.Label("Tài sản", new { @class = "control-label" })
+
+            </div>
+            <div>
+                @(Html.Kendo().ComboBoxFor(m=>m.Asset)
+          .Name("Asset")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn Tài sản...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+         
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Asset", "ExchangeOfAssets").Data("filterAsset");
+
+              })
+               .ServerFiltering(true);
+          })
+          .Enable(false)
+          .AutoBind(false)
+          .CascadeFrom("Seller")
+          .Events(e =>
+          {
+              e.Change("getInterest");
+          })
+    )
+                @Html.ValidationMessageFor(m => m.Asset)
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Mã trái phiếu", new { @class = "control-label margin-text-role"  })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.AssetCategorysId, new { type = "text", name = "AssetCategorysId", id = "AssetCategorysId", @class = "input-block-level", @readonly = "readonly" })
+                @Html.ValidationMessageFor(m => m.AssetCategorysId)
+                @Html.ValidationSummary(true)
+
+            </div>
+            
+        </div>
+       
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Số lượng", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.StringNumber, new { type = "text", id = "StringNumber", name = "StringNumber", @class = "input-block-level", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this) ; showMoney();" })
+                @Html.HiddenFor(m => m.Number)
+                @Html.ValidationMessageFor(m => m.StringNumber)
+                @Html.ValidationMessageFor(m => m.Number)
+                @Html.ValidationSummary(true)
+
+            </div>
+
+        </div>
+
+         <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Đơn giá chuyển nhượng", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.StringUnitPrice, new { type = "text", name = "StringUnitPrice", @class = "input-block-level", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this) ; showMoney();" })
+                @Html.HiddenFor(m => m.UnitPrice)
+                @Html.ValidationMessageFor(m => m.StringUnitPrice)
+                @Html.ValidationMessageFor(m => m.UnitPrice)
+                @Html.ValidationSummary(true)
+
+            </div>
+            <p class="unit" style="padding-left: 10px; padding-bottom: 30px;">VNĐ</p>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Giá trị tài sản", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.StringValue, new { type = "text", id = "StringValue", name = "StringValue", @class = "input-block-level", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)" })
+                @Html.HiddenFor(m => m.Value)
+                @Html.ValidationMessageFor(m => m.StringValue)
+                @Html.ValidationMessageFor(m => m.Value)
+                @Html.ValidationSummary(true)
+
+            </div>
+            <p class="unit" style="padding-left: 10px; padding-bottom: 30px;">VNĐ</p>
+        </div>
+       
+       
+
+        
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Giá bán", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.StringPrice, new { type = "text", name = "StringPrice", @class = "input-block-level", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)" })
+                @Html.HiddenFor(m => m.Price)
+                @Html.ValidationMessageFor(m => m.StringPrice)
+                @Html.ValidationMessageFor(m => m.Price)
+                @Html.ValidationSummary(true)
+
+            </div>
+            <p class="unit" style="padding-left: 10px; padding-bottom: 30px;">VNĐ</p>
+        </div>
+       
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Lãi suất chuyển nhượng", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.InterestFloat, new { type = "text", name = "Interest", id = "Interest", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.InterestFloat)
+                @Html.ValidationSummary(true)
+
+            </div>
+            <p class="unit" style="padding-left: 10px; padding-bottom: 30px;">%</p>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Ghi chú", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextAreaFor(m => m.Note, new { type = "text", name = "Mô tả nhóm", @class = "input-area-level" })
+                @Html.ValidationMessageFor(m => m.Note)
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+        <div class="validation-group"><div class="controls">@Html.ValidationSummary(true)</div></div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit"><i class="icon-save"></i>@Resources.Common.SaveChanges</button></div> @Html.AntiForgeryToken()
+    </div>
+}
+<script type="text/javascript">
+
+
+
+     function showMoney() {
+
+        var ExchangeOfAsset = {};
+         ExchangeOfAsset.Number = $("#StringNumber").val().replace(/,/g, "");
+         ExchangeOfAsset.UnitPrice = $("#StringUnitPrice").val().replace(/,/g, "");
+
+             $.ajax({
+                    url: "@Url.Action("CalMoney", "ExchangeOfAssets")",
+                    contentType: "application/json",
+                    method: "post",
+                 data: JSON.stringify({ model: ExchangeOfAsset}),
+                 success: function (data) {
+                     document.getElementById("StringValue").value = data.Value;
+
+                     @*if ($("#Value").val() == "") {
+                         $("#err-money").css("display", "block");
+                     }
+                     else {
+                         $("#err-money").css("display", "none");
+                     }*@
+                    },
+            error: function (d) {
+                console.log(d.responseText);
+                          }
+                    });
+    }
+
+    
+
+    function getInterest() {
+
+            var BuyAndSellBond = {};
+        BuyAndSellBond.Id = $("#Asset").val();
+
+             $.ajax({
+                    url: "@Url.Action("FindInterest", "ExchangeOfAssets")",
+                    contentType: "application/json",
+                    method: "post",
+                 data: JSON.stringify({ model: BuyAndSellBond}),
+                 success: function (data) {
+                     document.getElementById("Interest").value = data.Interest;
+                     document.getElementById("AssetCategorysId").value = data.AssetCategory;
+
+                    @* if ($("#Interest").val() == "") {
+                         $("#err-price").css("display", "block");
+                     }
+                     else {
+                         $("#err-price").css("display", "none");
+                     }*@
+                    },
+            error: function (d) {
+                console.log(d.responseText);
+                          }
+                    });
+    }
+    $(document).ready(function () {
+        if (screen.width > 1500) {
+            top.winsetup("Sửa quản lý chuyển nhượng tài sản", 700, 660, true);
+        } else if (screen.width < 450) {
+            top.winsetup("Sửa quản lý chuyển nhượng tài sản", 335, 300, true);
+        }
+        else {
+            top.winsetup("Sửa quản lý chuyển nhượng tài sản", 700, 660,true);
+        }
+
+
+
+        $("#debt").submit(function () {
+            StringValue = $("input[name='StringValue']").val();
+            $("input[name='Value']").val(StringValue.replace(/,/g, ""));
+
+            StringPrice = $("input[name='StringPrice']").val();
+            $("input[name='Price']").val(StringPrice.replace(/,/g, ""));
+
+
+            StringNumber = $("input[name='StringNumber']").val();
+            $("input[name='Number']").val(StringNumber.replace(/,/g, ""));
+
+            StringUnitPrice = $("input[name='StringUnitPrice']").val();
+            $("input[name='UnitPrice']").val(StringUnitPrice.replace(/,/g, ""));
+
+          
+
+            return true;
+
+
+        });
+
+
+    });
+    function edit_success() {
+        top.winclose();
+        top.$("#grid").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Sửa chuyển nhượng tài sản', 'Sửa thành công.');
+    }
+    function filterAsset() {
+        return {
+            Seller: $("#Seller").val(),
+            assetFilter: $("#Asset").data("kendoComboBox").input.val()
+        };
+    }
+    function filterSeller() {
+        return {
+            Seller: $("#Seller").val()
+
+        };
+    }
+
+</script>

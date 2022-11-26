@@ -1,0 +1,148 @@
+﻿@model WebModels.CustomerModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+@using (Html.BeginForm("AddIndividualCustomers", "Customer", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-change-car" }))
+{
+    <div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.FullName, new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.FullName, new { type = "text", name = "Tên nhóm", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.FullName)
+
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Giới tính", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @(Html.Kendo().ComboBoxFor(m=>m.Gender)
+          .Name("Gender")
+          //.HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn giới tính...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Gender", "Customer");
+
+              })
+               .ServerFiltering(false);
+          })
+
+
+    )
+
+
+                @Html.ValidationMessageFor(m => m.Gender)
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Email, new { type = "text", name = "Tên nhóm", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Email)
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Mobile, new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Mobile, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Mobile)
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Passport, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Passport, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Passport)
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Address, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Address, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Address)
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.LabelFor(m => m.Infomation, new { @class = "control-label" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.Infomation, new { type = "text", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.Infomation)
+            </div>
+        </div>
+
+        @*  <div class="flex">
+                <div class="width-text-modal">
+                    @Html.LabelFor(m => m.Avatar, new { @class = "control-label" })
+                </div>
+                <div class="controls">
+                    <div class="fileupload fileupload-new" data-provides="fileupload">
+                        <div class="fileupload-new thumbnail" style="max-width: 120px; max-height: 100px;">
+                            <img src="@ApplicationService.NoImage" />@Html.HiddenFor(m => m.Avatar)
+                        </div>
+                        <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 120px; max-height: 100px; line-height: 20px;"></div>
+                        <div>
+                            <span class="btn btn-file"><span class="fileupload-new">Tải ảnh</span><span class="fileupload-exists">Tải ảnh</span><input type="file" name='image' /></span>
+                            <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Hủy</a>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+        <div class="validation-group">
+            <div class="controls">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">@Resources.Common.SaveChanges</button>
+        </div>
+    </div>
+    @Html.AntiForgeryToken()
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (screen.width > 1500) {
+            top.winsetup("Thêm tài khoản khách hàng", 1440 * 0.5, screen.height * 0.7, true);
+        } else if (screen.width < 450) {
+            top.winsetup("Thêm tài khoản khách hàng", 335, 350, true);
+        }
+        else {
+            top.winsetup("Thêm tài khoản khách hàng", 600, 500, true);
+        }
+    });
+    function create_success() {
+        top.$("#window").data("kendoWindow").close();
+        top.$("#grid1").data("kendoGrid").dataSource.read();
+        top.$("#grid2").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Thêm tài khoản khách hàng cá nhân', 'Thêm thành công.');
+
+    }
+</script>
+

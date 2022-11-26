@@ -1,0 +1,209 @@
+﻿@model WebModels.New
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+@using (Html.BeginForm("Edit", "News", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-change-car" }))
+{
+<div>
+
+    <div class="flex">
+        <div class="width-text-modal">
+            @Html.Label("Khách hàng", new { @class = "control-label" })
+            <span class="form-obligatory">*</span>
+        </div>
+        <div>
+            @(Html.Kendo().ComboBoxFor(m=>m.CustomerId)
+        .Name("CustomerId")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn khách hàng...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Customers", "BuyAndSellBond");
+
+              })
+               .ServerFiltering(false);
+
+          })
+    )
+              @Html.ValidationMessageFor(m => m.CustomerId)
+           
+        </div>
+    </div>
+    <div class="flex">
+        <div class="width-text-modal">
+            @Html.Label("Tài sản", new { @class = "control-label" })
+
+        </div>
+        <div>
+            @(Html.Kendo().ComboBoxFor(m=>m.BuyAndSellBondId)
+          .Name("BuyAndSellBondId")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn loại tài sản...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_BuyAndSellBonds", "News").Data("filterCustomer"); ;
+
+              })
+               .ServerFiltering(true);
+
+          })
+          .Enable(false)
+              .AutoBind(false)
+              .CascadeFrom("CustomerId")
+    )
+            @Html.ValidationMessageFor(m => m.BuyAndSellBondId)
+        </div>
+    </div>
+
+    <div class="flex">
+        <div class="width-text-modal">
+            @Html.LabelFor(m => m.Title, new { @class = "control-label" })
+        </div>
+        <div>
+            @Html.TextBoxFor(m => m.Title, new { type = "text", @class = "input-block-level" })
+            @Html.ValidationMessageFor(m => m.Title)
+        </div>
+    </div>
+
+
+    <div class="flex">
+        <div class="width-text-modal">
+            @Html.LabelFor(m => m.Image, new { @class = "control-label" })
+        </div>
+        <div class="controls">
+            <div class="fileupload fileupload-new" data-provides="fileupload">
+                <div class="fileupload-new thumbnail" style="max-width: 120px; max-height: 100px;">
+                    <img src="@String.Format("{0}",!string.IsNullOrEmpty(Model.Image)?Model.Image:ApplicationService.NoImage)" />@Html.HiddenFor(m => m.Image)
+                </div>
+                <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 120px; max-height: 100px; line-height: 20px;"></div>
+                <div>
+                    <span class="btn btn-file"><span class="fileupload-new">Tải ảnh</span><span class="fileupload-exists">Tải ảnh</span><input type="file" name='image' /></span>
+                    <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Hủy</a>
+                </div>
+            </div>
+            @Html.ValidationMessageFor(m => m.Image)
+
+        </div>
+    </div>
+
+    <div class="row-fluid control-group">
+        <div style="width:99%;">
+            <div class="box">
+                <div class="box-title">
+                    <h3><i class="icon-th"></i>  @Html.DisplayNameFor(m => m.Body)</h3>
+                </div>
+                <div class="box-content nopadding">
+                    @Html.TextAreaFor(m => m.Body, new { @id = "ckeditor", @style = "height:550px;" })
+                    <script type="text/javascript">
+                                    var editor = CKEDITOR.replace('ckeditor', {
+                                        customConfig: '/content/ckeditor/config.js',
+                                        filebrowserBrowseUrl: '/admin/upload/file?uid=@ViewBag.GAK',
+                                        filebrowserImageBrowseUrl: '/admin/upload/image?uid=@ViewBag.GAK',
+                                        filebrowserImageUploadUrl: '/admin/upload/imageck?uid=@ViewBag.GAK',
+                                        filebrowserFlashBrowseUrl: '/admin/upload/flash?uid=@ViewBag.GAK',
+                                        filebrowserFlashUploadUrl: '/admin/upload/flashck?uid=@ViewBag.GAK',
+                                        height: '400px'
+                                    });
+                    </script>
+                    @Html.ValidationMessageFor(m => m.Body)
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="validation-group">
+        <div class="controls">
+            @Html.ValidationSummary(true)
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">@Resources.Common.SaveChanges</button>
+    </div>
+</div>
+    @Html.AntiForgeryToken()
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (screen.width > 1500) {
+            top.winsetup("Sửa tin tức", 1440 * 0.7, screen.height * 0.7, true);
+        } else if (screen.width < 450) {
+            top.winsetup("Sửa tin tức", 335, 350, true);
+        }
+        else {
+            top.winsetup("Sửa tin tức", 600, 500, true);
+        }
+    });
+    function edit_success() {
+        top.$("#window").data("kendoWindow").close();
+        top.$("#grid").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Sửa tin tức', 'Sửa thành công.');
+
+    }
+    
+
+    function filterCustomer() {
+        return {
+            customerId: $("#CustomerId").val()
+        };
+    }
+
+    var imageFilter = new Array('.jpg', '.png', '.gif', '.bmp');
+    function checkFileType(file, filter) {
+        var fileName = file.name;
+        var fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+        if (filter.indexOf(fileExtension.toLowerCase()) < 0) {
+            return false;
+        }
+        return true;
+    }
+    var maxImageFileSize = 5242880;
+    function checkFileSize(file, maxFileSize) {
+        if (file.size > maxFileSize) {
+            return false;
+        }
+        return true;
+    }
+    var current_thumb = "";
+    $(document).ready(function () {
+        current_thumb = $('.thumb #image').val();
+    });
+    $('.file-image').change(function (e) {
+        var files = this.files;
+        if (files.length > 0) {
+            var i = 0;
+            var isValid = checkFileType(files[i], imageFilter) && checkFileSize(files[i], maxImageFileSize);
+            if (isValid) {
+                var reader = new FileReader();
+                reader.readAsDataURL(files[i]);
+                reader.onloadend = function (e) {
+                    var result = e.target.result;
+                    if (result != null) {
+                        $('.ctr-thumb .thumb img').attr('src', result);
+                    }
+                }
+            }
+            else {
+                alert('File: [' + files[i].name + '] tải lên không hợp lệ.\nFile hợp lệ là file ảnh có định dạng: ' + imageFilter.toString() + ' và dung lượng tối đa cho phép là: ' + maxImageFileSize / (1024 * 1024) + 'MB');
+            }
+        }
+    });
+    
+    function setimagepath(path) {
+        $('.ctr-thumb .thumb img').attr('src', path);
+        $('.ctr-thumb .thumb .hf-image').val(path);
+        var fileimage = $('.file-image');
+        fileimage = fileimage.replaceWith(fileimage.clone(true));
+    }
+
+</script>

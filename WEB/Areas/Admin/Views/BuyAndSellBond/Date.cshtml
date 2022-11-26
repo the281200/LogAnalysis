@@ -1,0 +1,9 @@
+﻿@model DateTime?
+
+@(Html.Kendo().DatePickerFor(m => m)
+      .Format("dd/MM/yyyy")
+    .HtmlAttributes(new { type = "text" , @class = "form-control" })
+    .ParseFormats(new string[] { "yyyy-MM-dd" })
+     .Culture("vi-VN"))
+    )
+

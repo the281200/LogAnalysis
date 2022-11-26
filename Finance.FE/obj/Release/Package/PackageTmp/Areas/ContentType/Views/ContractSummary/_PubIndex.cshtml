@@ -1,0 +1,390 @@
+﻿
+@model ReportViewModel
+@{
+    var webmodule = (WebModule)ViewBag.WebModule;
+    var moduletran = webmodule;
+    var urlcat = webmodule.URL;
+    if (string.IsNullOrEmpty(webmodule.URL) || string.IsNullOrWhiteSpace(webmodule.URL))
+    {
+        urlcat = Url.Action("Index", "Home", new { metatitle = webmodule.MetaTitle != null ? webmodule.MetaTitle : "web", id = webmodule.ID, area = "" });
+    }
+    TempData["Title"] = Utility.UseStringHasValue(webmodule.SeoTitle, webmodule.Title);
+    TempData["Description"] = Utility.UseStringHasValue(webmodule.MetaDescription, webmodule.Description);
+    TempData["Keywords"] = Utility.UseStringHasValue(webmodule.MetaKeywords, webmodule.SeoTitle);
+    TempData["URL"] = ApplicationService.Domain + urlcat;
+    TempData["Cat"] = webmodule.Title;
+    TempData["ID"] = webmodule.ID;
+}
+<script type="text/javascript">
+
+        //data table ajax
+        function genDataTable() {
+            var table = $("#report-investment").DataTable({
+            "destroy": true,
+            "processing": true,
+            "ajax": {
+                "url": "@Url.Action("GetInvestment", "ContractSummary", new {area = "ContentType" })",
+                "type": "POST",
+
+                "dataSrc": ""
+                },
+                "autoWidth": false,
+
+            "columns": [
+                { "data": "STT" },
+                { "data": "ContractCodeName" },
+                { "data": "BondsCodeName" },
+                {
+                    "data": "NumOfBondString"
+                },
+                {
+                    "data": "Value"
+                },
+                {
+                    "data": "RoundedPurchaseValue"
+                },
+                {
+                    "data": "InvestmentPurchaseDateString"
+                },
+                { "data": "CalculateInterestDateString" },
+                { "data": "PeriodDateString" },
+                { "data": "InterestPayPeriod" },
+                { "data": "PreTaxProfit" },
+                { "data": "ProfitAfterTax" },
+                { "data": "SumMoney" },
+                { "data": "Rates" },
+                {
+                    "data": "Status",
+
+                },
+            ],
+
+                columnDefs: [
+                    
+                    {
+                        targets: 4,
+                        render: $.fn.dataTable.render.number(',',3, '')
+
+                    },
+                    {
+                        targets: 5,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 7,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 9,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 10,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 11,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    },
+                    {
+                        targets: 12,
+                        render: $.fn.dataTable.render.number(',', 3, '')
+
+                    }
+                    ,
+                    {
+                        targets: 13,
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+
+                    }
+                ],
+               
+                rowCallback: function (row, data) {
+                    if (data["InvestmentPurchaseDateString"] == null) {
+                        $(row).children().attr('style', 'background: #faa5198c !important');
+                        $(row).addClass("table_bold_text");
+
+                    }
+                },
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+                    var numFormat = $.fn.dataTable.render.number(',', 3, '').display;
+                   
+                    // Total over all pages
+                    var totalValue1 = 0;
+                    var totalRoundedPurchaseValue1 = 0;
+                    var totalPreTaxProfit1 = 0;
+                    var totalProfitAfterTax1 = 0;
+                    var totalSumMoney1 = 0;
+
+
+                    // Total over all pages
+                    totalValue = api
+                        .rows(function (idx, data, node) {
+                            totalValue1 += data["InvestmentPurchaseDateString"] == null ? data["Value"] : 0;
+
+                            return data["InvestmentPurchaseDateString"] == null ?
+                                true : false;
+                        })
+                        .column(4)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    // Update footer
+                    $(api.column(4).footer()).html(
+                        numFormat(totalValue1)
+                    );
+
+
+
+                    // Total over all pages
+                    totalRoundedPurchaseValue = api
+                        .rows(function (idx, data, node) {
+                            totalRoundedPurchaseValue1 += data["InvestmentPurchaseDateString"] == null ? data["RoundedPurchaseValue"] : 0;
+
+                            return data["InvestmentPurchaseDateString"] == null ?
+                                true : false;
+                        })
+                        .column(5)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    // Update footer
+                    $(api.column(5).footer()).html(
+                        numFormat(totalRoundedPurchaseValue1)
+                    );
+
+                    
+
+                   
+                    // Total over all pages
+                    totalPreTaxProfit = api
+                        .rows(function (idx, data, node) {
+                            totalPreTaxProfit1 += data["InvestmentPurchaseDateString"] == null ? data["PreTaxProfit"] : 0;
+
+                            return data["InvestmentPurchaseDateString"] == null ?
+                                true : false;
+                        })
+                        .column(10)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    // Update footer
+                    $(api.column(10).footer()).html(
+                        numFormat(totalPreTaxProfit1)
+                    );
+
+                    // Total over all pages
+                    totalProfitAfterTax = api
+
+                        .rows(function (idx, data, node) {
+                            totalProfitAfterTax1 += data["InvestmentPurchaseDateString"] == null ? data["ProfitAfterTax"] : 0;
+
+                            return data["InvestmentPurchaseDateString"] == null ?
+                                true : false;
+                        })
+                        .column(11)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    // Update footer
+                    $(api.column(11).footer()).html(
+                        numFormat(totalProfitAfterTax1)
+                    );
+
+                    // Total over all pages
+                    totalSumMoney = api
+                        .rows(function (idx, data, node) {
+                            totalSumMoney1 += data["InvestmentPurchaseDateString"] == null ? data["SumMoney"] : 0;
+
+                            return data["InvestmentPurchaseDateString"] == null ?
+                                true : false;
+                        })
+                        .column(12)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    // Update footer
+                    $(api.column(12).footer()).html(
+                        numFormat(totalSumMoney1)
+                    );
+
+                    
+
+                   
+                },
+               
+            "createdRow": function (row, data, index) {
+                $(row).removeClass('selected')
+            },
+                "searching": false,
+                "bInfo": false,
+                "lengthChange": false,
+                "paging": false,
+                "ordering": false,
+                "language": {
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "emptyTable": "Hiện chưa có báo cáo tổng hợp tình hình hợp đồng"
+                },
+                
+        });
+
+            table.on('click', 'tbody tr', function () {
+                var $row = table.row(this).nodes().to$();
+                var hasClass = $row.hasClass('selected');
+                if (hasClass) {
+                    $row.removeClass('selected')
+                } else {
+                    $row.addClass('selected')
+                }
+            })
+
+            table.rows().every(function () {
+                this.nodes().to$().removeClass('selected')
+            });
+
+           
+
+            
+    }
+    function exportExcel() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ExportExcel", "ContractSummary", new {area = "ContentType" })',
+            data: { time: $('.input-limit-datepicker').val() },
+            dataType: "json",
+            success: function (data) {
+                var bytes = _base64ToArrayBuffer(data.fileStream);
+                saveByteArray(data.fileName, bytes);
+            },
+            error: function (data) {
+            }
+        });
+    }
+    
+
+    //convert & dowloadfile
+    function _base64ToArrayBuffer(base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    function saveByteArray(reportName, byte) {
+        var blob = new Blob([byte], { type: "application/ms-excel" });
+        var isIE = false || !!document.documentMode;
+        if (isIE) {
+            window.navigator.msSaveBlob(blob, reportName);
+        } else {
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            link.click();
+        }
+    };
+</script>
+<div class="report">
+    @Html.Action("SiteMapUser", "Home", new { area = "", id = webmodule.ID })
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-datepicker" style="width: 13.9rem;">
+                        @* <p class="mb-1">Thời gian chạy báo cáo</p>
+                            <input class="form-control input-limit-datepicker" type="text" name="daterange" style="width: 13.9rem;">*@
+                    </div>
+                    <div class="header-act">
+                        @* <button type="button" class="btn btn-rounded btn-primary btn-sm light" onclick="genDataTable()">Chạy báo cáo</button>*@
+                        <button id="download" type="submit" class="btn btn-rounded btn-success btn-sm light" onclick="exportExcel()">Tải file</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="report-investment" class="display min-w850">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã hợp đồng + Tên hợp đồng</th>
+                                    <th>Mã trái phiếu + Tên trái phiếu</th>
+                                    <th>Số lượng trái phiếu/Mệnh giá trái phiếu</th>
+                                    <th>Giá trị mệnh giá (đ)</th>
+                                    <th>Giá trị hợp đồng làm tròn (đ)</th>
+                                    <th>Ngày mua</th>
+                                    <th>Thời gian thực hiện hợp đồng</th>
+                                    <th>Ngày tất toán</th>
+                                    <th>Số lần trả lãi/trái tức</th>
+                                    <th>Tiền lãi đầu tư trước thuế (đ)</th>
+                                    <th>Tiền lãi đầu tư sau thuế (đ)</th>
+                                    <th>Tổng tiền nhận (đ)</th>
+                                    <th>Tỷ suất lãi suất đầu tư (%)</th>
+                                    <th class="status-width">Trạng thái<span class="span-fix-width">ljdhskjf</span></th>
+                                </tr>
+                            </thead>
+                            <tfoot >
+                                <tr>
+                                    <th></th>
+                                    <th>Tổng cộng</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th class="status-width"></th>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        genDataTable();
+    });
+</script>
+<style>
+    .status-width{
+        width:2000px!important;
+    }
+    .span-fix-width {
+        color: transparent;
+    }
+</style>

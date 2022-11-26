@@ -1,0 +1,19 @@
+﻿@{ 
+    var call = "";
+}
+@if (ViewBag.Gender == 1) {  call = "ông"; }
+else if (ViewBag.Gender == 0) {  call = "bà"; }
+else { call = ""; }
+           
+<div class="main-dashboard">
+    <div class="text-dashboard">
+        Xin chào @call @ViewBag.Displayname !
+    </div>
+    <img src="~/Content/themes/web/FM/images/dashboardnew.png" class="size-img-dashboard" />
+</div>
+<script>
+    $(document).ready(function () {
+        $(".main-dashboard").parent().parent().css({ "background-color": "#D7DDDD", "height":"100vh" });
+    });
+</script>
+

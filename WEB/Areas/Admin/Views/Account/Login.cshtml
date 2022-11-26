@@ -1,0 +1,104 @@
+﻿@model WebModels.LoginModel
+@{
+    ViewBag.Title = " " + WebModels.AccountResources.SignIn;
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+@Html.Action("_PVForgotPasswordModal", "Account", new { area = "Admin" })
+<div class='login' id="loginModal">
+    <img class="wave" src="~/Content/themes/admin/img/wave.png">
+    <div class="container-login">
+        <div class="img-login">
+            <img src="~/Content/themes/admin/img/delivery-truck.svg">
+        </div>
+        <div class="login-content">
+            <div action="index.html" class="form-login">
+                <img src="~/Content/themes/admin/img/tlbonds.jpg" class="img-company">
+                @*<h2>@WebModels.AccountResources.SignIn </h2>*@
+                @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-validate" }))
+                {
+                    <div class="input-div-login one">
+                        <div class="i">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="div email">
+                            <h5>Tên đăng nhập</h5>
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "input", @value = Model.UserName })
+                        </div>
+                    </div>
+                    <div class="input-div-login pass">
+                        <div class="i">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="div pw">
+                            <h5>Mật khẩu</h5>
+                            <div class="input-group-addon input-show-pass">
+                                <i class="fa-solid fa-eye"></i>
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </div>
+                            @Html.PasswordFor(m => m.Password, new { @class = "input", @value = Model.Password })
+
+                        </div>
+                    </div>
+                    @Html.ValidationSummary(true)
+                    <div class="forgot-password flex">
+                        <div class="flex">
+                            @Html.CheckBoxFor(m => m.RememberMe, new Dictionary<string, object> {
+                                { "class", "icheck-me" },{"data-skin","square"},{"data-color","orange"},{"id","remember"}
+                            })
+                            <label for="remember">@WebModels.AccountResources.RememberMe</label>
+                        </div>
+                        <a href="javascript: $('#forgotPasswordModal').modal('toggle');">@WebModels.AccountResources.ForgotPassword?</a>
+
+                    </div>
+                    <input type="submit" class="btn-login" value="@WebModels.AccountResources.SignInMe">
+                    @Html.AntiForgeryToken()
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://kit.fontawesome.com/a81368914c.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+    const inputs = document.querySelectorAll(".input");
+
+    $(document).ready(function () {
+
+        $("#Password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $("#Password");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+    });
+
+
+    function addcl() {
+        let parent = this.parentNode.parentNode;
+        parent.classList.add("focus");
+    }
+
+    function remcl() {
+        let parent = this.parentNode.parentNode;
+        if (this.value == "") {
+            parent.classList.remove("focus");
+        }
+    }
+
+
+    inputs.forEach(input => {
+        input.addEventListener("focus", addcl);
+        input.addEventListener("blur", remcl);
+    });
+
+    document.getElementById('UserName').value = "";
+    document.getElementById('Password').value = "";
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

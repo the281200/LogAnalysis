@@ -1,0 +1,310 @@
+﻿@model IncurredPurchase
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+@using (Html.BeginForm("Add", "IncurredPurchases", FormMethod.Post, new { @id = "debt", enctype = "multipart/form-data", @class = "form-change-car" }))
+{
+    <div>
+
+        <div class="flex">
+            <div class="width-text-modal ">
+                @Html.Label("Ngày phát sinh", new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div class="">
+                @(Html.Kendo().DatePicker()
+                .Name("incurredDate") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                .HtmlAttributes(new { type = "text" , @required = true, @oninvalid = "this.setCustomValidity('Vui lòng chọn ngày phát sinh')" })
+                .Culture("vi-VN")
+                .Value(DateTime.Today)
+)
+                <br />
+                @Html.ValidationMessageFor(m => m.IncurredDate)
+                @*@Html.ValidationSummary(true)
+                    @Html.ValidationMessage("CustomErrorDate", new { @class = "field-validation-timer" })*@
+            </div>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Tên phát sinh", new { @class = "control-label margin-text-role" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.IncurredName, new { type = "text", name = "IncurredName", @class = "input-block-level" })
+                @Html.ValidationMessageFor(m => m.IncurredName)
+                @Html.ValidationSummary(true)
+
+            </div>
+
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Khách hàng", new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div>
+                @(Html.Kendo().ComboBoxFor(m=>m.CustomerId)
+          .Name("CustomerId")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn khách hàng...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Customer", "IncurredPurchases");
+
+              })
+               .ServerFiltering(true);
+          })
+          .AutoBind(false)
+          .MinLength(1)
+          .Suggest(true)
+         
+    )
+                @Html.ValidationMessageFor(m => m.CustomerId)
+                @Html.ValidationSummary(true)
+                
+
+            </div>
+
+        </div>
+        <div class="flex ">
+            <div class="width-text-modal ">
+                @Html.Label("Hợp đồng trái phiếu", new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div class="hiddenAsset">
+                @(Html.Kendo().ComboBoxFor(m=>m.BuyAndSellBondId)
+          .Name("BuyAndSellBondId")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn hợp đồng...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Asset", "IncurredPurchases").Data("filterAsset");
+
+              })
+               .ServerFiltering(true);
+          })
+          .Enable(false)
+          .AutoBind(false)
+          .CascadeFrom("CustomerId")
+
+
+    )
+                @Html.ValidationMessageFor(m => m.BuyAndSellBondId)
+                @Html.ValidationSummary(true)
+            </div>
+
+        </div>
+
+
+
+        @Html.TextBoxFor(m => m.ContactDisbursementId, new { @type = "hidden", name = "ContactDisbursementId", id = "ContactDisbursementId", @class = "input-block-level", @readonly = true })
+        @*@Html.TextBoxFor(m => m.InterestPaymentPeriodsId, new { @type = "hidden", name = "InterestPaymentPeriodsId", id = "InterestPaymentPeriodsId", @class = "input-block-level", @readonly = true })*@
+
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Loại giao dịch", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @(Html.Kendo().ComboBoxFor(m=>m.TransactionType)
+          .Name("TransactionType")
+          .HtmlAttributes(new { style = "width:100%" })
+          .Placeholder("Chọn Loại giao dịch...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_TransactionType", "IncurredPurchases");
+
+              })
+               .ServerFiltering(false);
+          }).Events(e =>
+          {
+              e.Change("showMoney");
+              
+          })
+
+
+    )
+                @Html.ValidationMessageFor(m => m.TransactionType)
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+
+        <div class="flex InterestPaymentPeriods" style="display:none;">
+            <div class="width-text-modal ">
+                @Html.Label("Kỳ trả lãi", new { @class = "control-label" })
+                <span class="form-obligatory">*</span>
+            </div>
+            <div >
+             @(Html.Kendo().ComboBoxFor(m=>m.InterestPaymentPeriodsId)
+                      .Name("InterestPaymentPeriodsId")
+                      .HtmlAttributes(new { style = "width:100%" })
+                      .Placeholder("Chọn kỳ trả lãi...")
+                      .DataTextField("Name")
+                      .DataValueField("Id")
+
+                      .DataSource(source =>
+                      {
+                          source.Read(read =>
+                          {
+                              read.Action("Get_InterestPayment", "IncurredPurchases").Data("filterInterest");
+
+                          })
+                           .ServerFiltering(true);
+                      })
+                      .Enable(false)
+                      .AutoBind(false)
+                      .CascadeFrom("BuyAndSellBondId")
+                      .Events(e =>
+                      {
+                          e.Change("showMoney");
+
+                      })
+
+
+                )
+                @Html.ValidationMessageFor(m => m.InterestPaymentPeriodsId)
+                @Html.ValidationSummary(true)
+            </div>
+
+        </div>
+
+
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Số tiền", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextBoxFor(m => m.AmountOfMoney, new { type = "text", name = "AmountOfMoney", id = "AmountOfMoney", @class = "input-block-level", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)" })
+                @Html.ValidationMessageFor(m => m.AmountOfMoney)
+                @Html.ValidationSummary(true)
+                <p style="display: none;font-size: 12px !important;color: red;" id="err-money">Số tiền không tồn tại</p>
+            </div>
+            <p class="unit" style="padding-left: 10px; padding-bottom: 30px;">VNĐ</p>
+        </div>
+        <div class="flex">
+            <div class="width-text-modal">
+                @Html.Label("Ghi chú", new { @class = "control-label margin-text-role" })
+            </div>
+            <div>
+                @Html.TextAreaFor(m => m.Note, new { type = "text", name = "Mô tả ", @class = "input-area-level" })
+                @Html.ValidationMessageFor(m => m.Note)
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+        <div class="validation-group"><div class="controls">@Html.ValidationSummary(true)</div></div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit"><i class="icon-save"></i>@Resources.Common.SaveChanges</button></div> @Html.AntiForgeryToken()
+    </div>
+}
+
+
+<script type="text/javascript">
+    @*  function onChange() {
+            var BuyAndSellBond = {};
+            BuyAndSellBond.BuyAndSellBondId = $("#BuyAndSellBondId").val();
+             $.ajax({
+                    url: "@Url.Action("FindCustomer", "IncurredPurchases")",
+                    contentType: "application/json",
+                    method: "post",
+                 data: JSON.stringify({ model: BuyAndSellBond}),
+                 success: function (data) {
+                     document.getElementById("CustomerName").value = data.CustomerName;
+                     document.getElementById("CustomerId").value = data.CustomerId;
+                     if ($("#CustomerName").val() == "") {
+                         $("#err-price").css("display", "block");
+                     }
+                     else {
+                         $("#err-price").css("display", "none");
+                     }
+                    },
+            error: function (d) {
+                console.log(d.responseText);
+                          }
+                    });
+    }*@
+    
+
+
+    function showMoney() {
+        var TransactionType = $("#TransactionType").val();
+        if (TransactionType == 0 || TransactionType == 1) {
+            $(".InterestPaymentPeriods").css("display", "flex");
+        } else {
+            $(".InterestPaymentPeriods").css("display", "none");
+        }
+        var IncurredPurchase = {};
+        IncurredPurchase.TransactionType = $("#TransactionType").val();
+        IncurredPurchase.IncurredDate = $("#incurredDate").val();
+        IncurredPurchase.BuyAndSellBondId = $("#BuyAndSellBondId").val();
+        IncurredPurchase.InterestPaymentPeriodsId = $("#InterestPaymentPeriodsId").val();
+             $.ajax({
+                    url: "@Url.Action("CalMoney", "IncurredPurchases")",
+                    contentType: "application/json",
+                    method: "post",
+                 data: JSON.stringify({ model: IncurredPurchase}),
+                 success: function (data) {
+                     document.getElementById("AmountOfMoney").value = data.AmountOfMoney;
+                     document.getElementById("ContactDisbursementId").value = data.ContactDisbursementId;
+                     @*document.getElementById("InterestPaymentPeriodsId").value = data.InterestPaymentPeriodsId;*@
+                    @* if ($("#AmountOfMoney").val() == "") {
+                         $("#err-money").css("display", "block");
+                     }
+                     else {
+                         $("#err-money").css("display", "none");
+                     }*@
+                    },
+            error: function (d) {
+                console.log(d.responseText);
+                          }
+                    });
+    }
+    $(document).ready(function () {
+        if (screen.width > 1400) {
+            top.winsetup("Thêm quản lý phát sinh tài sản", 800, 560, true);
+        } @*else if (screen.width < 450) {
+            top.winsetup("Thêm phát sinh mua/bán trái phiếu", 335, 300, true);
+        }*@
+        else {
+            top.winsetup("Thêm quản lý phát sinh tài sản", 800, 560, true);
+        }
+
+
+
+
+        $("#debt").submit(function () {
+            AmountOfMoney = $("input[name='AmountOfMoney']").val();
+            $("input[name='AmountOfMoney']").val(AmountOfMoney.replace(/,/g, ""));
+            return true;
+        });
+    });
+    function create_success() {
+        top.winclose();
+        top.$("#grid").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Thêm phát sinh tài sản', 'Thêm thành công.');
+    }
+    function filterAsset() {
+        return {
+            CustomerId: $("#CustomerId").val(),
+            assetFilter: $("#BuyAndSellBondId").data("kendoComboBox").input.val()
+        };
+    }
+    function filterInterest() {
+        return {
+            BuyAndSellBondId: $("#BuyAndSellBondId").val()
+        };
+    }
+</script>

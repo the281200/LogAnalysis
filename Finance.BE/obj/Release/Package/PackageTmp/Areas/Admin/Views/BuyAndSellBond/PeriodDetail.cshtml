@@ -1,0 +1,380 @@
+﻿@*@model IEnumerable<ImportOrderDetailViewModel>
+@{
+    var userData = WEB.WebHelpers.UserInfoHelper.GetUserData();
+}
+
+<div>
+    <div class="title-importdetail">
+        <h2>Chi tiết đơn nhập hàng</h2>
+    </div>
+
+    <div id="editimportchild"></div>
+    <div id="windowdelete"></div>
+    <script type="text/x-kendo-template" id="windowTemplate">
+        <p> Xoá hàng hoá : <strong>#= ProductDisplayName #</strong> ? </p>
+        <p> Cửa hàng : #= StationDisplayName #</p>
+        <p> Số lượng : #= InputNumber #</p>
+        <p> Số tiền : #= Money #</p>
+        <button class="k-button" id="yesButton">Xác nhận xoá</button>
+        <button class="k-button" id="noButton"> Huỷ</button>
+    </script>
+    <script>
+        var selectedName = "";
+        $("#ComboboxStation").change(function () {
+            var grid = $("#editimportchild").data("kendoGrid");
+            var stationID = $("#ComboboxStation").val() && $("#ComboboxStation").val() !== '' ? $("#ComboboxStation").val() : $("#ComboboxStation").data('kendoComboBox').value();
+            var stationName = $("#StationName").val() && $("#StationName").val() !== '' ? $("#StationName").val() : $("#ComboboxStation").data('kendoComboBox').text();
+
+            for (var i = 0; i < grid.dataSource.data().length; i++) {
+                var item = grid.dataSource.data()[i];
+                    item.set("StationID", stationID);
+                    item.set("StationDisplayName", stationName);
+
+            }
+        });
+        function onDataBound() {
+            var grid = $("#editimportchild").data("kendoGrid");
+            var stationID = $("#StationID").val() && $("#StationID").val() !== '' ? $("#StationID").val() : $("#ComboboxStation").data('kendoComboBox').value();
+            var stationName = $("#StationName").val() && $("#StationName").val() !== '' ? $("#StationName").val() : $("#ComboboxStation").data('kendoComboBox').text();
+
+            if (grid.dataSource.data().length === 0) {
+                var newRow = { StationID: stationID, ProductDisplayName: "", StationDisplayName: stationName };
+                grid.dataSource.add(newRow);
+            } else {
+                for (var i = 0; i < grid.dataSource.data().length; i++) {
+                    var item = grid.dataSource.data()[i];
+                    if (!item.StationID || item.StationID === '') {
+                        item.set("StationID", stationID);
+                        item.set("StationDisplayName", stationName);
+                    }
+                }
+            }
+        }
+        var rowselect;
+        var windowTemplate = kendo.template($("#windowTemplate").html());
+        var dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "/admin/ImportOrder/_ImportOrdersChild/" + "@ViewBag.parentID",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                model: {
+                    id: "ID",
+                    fields: {
+                        ProductID: {
+                            type: "int",
+                            validation: {
+                                required: { message: "Vui lòng chọn hàng hoá" }
+                            }
+                        },
+                        ProductName: {
+                            type: "string"
+                        },
+                        ProductCode: {
+                            type: "string",
+                        },
+                        StationID: {
+                            type: "int",
+                            validation: {
+                                required: { message: "Vui lòng chọn cửa hàng" }
+                            }
+                        },
+                        StationCode: {
+                            type: "string"
+                        },
+                        StationName: {
+                            type: "string"
+                        },
+                        InputNumber: {
+                            type: "decimal",
+                            validation: {
+                                required: { message: "Vui lòng điền số lượng"}
+                            }
+                        },
+                        InputPrice: {
+                            type: "decimal",
+                            validation: {
+                                required: { message: "Vui lòng điền số lượng" }
+                            }
+                        },
+                        Money: { type: "decimal" },
+                        ProductDisplayName: { type: "string" },
+                        StationDisplayName: { type: "string" }
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 6
+        });
+        var dataProduct = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "/admin/Product/GetProduct",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                model: {
+                    id: "ID",
+                    fields: {
+                        ID: { type: "int" },
+                        ProductName: { type: "string" },
+                        DisplayName: { type: "string" }
+                    }
+                }
+            },
+            serverFiltering: true
+        });
+
+        var dataStation = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "/admin/Station/GetStation",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                model: {
+                    id: "ID",
+                    fields: {
+                        ID: { type: "int" },
+                        StationID: { type: "int" },
+                        StationName: { type: "string" },
+                        DisplayName: { type: "string" }
+                    }
+                }
+            },
+            serverFiltering: true
+        });
+
+        var windowdelete = $("#windowdelete").kendoWindow({
+            title: "Xác nhận xoá",
+            visible: false,
+            width: "400px",
+            height: "200px",
+        }).data("kendoWindow");
+
+        var columns = [
+            {
+                field: "ProductID", editor: ProductComboboxEditor, template: "#=ProductDisplayName#", title: "Hàng hoá", attributes: { "id": "ProductCombobox" }
+            },
+            { field: "InputNumber", title: "Số lượng nhập", editor: decimalEditor, template: "#= (data.InputNumber) ? kendo.format('{0:n2} lít', parseFloat(data.InputNumber)) : '' #" },
+            {
+                field: "InputPrice", title: "Giá nhập", editor: decimalEditor, attributes: { "class": "inputprice .k-number2" }, template: "#= (data.InputPrice) ? kendo.format('{0:n2}đ', parseFloat(data.InputPrice)) : '' #"
+            },
+            { field: "Money", title: "Thành tiền", attributes: { "class": "total" }, template: "#= (data.Money) ? kendo.format('{0:n0}đ', parseFloat(data.Money)) : '' #" },
+            {
+                command: [{
+                    name: "Delete",
+                    text: "Xoá",
+                    click: function (e) {
+                        e.preventDefault();
+                        var tr = $(e.target).closest("tr");
+                        var data = this.dataItem(tr);
+                        if (data.InputNumber === undefined) {
+                            data.InputNumber = 0;
+                        }
+                        if (data.Money === undefined) {
+                            data.Money = 0;
+                        }
+                        if (data.InputPrice == undefined) {
+                            data.InputPrice = 0;
+                        }
+                        windowdelete.content(windowTemplate(data));
+                        windowdelete.center().open();
+
+                        $("#yesButton").click(function () {
+                            editimportchild.dataSource.remove(data);
+                            windowdelete.close();
+                        })
+                        $("#noButton").click(function () {
+                            windowdelete.close();
+                        })
+                    }
+
+                }]
+                , width: "70px"
+            }
+        ];
+
+        if ('@(WEB.WebHelpers.UserInfoHelper.GetUserData().StationID.HasValue)' === 'False') {
+            var item = { field: "StationID", title: "Cửa hàng", editor: StationComboboxEditor, template: "#=StationDisplayName#", attributes: { "id": "ShopCombobox" } };
+            columns.splice(1, 0, item);
+        }
+        var c = 1;
+        var editimportchild = $("#editimportchild").kendoGrid({
+            dataSource: dataSource,
+            pageable: true,
+            toolbar: [{ name: "create", text: "Thêm" }],
+            columns: columns,
+            editable: true,
+            dataBound: onDataBound,
+            edit: function (e) {
+                $('[name="Money"]').attr("readonly", true);
+                var model = e.model;
+                var dataItem = $("#editimportchild").data("kendoGrid").dataItem(e.container.closest("tr"));
+                if (dataItem !== undefined && dataItem.ProductID !== undefined) {
+                    if (typeof dataItem.ProductID === "object" && dataItem.ProductID != null) {
+                        var currentProductID = dataItem.ProductID.ID;
+                    }
+                    else if (typeof dataItem.ProductID !== "object" && dataItem.ProductID != "") {
+                        var currentProductID = dataItem.ProductID;
+                    }
+                };
+                e.model.bind("change", function (row) {
+                    if (row.field === "InputNumber" || row.field === "InputPrice") {
+                        var total = 0;
+                        if (model.get("InputNumber") == undefined || model.get("InputPrice") == undefined) {
+                            model.set("Money", total);
+                        }
+                        else {
+                            total = model.get("InputNumber") * model.get("InputPrice");
+                            model.set("Money", total);
+                        }
+                    }
+                    if (row.field === "ProductID") {
+                        var isProductValid = false;
+
+                        var grid = $("#editimportchild").data("kendoGrid");
+                        var data = grid.dataSource.data();
+                        var selectedProductId = model.get("ProductID");
+                        if (typeof selectedProductId === "object" && selectedProductId != null) {
+                            var selectedProductName = dataProduct.data().filter(x => x.ID === selectedProductId.ID)[0].ProductDisplayName;
+                            isProductValid = true;
+                        }
+                        else if (typeof selectedProductId !== "object" && selectedProductId != "" && selectedProductId !== undefined) {
+                                if (dataProduct.data().filter(x => x.ID === selectedProductId).length != 0) {
+                                    var selectedProductName = dataProduct.data().filter(x => x.ID === selectedProductId)[0].ProductDisplayName;
+                                    isProductValid = true;
+                                } else {
+                                    selectedProductName = "";
+                                    model.set("ProductDisplayName", selectedProductName);
+                                    model.set("ProductID", '');
+                                }
+                        }
+
+                         //check product distinctfo
+                        let findDuplicates = arr => arr.filter((item, index) => item !== "" && arr.indexOf(item) != index);
+                        var productIds = [];
+                        for (var i = 0; i < data.length; i++) {
+                            if (isNaN(data[i].ProductID)) {
+                                if (data[i].ProductID && (data[i].ProductID).length != 0){
+                                    productIds.push(data[i].ProductID.ID);
+                                }
+                            } else if (!isNaN(data[i].ProductID)) {
+                                productIds.push(data[i].ProductID);
+                            }
+                        }
+                        if (findDuplicates(productIds).length > 0) {
+                            alert("Hàng hoá này đã có trong đơn!!");
+                            model.set("ProductID", currentProductID);
+                            editimportchild.refresh();
+                            e.model.unbind("change");
+                            return;
+                        }
+                        model.set("ProductDisplayName", selectedProductName);
+                        if (isProductValid) {
+                            e.model.unbind("change");
+                        }
+                    }
+                    if (row.field === "StationID") {
+                        var isStationValid = false;
+                        var selectedStationId = model.get("StationID");
+                        var selectedStationName = "";
+
+                        if (typeof selectedStationId === "object" && selectedStationId != null) {
+                            if (dataStation.data().filter(x => x.ID === selectedStationId.ID)[0]) {
+                                selectedStationName = dataStation.data().filter(x => x.ID === selectedStationId.ID)[0].StationDisplayName;
+                                isStationValid = true;
+                            }
+
+                        }
+                        else if (typeof selectedStationId !== "object" && selectedStationId != "") {
+                            if (dataStation.data().filter(x => x.ID === selectedStationId)[0]) {
+                                selectedStationName = dataStation.data().filter(x => x.ID === selectedStationId)[0].StationDisplayName;
+                                isStationValid = true;
+                            }
+                            else {
+                                selectedStationName = "";
+                                model.set("StationDisplayName", selectedProductName);
+                                model.set("StationID", '');
+                            }
+                        }
+
+                        model.set("StationDisplayName", selectedStationName);
+                        if (isStationValid) {
+                            e.model.unbind("change");
+                        }
+                    }
+                });
+
+                 $(".total").find("input").keypress(function (event) {
+                        event.preventDefault();
+                        return false;
+                 });
+                $('.k-number').find("input").keypress(function (event) {
+                    if (isNaN(String.fromCharCode(event.which))) {
+                        event.preventDefault();
+                    }
+                });
+                $('.k-number2').find("input").keypress(function (event) {
+                    if (event.which != 8 && isNaN(String.fromCharCode(event.which))) {
+                        event.preventDefault();
+                    }
+                });
+            }
+        }).data("kendoGrid");
+
+        function ProductComboboxEditor(container, options) {
+            $('<input name="ProductID" id="ComboboxProduct" required validationMessage="Vui lòng chọn hàng hóa">')
+                .appendTo(container)
+                .kendoComboBox({
+                    autoBind: true,
+                    dataTextField: "ProductDisplayName",
+                    dataValueField: "ID",
+                    dataSource: dataProduct,
+                });
+        };
+        // decimal edit input
+        function decimalEditor(container, options) {
+            $('<input name="' + options.field + '"/>')
+                .appendTo(container)
+                .kendoNumericTextBox({
+                    decimals: 2,
+                    min: 0,
+                    max: 9999999,
+                })
+        };
+        // decimal edit input
+        function numberEdit(container, options) {
+            $('<input name="' + options.field + '"/>')
+                .appendTo(container)
+                .kendoNumericTextBox({
+                    decimals: 0,
+                    min: 0,
+                    max: 9999999,
+                })
+        };
+        function StationComboboxEditor(container, options) {
+            $('<input name="StationID" id="ComboboxStation" required validationMessage="Vui lòng chọn cửa hàng">')
+                .appendTo(container)
+                .kendoComboBox({
+                    autoBind: false,
+                    dataTextField: "StationDisplayName",
+                    dataValueField: "ID",
+                    dataSource: dataStation,
+                });
+        };
+        $(document).ready(function () {
+            $("[data-field='StationID']").html("Cửa hàng <span style='color: red'>*</span>");
+
+        });
+    </script>
+</div>
+<style>
+    .k-webkit {
+        overflow-y: auto !important;
+    }
+</style>*@

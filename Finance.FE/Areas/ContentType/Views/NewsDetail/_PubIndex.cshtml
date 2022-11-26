@@ -1,0 +1,39 @@
+﻿@model WebModels.New
+@{
+    var webmodule = (WebModule)ViewBag.WebModule;
+    
+    var moduletran = webmodule;
+    var background = String.IsNullOrEmpty(webmodule.Image) ? "/content/themes/web/img/bg-title1.png" : webmodule.Image;
+    var codecolor = String.IsNullOrEmpty(webmodule.CodeColor) ? "#b200b2" : webmodule.CodeColor;
+    var urlcat = webmodule.URL;
+    if (string.IsNullOrEmpty(webmodule.URL) || string.IsNullOrWhiteSpace(webmodule.URL))
+    {
+        urlcat = Url.Action("Index", "Home", new { metatitle = webmodule.MetaTitle != null ? webmodule.MetaTitle : "web", id = webmodule.ID, area = "" });
+    }
+    TempData["Title"] = Utility.UseStringHasValue(webmodule.SeoTitle, webmodule.Title);
+    TempData["Description"] = Utility.UseStringHasValue(webmodule.MetaDescription, webmodule.Description);
+    TempData["Keywords"] = Utility.UseStringHasValue(webmodule.MetaKeywords, webmodule.SeoTitle);
+    TempData["URL"] = ApplicationService.Domain + urlcat;
+    TempData["Cat"] = webmodule.Title;
+    TempData["ID"] = webmodule.ID;
+}
+<div class="mywallet">
+    @Html.Action("SiteMapUser", "Home", new { area = "", id = webmodule.ID })
+
+    <div class="card">
+        <div class="card-header header-news">
+            <p class="news-time"> @String.Format("{0:HH:mm dd/MM/yyyy}", @Model.CreatedAt)</p>
+            
+            <h4 class="card-title-detail">@Model.Title</h4>
+            
+        </div>
+        <div class="card-body">
+            
+            <img src="@Model.Image" class="img-news" alt="Alternate Text" />
+            
+                <div style="overflow: auto"> @Html.Raw(HttpUtility.HtmlDecode(Model.Body))</div>
+           
+        </div>
+    </div>
+            
+</div>

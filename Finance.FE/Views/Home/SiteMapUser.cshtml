@@ -1,0 +1,58 @@
+﻿@model WebModule
+
+@{
+    var allParent = ViewBag.AllParent as List<WebModule>;
+}
+<div class="page-titles">
+    @if (Model != null)
+    {
+        var url = Model.URL;
+        if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url))
+        {
+            url = Url.Action("Index", "Home", new
+            {
+                metatitle = Model.MetaTitle != null ? Model.MetaTitle : "web",
+                id = Model.ID,
+            });
+        }
+
+        <h2>@Model.Title</h2>
+        <ol class="breadcrumb">
+            @if (allParent.Count() > 0)
+            {
+                foreach (var item in allParent.OrderByDescending(x => x.Order))
+                {
+                    var urlSub = Model.URL;
+                    var active = "";
+                    if (item == allParent.OrderByDescending(x => x.Order).Last())
+                    {
+                        active = "active";
+                    }
+                    if (item == allParent.OrderByDescending(x => x.Order).Where(x=>x.Order == 2).FirstOrDefault())
+                    {
+                        active = "active";
+                    }
+                    if (string.IsNullOrEmpty(urlSub) || string.IsNullOrWhiteSpace(urlSub))
+                    {
+                        urlSub = Url.Action("Index", "Home", new
+                        {
+                            metatitle = item.MetaTitle != null ? item.MetaTitle : "web",
+                            id = item.ID,
+                        });
+                    }
+                    if (active == "")
+                    {
+                        <li class="breadcrumb-item @active"><div>@item.Description</div></li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item @active"><a href="@urlSub">@item.Description</a></li>
+                    }
+
+                    @*<li class="breadcrumb-item active"><a href="javascript:void(0)">Profile</a></li>*@
+                }
+            }
+        </ol>
+    }
+
+</div>

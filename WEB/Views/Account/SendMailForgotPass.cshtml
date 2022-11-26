@@ -1,0 +1,62 @@
+﻿@model MailForgotModel
+@{
+    ViewBag.Title = "Index";
+    TempData["Title"] = Utility.UseStringHasValue("Quên mật khẩu");
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="authincation login-form">
+    <div class="container h-100">
+        <div class="row justify-content-center h-100 align-items-center">
+            <div class="col-md-6">
+                <div class="authincation-content">
+                    <div class="row no-gutters">
+                        <div class="col-xl-12">
+                            <div class="auth-form">
+                                @*<div class="text-center mb-3">
+                                        <a href="index.html"><img src="/Content/themes/admin/img/tlbonds.jpg" alt=""></a>
+                                    </div>*@
+                                <h4 class="text-center mb-4 text-title-forgot">QUÊN MẬT KHẨU</h4>
+                                @using (Ajax.BeginForm("SendMailForgotPost", "Account", new { area = "" },
+                                 new AjaxOptions
+                                 {
+                                     OnSuccess = "OnLoginSuccess",
+                                     OnFailure = "OnLoginFailure"
+                                 }, new { @class = "form-signin", @id = "sendMailForm" }))
+                                {
+
+                                    <script>
+                                        function OnLoginFailure() {
+                                            alert("Gửi mail không thành công vui lòng thử lại!");
+                                        }
+                                        var url;
+                                        function OnLoginSuccess(data, status, xhr) {
+                                            if ("@(TempData["UrlLoginBack"] != null)") {
+                                                url = "@(TempData["UrlLoginBack"])";
+                                            }
+                                            if (data.Success) {
+                                                alert("Gửi mail thành công vui lòng kiểm tra mail");
+                                            }
+                                            else {
+                                                alert("Gửi mail không thành công vui lòng thử lại!");
+                                            }
+                                        }
+                                    </script>
+                                    <div class="form-group">
+                                        <label class="text-white"><strong>Email</strong></label>
+                                        @Html.TextBoxFor(m => m.Email, new { @placeholder = "Email", @type = "text", @class = "form-control", @name = "code", id = "user_name" })
+                                        @Html.ValidationMessageFor(m => m.Email)
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-block">Gửi</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

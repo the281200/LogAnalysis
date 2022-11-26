@@ -1,0 +1,1918 @@
+﻿@model BuyAndSellBondViewModel
+@{
+
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+@using (Html.BeginForm("Add", "BuyAndSellBond",
+    FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-change-car", @id = "debt"/*, @style = "margin-left: 9vw;"*/, @role = "form" }))
+{
+    @Html.Hidden("dataTable1")
+    @Html.Hidden("dataTable2")
+    @Html.Hidden("dataTable3")
+    <div class="border-buyandsellbond">
+        <div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Ngày hợp đồng", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().DatePicker()
+                    .Name("purchase") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                    .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                    .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                    .HtmlAttributes(new { type = "text", @tabindex = "1" })
+                    .Culture("vi-VN")
+                    .Events(e =>
+                    {
+                        e.Change("purchaseDateChange");
+                    })
+
+    )
+                            <br />
+                            @Html.ValidationMessageFor(m => m.PurchaseDate)
+                            @Html.ValidationMessage("CustomErrorDate", new { @class = "field-validation-timer" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6" id="periodDate_box">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Số ngày tính lãi", new { @class = "control-label", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.CalculateInterestDate, new
+                       {
+                           type = "text",
+                           name = "BKS",
+                                @class = "input-block-level",@*@style = "width: 11vw",*@@readonly = "readonly",
+@*@tabindex = "13"*@
+})
+                            @Html.ValidationMessageFor(m => m.CalculateInterestDate)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Khách hàng", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().ComboBoxFor(m=>m.CustomerId)
+          .Name("CustomerId")
+          .HtmlAttributes(new { style = "width:100%", @tabindex = "2" })
+          .Placeholder("Chọn khách hàng...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_Customers", "BuyAndSellBond");
+
+              })
+               .ServerFiltering(false);
+          })
+          .Suggest(true)
+
+    )
+                            @Html.ValidationMessageFor(m => m.CustomerId)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("TG được chuyển nhượng", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().DatePicker()
+                            .Name("transfer") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                            .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                            .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                            .HtmlAttributes(new { type = "text", @tabindex = "14" })
+                            .Culture("vi-VN")
+            .Events(e =>
+            {
+                e.Change("transferDateChange");
+            })
+            )
+                            <br />
+                            <p class="err-transfer-date d-none">Vui lòng không chọn thời gian được chuyển nhượng trước ngày mua</p>
+
+                            @Html.ValidationMessageFor(m => m.TransferredTime)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Mã/số hợp đồng", new { @class = "control-label " })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.ContractCode, new { type = "text", name = "BKS", @class = "input-block-level", @tabindex = "3" })
+                            @Html.ValidationMessageFor(m => m.ContractCode)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Nguồn tiền", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().MultiSelect()
+                  .Name("sourceInBuyAndSellBond")
+          .HtmlAttributes(new { style = "width:100%", @tabindex = "15" })
+          .Placeholder("Nguồn sơ cấp...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_BuyAndSellBonds", "BuyAndSellBond").Data("filterCustomer");
+
+              })
+               .ServerFiltering(false);
+          })
+           //.AutoBind(false)
+           //.Enable(false)
+           .Events(e =>
+           {
+               e.Change("onChange");
+           })
+
+    )
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.LabelFor(m => m.ContractName, new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="textbox-form-new col-10">
+                            @Html.TextAreaFor(m => m.ContractName, new { type = "text", name = "Tên nhóm", @class = "input-block-level text-area", @tabindex = "4" })
+                            @Html.ValidationMessageFor(m => m.ContractName)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row" style="margin-left: -15px;">
+
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="width-text-modal label-form-new col-2">
+                                    @Html.Label("Lãi suất coupon (%)", new { @class = "control-label" })
+                                </div>
+                                <div class="controls textbox-form-new col-10">
+                                    @Html.TextBoxFor(m => m.InputInterestRateString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "16" })
+                                    @Html.HiddenFor(m => m.InputInterestRate)
+                                    @Html.ValidationMessageFor(m => m.InputInterestRate)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12" id="interestRate_box">
+                            <div class="row">
+                                <div class="width-text-modal label-form-new col-2">
+                                    @Html.Label("Lãi suất (%)", new { @class = "control-label" })
+                                </div>
+                                <div class="controls textbox-form-new col-10">
+                                    @Html.TextBoxFor(m => m.InterestRateString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "17" })
+                                    @Html.ValidationMessageFor(m => m.InterestRateString)
+                                    @Html.HiddenFor(m => m.InterestRate)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Nội dung", new { @class = "control-label " })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextAreaFor(m => m.Content, new { type = "text", name = "BKS", @class = "input-block-level text-area", @tabindex = "5" })
+                            @Html.ValidationMessageFor(m => m.Content)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 mt-4">
+                    <div class="row" >
+
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Loại tài sản/HĐ", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().ComboBoxFor(m=>m.AssetTypeId)
+          .Name("AssetTypeId")
+          .HtmlAttributes(new { style = "width:100%", @tabindex = "17" })
+          .Placeholder("Chọn loại tài sản...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_TypeOfAssets", "BuyAndSellBond");
+
+              })
+               .ServerFiltering(false);
+          })
+    )
+                            @Html.ValidationMessageFor(m => m.AssetTypeId)
+
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Mệnh giá", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.DenominationsString, new { type = "text", name = "DenominationsString", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "6" })
+                            @Html.HiddenFor(m => m.Denominations)
+                            @Html.ValidationMessageFor(m => m.Denominations)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Kỳ hạn TP (tháng)", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+
+                            @Html.TextBoxFor(m => m.PeriodString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "19" })
+                            @Html.HiddenFor(m => m.Period)
+                            @Html.ValidationMessageFor(m => m.Period)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Mã trái phiếu/TS", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().ComboBoxFor(m=>m.AssetCategorysId)
+          .Name("AssetCategorysId")
+          .HtmlAttributes(new { style = "width:100%", @tabindex = "7" })
+          .Placeholder("Chọn mã trái phiếu...")
+          .DataTextField("Name")
+          .DataValueField("Id")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("Get_AssetCategorys", "BuyAndSellBond");
+
+              })
+               .ServerFiltering(false);
+          })
+           .Events(e =>
+                      {
+                          e.Change("showInterest");
+
+                      })
+          .Suggest(true)
+
+    )
+                            @Html.ValidationMessageFor(m => m.AssetCategorysId)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Ngày phát hành TP", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().DatePicker()
+                    .Name("bond") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                    .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                    .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                    .HtmlAttributes(new { type = "text", @tabindex = "20" })
+                    .Culture("vi-VN")
+    //.Events(e =>
+    //   {
+    //       e.Change("bondDateChange");
+    //   })s
+    )
+                            <br />
+                            @Html.ValidationMessageFor(m => m.BondIssueDate)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Số lượng (TS/TP)", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.Quantily, new { type = "text", name = "Quantily", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "8" })
+                            @Html.ValidationMessageFor(m => m.Quantily)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Ngày mua sơ cấp", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().DatePicker()
+                    .Name("primary") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                    .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                    .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                    .HtmlAttributes(new { type = "text", @tabindex = "21" })
+                    .Culture("vi-VN")
+                   .Value(Model.PrimaryPurchaseDate)
+
+    //.Events(e =>
+    //   {
+    //       e.Change("primaryDateChange");
+    //   })
+    )
+                            <br />
+                            @Html.ValidationMessageFor(m => m.PrimaryPurchaseDate)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Đơn giá", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.UnitPrice, new { type = "text", name = "UnitPrice", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "9" })
+                            @Html.ValidationMessageFor(m => m.UnitPrice)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Ngày mua thứ cấp", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().DatePicker()
+                    .Name("secondary") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                    .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                    .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                    .HtmlAttributes(new { type = "text", @tabindex = "22" })
+                    .Culture("vi-VN")
+
+    //.Events(e =>
+    //   {s
+    //       e.Change("secondaryDateChange");
+    //   })ss
+    )
+                            <br />
+                            @Html.ValidationMessageFor(m => m.SecondaryPurchaseDate)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Giá trị giao dịch", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.StringValue, new { type = "text", name = "Value", @style = "width: 21vh;border-color: #dadada;", @class = "input-block-level", @onkeypress = "return CheckNumeric()"@*, @tabindex = "10"*@, @onkeyup = "FormatCurrency(this)", @readonly = "readonly" })
+                            @Html.HiddenFor(m => m.Value)
+                            @Html.ValidationMessageFor(m => m.Value)
+                            @Html.ValidationMessageFor(m => m.StringValue)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Số lần/ Kỳ trả lãi", new { @class = "control-label " })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.InterestPayPeriod, new { type = "text", name = "BKS", @class = "input-block-level number", @tabindex = "23" })
+                            @Html.ValidationMessageFor(m => m.InterestPayPeriod)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Giá trị mua làm tròn", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.RoundedPurchaseValueString, new { type = "text", name = "PersonalIncomeTaxString", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "11" })
+                            @Html.HiddenFor(m => m.RoundedPurchaseValue)
+                            @Html.ValidationMessageFor(m => m.RoundedPurchaseValue)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Thuế TNCN %", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.PersonalIncomeTaxString, new { type = "text", name = "PersonalIncomeTaxString", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "24" })
+                            @Html.HiddenFor(m => m.PersonalIncomeTax)
+                            @Html.ValidationMessageFor(m => m.PersonalIncomeTax)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Ngày tất toán/thanh lý", new { @class = "control-label" })
+                            <span class="form-obligatory">*</span>
+
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @(Html.Kendo().DatePicker()
+                    .Name("periodtime") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
+                    .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
+                    .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
+                    .HtmlAttributes(new { type = "text", @tabindex = "12" })
+                    .Culture("vi-VN")
+                    .Events(e =>
+                    {
+                        e.Change("periodDateChange");
+                    })
+    )
+                            <br />
+                            @Html.ValidationMessageFor(m => m.PeriodDate)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="width-text-modal label-form-new col-2">
+                            @Html.Label("Phí chuyển nhượng", new { @class = "control-label" })
+                        </div>
+                        <div class="controls textbox-form-new col-10">
+                            @Html.TextBoxFor(m => m.PropertyManagementFeesString, new
+                            {
+                                type = "text",
+                                name = "BKS",
+                                @class = "input-block-level number",@*@onkeypress = "return CheckNumeric()",*@@onkeyup = "FormatCurrency(this)",
+@tabindex = "25"
+})
+                            @Html.HiddenFor(m => m.PropertyManagementFees)
+                            @Html.ValidationMessageFor(m => m.PropertyManagementFees)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="border-buyandsellbond">
+        <div class="calculator-row">
+            <button class="calculator" type="button" id="calculator_button">Tính toán</button>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Lãi trước thuế", new { @class = "control-label" })
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+                        @Html.TextBoxFor(m => m.PreTaxProfitString, new { type = "text", name = "PreTaxProfitString", @class = "input-block-level number", @readonly = "readonly", @tabindex = "26", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @style = "border-color: #dadada;" })
+                        @Html.HiddenFor(m => m.PreTaxProfit)
+                        @Html.ValidationMessageFor(m => m.PreTaxProfit)
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Lãi sau thuế", new { @class = "control-label" })
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+                        @Html.TextBoxFor(m => m.ProfitAfterTaxString, new { type = "text", name = "BKS", @class = "input-block-level number", @style = "border-color: #dadada;", @readonly = "readonly", @tabindex = "27" })
+                        @Html.HiddenFor(m => m.ProfitAfterTax)
+                        @Html.ValidationMessageFor(m => m.ProfitAfterTax)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Thuế", new { @class = "control-label" })
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+                        @Html.TextBoxFor(m => m.PersonalIncomeTaxCalculationString, new { type = "text", name = "PersonalIncomeTaxCalculationString", @class = "input-block-level number", @readonly = "readonly", @tabindex = "26", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @style = "border-color: #dadada;" })
+                        @Html.HiddenFor(m => m.PersonalIncomeTaxCalculation)
+                        @Html.ValidationMessageFor(m => m.PersonalIncomeTaxCalculation)
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Giá trị thực nhận", new { @class = "control-label" })
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+                        @Html.TextBoxFor(m => m.RealValueReceivedString, new { type = "text", name = "RealValueReceivedString", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "30" })
+                        @Html.HiddenFor(m => m.RealValueReceived)
+                        @Html.ValidationMessageFor(m => m.RealValueReceived)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="d-none">
+        <div class="width-text-modal label-form-checkbox col-2">
+            @Html.LabelFor(m => m.FixedInterestRate, new { @class = "control-label" })
+        </div>
+        <div class="input-child-new col-10">
+            @Html.CheckBoxFor(m => m.FixedInterestRate, new Dictionary<string, object> {
+                         { "class", "icheck-me" },{"data-skin","square"},{"data-color","orange"},{"id","remember"},{"onchange","CheckBoxOnChange(this)"}
+                     })
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="validation-group col-12">
+            <div class="controls">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+    </div>
+
+    @*<div class="form-actions">
+            <button class="btn btn-primary" type="submit" id="save_form">@Resources.Common.SaveChanges</button>
+        </div>*@
+    @Html.AntiForgeryToken()
+}
+<script>
+    function onDataBoundTable1(e) {
+        resetRowNumber1();
+        $('#grid .k-grid-content').height(screen.height * 0.2);
+
+        var dataSourceTable1 = $("#gridTable1").data("kendoGrid").dataSource.data();
+        var sum = 0;
+
+        for (var j = 0; j < dataSourceTable1.length; j++) {
+            var dataItem = dataSourceTable1[j];
+            sum += (dataItem.Value != null ? dataItem.Value : 0);
+        }
+    };
+
+    function onDataBound2(e) {
+        resetRowNumber2();
+    };
+
+    function onDataBound3(e) {
+        var dataSourceTable = $("#gridTable3").data("kendoGrid").dataSource.data();
+        var sum = 0;
+        resetRowNumber3();
+
+        //for (var j = 0; j < dataSourceTable.length; j++) {
+        //    var dataItem = dataSourceTable[j];
+        //    sum += (dataItem.Value != null ? dataItem.Value : 0);
+        //}
+
+        //$("#Value").val((sum).toLocaleString(
+        //    'en', // leave undefined to use the visitor's browser
+        //    // locale or a string like 'en-US' to override it.
+        //    { minimumFractionDigits: 0 }
+        //));
+
+        $("#gridTable2").data("kendoGrid").dataSource.read();
+    };
+
+    var sourceSelect = [];
+    var changeTable1 = 1;
+    var changeTable2 = 1;
+    var changeTable3 = 1;
+    var changeSaveTable1 = true;
+    var changePurchaseDate = true;
+
+    function onChange() {
+        sourceSelect = [];
+        var control = $("#sourceInBuyAndSellBond").data("kendoMultiSelect");
+        var selectedDataItems = control.dataItems();
+
+        $(selectedDataItems).each(function () {
+            sourceSelect.push(this.Id); // you can access any property on your model here
+        });
+
+        var data = $("#sourceInBuyAndSellBond").val();
+
+        if (data != null && data != "") {
+            $("#gridTable3").data("kendoGrid").dataSource.read();
+            $("#table3").show();
+        }
+        else {
+            $("#table3").hide();
+        }
+    }
+
+    function getDataTable1(e) {
+        return {
+            tableParentId: $("#Id").val()
+        };
+    }
+
+    //function getDataTable2(e) {
+    //    return {
+    //        tableParentId: $("#Id").val(),
+    //        value: BigInt($("input[name='Value']").val().replace(/,/g, "")),
+    //        purchaseDate: $("#purchase").val(),
+    //        interestPayPeriod: $("#InterestPayPeriod").val(),
+    //        interestRate: $("#InterestRate").val(),
+    //        period: $("#Period").val(),
+    //        change: changeTable2
+    //    };
+    //}
+
+    function getDataTable2(e) {
+        return {
+            tableParentId: $("#Id").val(),
+            value: BigInt($("input[name='UnitPrice']").val().replace(/,/g, "")),
+            purchaseDate: $("#purchase").val(),
+            periodDate: $("#periodtime").val(),
+            interestPayPeriod: $("#InterestPayPeriod").val(),
+            interestRate: $("#InterestRate").val(),
+            period: $("#Period").val(),
+            change: changeTable2,
+            calculateInterestDate: $("#CalculateInterestDate").val()
+        };
+    }
+
+    function getDataTable3(e) {
+        return {
+            tableParentId: $("#Id").val(),
+            buyAndSellBondId: sourceSelect.toString(),
+            change: changeTable3
+        };
+    }
+
+    function getSourceIncurred(e) {
+        var rowselectedTable = [];
+        var dataSourceTable = $("#gridTable3").data("kendoGrid").dataSource.data();
+
+        for (var j = 0; j < dataSourceTable.length; j++) {
+            var dataItem = dataSourceTable[j];
+            console.log(dataItem);
+            var modelParse = {};
+            modelParse.Id = dataItem.Id;
+            modelParse.IncurredId = (typeof dataItem.IncurredId === 'object' && dataItem.IncurredId !== null) ? dataItem.IncurredId.Id : dataItem.IncurredId;
+            modelParse.Value = dataItem.Value;
+            modelParse.Note = dataItem.Note;
+
+            rowselectedTable.push(modelParse);
+        }
+
+        var dataTable3 = JSON.stringify(rowselectedTable);
+
+        return {
+            dataTable: dataTable3
+        };
+    }
+
+</script>
+
+<div class="container-fluid form-change-car table-child d-none">
+    <p class="tilte-table-child">Chi tiết giải ngân hợp đồng</p>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box">
+                <div class="box-content nopadding">
+                    <div id="gridTable1"></div>
+                    <script>
+                        var rowNumber1 = 0;
+
+                        function resetRowNumber1(e) {
+                            rowNumber1 = 0;
+                        }
+
+                        function renderNumber1(data) {
+                            return ++rowNumber1;
+                        }
+
+                        function renderRecordNumber1(data) {
+                            var page = parseInt($("#gridTable1").data("kendoGrid").dataSource.page()) - 1;
+                            var pagesize = $("#gridTable1").data("kendoGrid").dataSource.pageSize();
+                            return parseInt(rowNumber1 + (parseInt(page) * parseInt(pagesize)));
+                        }
+
+                        $("#gridTable1").kendoGrid({
+                            selectable: true,
+                            editable: {
+                                confirmation: "Bạn có muốn xóa dữ liệu này?",
+                                mode: "incell",
+                                createAt: "bottom"
+                            },
+                            columns: [
+                                {
+                                    field: "Id",
+                                    title: "Id",
+                                    attributes: { "style": "text-align:center;" },
+                                    hidden: true
+                                    //template: "#=Id#"
+                                },
+                                {
+                                    field: "Id",
+                                    title: "Id",
+                                    attributes: { "style": "text-align:center;" },
+                                    hidden: true
+
+                                },
+                                { title: "STT", template: "#= renderNumber1(data) #", width: 70, attributes: { "style": "text-align:center;" } },
+                                {
+                                    field: "Content",
+                                    title: "Nội dung"
+                                },
+                                {
+                                    field: "ImplementationDate",
+                                    title: "Ngày giải ngân",
+                                    template: "#= ImplementationDate? kendo.toString(ImplementationDate, 'dd/MM/yyyy'): '' #",
+                                    editor: dateEditor
+                                },
+                                {
+                                    field: "Value",
+                                    title: "Giá trị",
+                                    attributes: { "style": "text-align:center;" },
+                                    format: "{0:n0}"
+                                },
+                                { command: [{ name: "destroy", text: "Xóa" }], width: 150 }
+                            ],
+                            dataBound: onDataBoundTable1,
+                            toolbar: [{ name: "create", text: "Thêm" }],
+                            dataSource: {
+                                transport: {
+                                    read: {
+                                        url: "/admin/BuyAndSellBond/ContactDisbursementDetails_Read/",
+                                        datatype: "json",
+                                        data: getDataTable1
+                                    }
+                                },
+                                schema: {
+                                    model: {
+                                        ID: "ID",
+                                        fields: {
+                                            ImplementationDate: { type: "date", validation: { required: { message: "Vui lòng chọn thời gian" } } },
+                                            Content: { type: "string" },
+                                            Value: { type: "number", validation: { required: { message: "Vui lòng nhập giá trị" } } }
+                                        }
+                                    }
+                                }
+                            },
+                            serverOperation: false,
+                            batch: true,
+                            pageSize: 10,
+                            //editable: "incell",
+                            edit: function (e) {
+                                var model = e.model;
+                                e.model.unbind("change");
+
+                                e.model.bind("change", function (row) {
+
+                                    var rowItem = {};
+                                    if (row.field === "Value") {
+                                        var total = 0;
+                                        if (model.get("Value") == undefined) {
+                                            model.set("Value", total);
+                                        }
+                                        else {
+                                            rowItem.Value = model.get("Value");
+                                            console.log(model.get("Value"));
+                                        }
+                                    }
+
+                                    if (rowItem.Value != undefined) {
+                                        var dataSourceTable = $("#gridTable1").data("kendoGrid").dataSource.data();
+                                        var sum = 0;
+
+                                        for (var j = 0; j < dataSourceTable.length; j++) {
+                                            var dataItem = dataSourceTable[j];
+                                            sum += (dataItem.Value != null ? dataItem.Value : 0);
+                                        }
+
+                                        console.log("Sum" + sum);
+
+                                        var getDataValueModel = BigInt($("input[name='Value']").val().replace(/,/g, ""));
+
+                                        if (sum > getDataValueModel) {
+                                            e.model.unbind("change");
+                                            alert("Giá trị chi tiết giải ngân hợp đồng lớn hơn giá trị khai báo");
+                                            model.set("Value", 0);
+                                            $("#gridTable1").data("kendoGrid").refresh();
+                                            return;
+                                        }
+                                        //else {
+                                        //    changeSaveTable1 = true;
+                                        //    $(".alert-table").hide();
+                                        //    return;
+                                        //}
+
+                                    }
+                                });
+                            }
+                        });
+
+                        function dateEditor(container, options) {
+                            $('<input type="text" />')
+                                .appendTo(container)
+                                .kendoDatePicker({
+                                    format: "dd/MM/yyyy",
+                                    value: options.model.ImplementationDate ? kendo.toString(new Date(options.model.ImplementationDate), 'dd/MM/yyyy') : '',
+                                    change: function () {
+                                        var value = this.value();
+                                        options.model.set("ImplementationDate", value);
+                                    }
+                                });
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid form-change-car table-child " id="table2">
+    <p class="tilte-table-child">Kỳ trả lãi</p>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box">
+                <div class="box-content nopadding">
+
+                    <div id="gridTable2"></div>
+                    <script>
+                        var rowNumber2 = 0;
+
+                        function resetRowNumber2(e) {
+                            rowNumber2 = 0;
+                        }
+
+                        function renderNumber2(data) {
+                            return ++rowNumber2;
+                        }
+
+                        function renderRecordNumber2(data) {
+                            var page = parseInt($("#gridTable2").data("kendoGrid").dataSource.page()) - 1;
+                            var pagesize = $("#gridTable2").data("kendoGrid").dataSource.pageSize();
+                            return parseInt(rowNumber2 + (parseInt(page) * parseInt(pagesize)));
+                        }
+
+                        $("#gridTable2").kendoGrid({
+                            selectable: true,
+                            editable: {
+                                confirmation: "Bạn có muốn xóa dữ liệu này?",
+                                mode: "incell",
+                                createAt: "bottom"
+                            },
+                            columns: [
+                                {
+                                    field: "Id",
+                                    title: "Id",
+                                    attributes: { "style": "text-align:center;" },
+                                    hidden: true
+                                },
+                                {
+                                    field: "Id",
+                                    title: "Id",
+                                    attributes: { "style": "text-align:center;" },
+                                    hidden: true
+                                },
+                                { title: "STT", template: "#= renderNumber2(data) #", width: 70, attributes: { "style": "text-align:center;" } },
+
+                                {
+                                    field: "Content",
+                                    title: "Nội dung"
+                                },
+                                {
+                                    field: "InterestPaymentDate",
+                                    title: "Ngày trả lãi",
+                                    template: "#= InterestPaymentDate? kendo.toString(InterestPaymentDate, 'dd/MM/yyyy'): '' #",
+                                    editor: dateInterestEditor
+                                },
+                                {
+                                    field: "CalculateInterestNumber",
+                                    title: "Số ngày tính lãi",
+                                    attributes: { "style": "text-align:center;" },
+                                    format: "{0:n0}"
+                                },
+                                {
+                                    field: "AccruedInterest",
+                                    title: "Lãi dự thu",
+                                    attributes: { "style": "text-align:center;" },
+                                    format: "{0:n0}"
+                                },
+                                { command: [{ name: "destroy", text: "Xóa" }], width: 150 }
+
+                            ],
+                            dataBound: onDataBound2,
+                            toolbar: [{ name: "create", text: "Thêm" }],
+                            dataSource: {
+                                transport: {
+                                    read: {
+                                        url: "/admin/BuyAndSellBond/InterestPaymentPeriods_Read/",
+                                        datatype: "json",
+                                        data: getDataTable2
+                                    }
+                                },
+                                schema: {
+                                    model: {
+                                        ID: "Id",
+                                        fields: {
+                                            InterestPaymentDate: { type: "date", validation: { required: { message: "Vui lòng chọn thời gian" } } },
+                                            Content: { type: "string" },
+                                            CalculateInterestNumber: { type: "number", validation: { required: { message: "Vui lòng nhập giá trị" } } },
+                                            AccruedInterest: { type: "number", validation: { required: { message: "Vui lòng nhập giá trị" } } }
+                                        }
+                                    }
+                                }
+                            },
+                            serverOperation: false,
+                            batch: true,
+                            pageSize: 10,
+                            //editable: "incell",
+                            edit: function (e) {
+                            }
+                        });
+
+                        function dateInterestEditor(container, options) {
+                            $('<input type="text" />')
+                                .appendTo(container)
+                                .kendoDatePicker({
+                                    format: "dd/MM/yyyy",
+                                    value: options.model.InterestPaymentDate ? kendo.toString(new Date(options.model.InterestPaymentDate), 'dd/MM/yyyy') : '',
+                                    change: function () {
+                                        var value = this.value();
+                                        options.model.set("InterestPaymentDate", value);
+                                    }
+                                });
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid form-change-car table-child" id="table3">
+    <p class="tilte-table-child">Nguồn tiền</p>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="box">
+                <div class="box-content nopadding">
+                    <div id="gridTable3"></div>
+                    <script>
+                        var rowNumber3 = 0;
+
+                        function resetRowNumber3(e) {
+                            rowNumber3 = 0;
+                        }
+
+                        function renderNumber3(data) {
+                            return ++rowNumber3;
+                        }
+
+                        function renderRecordNumber3(data) {
+                            var page = parseInt($("#gridTable3").data("kendoGrid").dataSource.page()) - 1;
+                            var pagesize = $("#gridTable3").data("kendoGrid").dataSource.pageSize();
+                            return parseInt(rowNumber3 + (parseInt(page) * parseInt(pagesize)));
+                        }
+
+                        var gridTable3 = $("#gridTable3").kendoGrid({
+                            selectable: true,
+                            editable: {
+                                confirmation: "Bạn có muốn xóa dữ liệu này?",
+                                mode: "incell",
+                                createAt: "bottom"
+                            },
+                            columns: [
+                                {
+                                    field: "Id",
+                                    title: "Id",
+                                    attributes: { "style": "text-align:center;" },
+                                    hidden: true
+                                },
+                                {
+                                    field: "Id",
+                                    title: "Id",
+                                    attributes: { "style": "text-align:center;" },
+                                    hidden: true
+                                },
+                                { title: "STT", template: "#= renderNumber3(data) #", width: 70, attributes: { "style": "text-align:center;" } },
+                                {
+                                    field: "IncurredId",
+                                    title: "Nguồn",
+                                    editor: dateIncurredEditor,
+                                    template: "#=IncurredName#"
+                                    //defaultValue: { Value: "0", Name: "" }
+                                },
+                                {
+                                    field: "Value",
+                                    title: "Giá trị",
+                                    attributes: { "style": "text-align:center;" },
+                                    format: "{0:n0}"
+                                },
+                                {
+                                    field: "Note",
+                                    title: "Ghi chú"
+                                },
+                                { command: [{ name: "destroy", text: "Xóa" }], width: 150 }
+
+                            ],
+                            dataBound: onDataBound3,
+                            toolbar: [{ name: "create", text: "Thêm" }],
+                            dataSource: {
+                                transport: {
+                                    read: {
+                                        url: "/admin/BuyAndSellBond/Periods_Read/" @*+ @Model.Id*@,
+                                        datatype: "json",
+                                        data: getDataTable3
+                                    }
+                                },
+                                schema: {
+                                    model: {
+                                        ID: "Id",
+                                        fields: {
+                                            IncurredId: { type: "int", validation: { required: { message: "Vui lòng chọn nguồn" } }},
+                                            Content: { type: "string" },
+                                            CalculateInterestNumber: { type: "number", validation: { required: { message: "Vui lòng nhập giá trị" } } },
+                                            AccruedInterest: { type: "number", validation: { required: { message: "Vui lòng nhập giá trị" } }  },
+                                            Value: { type: "number", validation: { required: { message: "Vui lòng nhập giá trị" } }  },
+                                            IncurredName: { type: "string" },
+                                        }
+                                    }
+                                }
+                            },
+                            serverOperation: false,
+                            pageSize: 10,
+                            //editable: "incell",
+                            edit: function (e) {
+                                var model = e.model;
+                                e.model.unbind("change");
+
+                                e.model.bind("change", function (row) {
+                                    if (row.field === "IncurredId") {
+                                        var isIncurredValid = false;
+                                        var selectedIncurredName = "";
+
+                                        var grid = $("#gridTable3").data("kendoGrid");
+                                        var data = grid.dataSource.data();
+                                        var selectedIncurredId = model.get("IncurredId");
+
+                                        if (typeof selectedIncurredId === "object" && selectedIncurredId != null) {
+                                            selectedIncurredName = dataIncurred.data().filter(x => x.Id === selectedIncurredId.Id)[0].IncurredName;
+                                            isIncurredValid = true;
+                                        }
+                                        else if (typeof selectedIncurredId !== "object" && selectedIncurredId != "" && selectedIncurredId !== undefined) {
+                                            if (dataIncurred.data().filter(x => x.Id === selectedIncurredId).length != 0) {
+                                                selectedIncurredName = dataIncurred.data().filter(x => x.Id === selectedIncurredId)[0].IncurredName;
+                                                isIncurredValid = true;
+                                            } else {
+                                                selectedIncurredName = "";
+                                                model.set("IncurredName", selectedIncurredName);
+                                                model.set("IncurredId", '');
+                                            }
+                                        }
+
+                                        model.set("IncurredName", selectedIncurredName);
+                                        if (!isIncurredValid) {
+                                            e.model.unbind("change");
+                                        }
+                                    }
+
+                                    var rowItem = {};
+
+                                    if (row.field === "IncurredId") {
+                                        if (model.get("IncurredId") != undefined) {
+                                            rowItem.IncurredId = model.get("IncurredId");
+                                        }
+                                    }
+
+                                    if (row.field === "Value") {
+                                        var total = 0;
+                                        if (model.get("Value") == undefined) {
+                                            model.set("Value", total);
+                                        }
+                                        else {
+                                            rowItem.Value = model.get("Value");
+                                            rowItem.Id = model.get("Id");
+                                            rowItem.IncurredId = model.get("IncurredId");
+
+                                        }
+                                    }
+
+                                    if (rowItem.IncurredId != undefined && rowItem.Value != undefined) {
+                                        var rowselectedTable = [];
+                                        var dataSourceTable = $("#gridTable3").data("kendoGrid").dataSource.data();
+                                        var dataSourceTable1 = $("#gridTable1").data("kendoGrid").dataSource.data();
+                                        var sum = 0;
+
+                                        for (var j = 0; j < dataSourceTable.length; j++) {
+                                            var dataItem = dataSourceTable[j];
+                                            var modelParse = {};
+                                            modelParse.Id = dataItem.Id;
+                                            modelParse.IncurredId = (typeof dataItem.IncurredId === 'object' && dataItem.IncurredId !== null) ? dataItem.IncurredId.Id : dataItem.IncurredId;
+                                            modelParse.Value = dataItem.Value;
+                                            modelParse.Note = dataItem.Note;
+
+                                            rowselectedTable.push(modelParse);
+
+                                            sum += (dataItem.Value != null ? dataItem.Value : 0);
+                                        }
+                                        var sumTable1 = 0;
+                                        for (var j = 0; j < dataSourceTable1.length; j++) {
+                                            var dataItem = dataSourceTable1[j];
+                                            sumTable1 += (dataItem.Value != null ? dataItem.Value : 0);
+                                        }
+
+                                        //if (sum < sumTable1) {
+                                        //    alert("show");
+                                        //    changeSaveTable1 = false;
+                                        //    $(".alert-table").show();
+                                        //}
+                                        //else {
+                                        //    alert("hide");
+                                        //    changeSaveTable1 = true;
+                                        //    $(".alert-table").hide();
+                                        //}
+
+                                        var dataTable3 = JSON.stringify(rowselectedTable) ;
+                                        rowItem.Datatable = dataTable3;
+                                        rowItem.IncurredId = (typeof rowItem.IncurredId === 'object' && rowItem.IncurredId != null) ? rowItem.IncurredId.Id : rowItem.IncurredId;
+
+                                        $.ajax({
+                                             url: "@Url.Action("CheckValueIncurred", "BuyAndSellBond")",
+                                             contentType: "application/json",
+                                             method: "post",
+                                             data: JSON.stringify({ model: rowItem}),
+                                             success: function (data) {
+                                                 console.log('unbind 3');
+                                                 e.model.unbind("change");
+
+                                                 if (data.success) {
+                                                     $("#gridTable3").data("kendoGrid").refresh();
+
+                                                     //$("#Value").val((sum).toLocaleString(
+                                                     //    'en', // leave undefined to use the visitor's browser
+                                                     //    // locale or a string like 'en-US' to override it.
+                                                     //    { minimumFractionDigits: 0 }
+                                                     //));
+
+                                                     $("#gridTable2").data("kendoGrid").dataSource.read();
+
+                                                     return;
+                                                 }
+                                                 else {
+                                                     alert("Giá trị phát sinh vượt quá giá trị thực! Vui lòng kiểm tra lại");
+                                                     model.set("Value", 0);
+                                                     $("#gridTable3").data("kendoGrid").refresh();
+
+                                                     var sumRe = 0;
+                                                     var dataSourceTableRe = $("#gridTable3").data("kendoGrid").dataSource.data();
+                                                     for (var j = 0; j < dataSourceTableRe.length; j++) {
+                                                         var dataItem = dataSourceTableRe[j];
+                                                         sumRe += (dataItem.Value != null ? dataItem.Value : 0);
+                                                     }
+
+                                                     //if (sumTable1 > sumRe) {
+                                                     //    changeSaveTable1 = false;
+                                                     //    $(".alert-table").show();
+                                                     //}
+                                                     //else {
+                                                     //    changeSaveTable1 = true
+                                                     //    $(".alert-table").hide();
+                                                     //}
+
+                                                     //$("#Value").val((sumRe).toLocaleString(
+                                                     //    'en', // leave undefined to use the visitor's browser
+                                                     //    // locale or a string like 'en-US' to override it.
+                                                     //    { minimumFractionDigits: 0 }
+                                                     //));
+
+                                                     $("#gridTable2").data("kendoGrid").dataSource.read();
+                                                     return;
+                                                 }
+                                                },
+                                             error: function (d) {
+                                                console.log(d.responseText);
+                                                          }
+                                                    });
+                                    }
+                                });
+                            }
+                        });
+
+
+                        function dateIncurredEditor(container, options) {
+                            $('<input name="IncurredId" id="ComboboxIncurred" required validationMessage="Vui lòng chọn nguồn">')
+                                .appendTo(container)
+                                .kendoComboBox({
+                                    autoBind: true,
+                                    dataTextField: "IncurredName",
+                                    dataValueField: "Id",
+                                    dataSource: dataIncurred
+                                });
+                        }
+
+                        // call action get incurred comboxfor
+                        var dataIncurred = new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: "/admin/BuyAndSellBond/IncurredList/" ,
+                                    dataType: "json",
+                                    data: getSourceIncurred
+                                }
+                            },
+                            schema: {
+                                model: {
+                                    id: "ID",
+                                    fields: {
+                                        Id: { type: "int" },
+                                        IncurredName: { type: "string" },
+                                        DisplayName: { type: "string" }
+                                    }
+                                }
+                            },
+                            serverFiltering: true
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-actions">
+    <button class="btn btn-primary" type="submit" id="save_form">@Resources.Common.SaveChanges</button>
+</div>
+
+<script type="text/javascript">
+
+    var checkBox = false;
+
+    function showInterest() {
+      
+       
+        var AssetCategoryId = $("#AssetCategorysId").val();
+        $.ajax({
+                
+                    url: "@Url.Action("ShowInterest", "BuyAndSellBond")",
+                    contentType: "application/json",
+                    method: "post",
+                    data: JSON.stringify({ AssetCategoryId}),
+                 success: function (data) {
+                     document.getElementById("InputInterestRateString").value = data.InputInterestRateString;
+                     document.getElementById("InterestPayPeriod").value = data.InterestPayment;
+                     document.getElementById("PeriodString").value = data.PeriodFloat;
+                     document.getElementById("bond").value = data.ReleaseDate;
+
+                     if ($("#PeriodString").val() != '' && $("#PeriodString").val() != null) {
+                         var Period = parseFloat($("#PeriodString").val().replace(/,/g, ""));
+                         $("#Period").val(Period);
+                        
+                     }
+                    },
+            error: function (d) {
+                alert(d.responseText);
+                          }
+                    });
+    }
+
+    $(document).ready(function () {
+
+        top.winsetup("Thêm quản lý danh mục tài sản", screen.width * 0.9, screen.height * 0.7, true);
+
+        kendo.culture("en-US");
+        $(".alert-table").hide();
+
+        var getDataCheckbox = @Html.Raw(Json.Encode(Model.FixedInterestRate));
+        if (getDataCheckbox === true) {
+            checkBox = true;
+            $("#table2").show();
+            $("#interestRate_box").show();
+            $("#periodDate_box").show();
+            $("#period_box").show();
+            $("#interestPayPeriod_box").show();
+        }
+        else {
+            $("#table2").hide();
+            $("#interestRate_box").hide();
+            $("#periodDate_box").hide();
+            $("#period_box").hide();
+            $("#interestPayPeriod_box").hide();
+        }
+
+        var data = @Html.Raw(Json.Encode(ViewBag.SourceInBuyAndSellBond));
+        if (data != null && data != "") {
+            $("#gridTable3").data("kendoGrid").dataSource.read();
+            $("#table3").show();
+        }
+        else {
+            $("#table3").hide();
+        }
+
+        //$(".err-transfer-date").hide();
+
+        //$("#periodDate").data("kendoDatePicker").enable(false);
+
+        $("#debt").submit(function () {
+            if ($("#UnitPrice").val() != '' && $("#UnitPrice").val() != null) {
+                var unitPrice = parseFloat($("#UnitPrice").val().replace(/,/g, ""));
+                $("#UnitPrice").val(unitPrice);
+            }
+
+            if ($("#Quantily").val() != '' && $("#Quantily").val() != null) {
+                var quantily = parseFloat($("#Quantily").val().replace(/,/g, ""));
+                $("#Quantily").val(quantily);
+            }
+
+            if ($("#InvestmentReturnString").val() != '' && $("#InvestmentReturnString").val() != null) {
+                var investmentReturn = parseFloat($("#InvestmentReturnString").val().replace(/,/g, ""));
+                $("#InvestmentReturn").val(investmentReturn);
+            }
+
+            if ($("#PersonalIncomeTaxString").val() != '' && $("#PersonalIncomeTaxString").val() != null) {
+                var personalIncomeTax = parseFloat($("#PersonalIncomeTaxString").val().replace(/,/g, ""));
+                $("#PersonalIncomeTax").val(personalIncomeTax);
+            }
+
+            if ($("#StringValue").val() != '' && $("#StringValue").val() != null) {
+                var value = parseFloat($("#StringValue").val().replace(/,/g, ""));
+                $("#Value").val(value);
+            }
+
+            if ($("#PreTaxProfitString").val() != '' && $("#PreTaxProfitString").val() != null) {
+                var preTaxProfit = parseFloat($("#PreTaxProfitString").val().replace(/,/g, ""));
+                $("#PreTaxProfit").val(preTaxProfit);
+            }
+
+            if ($("#PropertyManagementFeesString").val() != '' && $("#PropertyManagementFeesString").val() != null) {
+                var propertyManagementFees = parseFloat($("#PropertyManagementFeesString").val().replace(/,/g, ""));
+                $("#PropertyManagementFees").val(propertyManagementFees);
+            }
+
+            if ($("#InputInterestRateString").val() != '' && $("#InputInterestRateString").val() != null) {
+                var inputInterestRate = parseFloat($("#InputInterestRateString").val().replace(/,/g, ""));
+                $("#InputInterestRate").val(inputInterestRate);
+            }
+
+            if ($("#PeriodString").val() != '' && $("#PeriodString").val() != null) {
+                var Period = parseFloat($("#PeriodString").val().replace(/,/g, ""));
+                $("#Period").val(Period);
+            }
+
+            if ($("#PersonalIncomeTaxString").val() != '' && $("#PersonalIncomeTaxString").val() != null) {
+                var personalIncomeTax = parseFloat($("#PersonalIncomeTaxString").val().replace(/,/g, ""));
+                $("#PersonalIncomeTax").val(personalIncomeTax);
+            }
+
+            if ($("#TotalValueSoldString").val() != '' && $("#TotalValueSoldString").val() != null) {
+                var totalValueSold = parseFloat($("#TotalValueSoldString").val().replace(/,/g, ""));
+                $("#TotalValueSold").val(totalValueSold);
+            }
+
+            if ($("#PersonalIncomeTaxCalculationString").val() != '' && $("#PersonalIncomeTaxCalculationString").val() != null) {
+                var personalIncomeTaxCalculation = parseFloat($("#PersonalIncomeTaxCalculationString").val().replace(/,/g, ""));
+                $("#PersonalIncomeTaxCalculation").val(personalIncomeTaxCalculation);
+            }
+
+            if ($("#RoundedPurchaseValueString").val() != '' && $("#RoundedPurchaseValueString").val() != null) {
+                var roundedPurchaseValue = parseFloat($("#RoundedPurchaseValueString").val().replace(/,/g, ""));
+                $("#RoundedPurchaseValue").val(roundedPurchaseValue);
+            }
+
+            if ($("#perioddate").val() != null && $("#perioddate").val() != "") {
+                var date = stringToDate($("#perioddate").val().toString(), "dd/MM/yyyy", "/");
+                $("#perioddate").data("kendoDatePicker").value(date);
+            }
+
+            return true;
+        });
+
+    });
+
+    $("#StringValue").change(function (e) {
+        var value = $("#StringValue").val() != "" ? parseFloat($("#StringValue").val().replace(/,/g, "")) : 0;
+        $("#Value").val(value);
+
+        $("#gridTable2").data("kendoGrid").dataSource.read();
+    });
+
+    function create_success() {
+        top.$("#window").data("kendoWindow").close();
+        top.$("#grid").data("kendoGrid").dataSource.read();
+        window.parent.show_stack_bottom_right('success', 'Thêm', 'Thêm thành công.');
+    }
+
+    function filterCustomer() {
+        return {
+            customerId: $("#CustomerId").val()
+        };
+    }
+
+    $("#save_form").click(function (e) {
+        $('#InterestRate').rules('remove');
+        $('#Rates').rules('remove');
+        $('#PreTaxProfit').rules('remove');
+        $('#ProfitAfterTax').rules('remove');
+        $('#WealthManageBenefits').rules('remove');
+        $('#NetInterest').rules('remove');
+        $('#InterestRateInOut').rules('remove');
+        $('#InputInterestRate').rules('remove');
+        $('#PropertyManagementFees').rules('remove');
+        $('#PersonalIncomeTax').rules('remove');
+        $('#TotalValueSold').rules('remove');
+        $('#PersonalIncomeTaxCalculation').rules('remove');
+        $('#RoundedPurchaseValue').rules('remove');
+        $('#Denominations').rules('remove');
+        $('#RealValueReceived').rules('remove');
+        e.preventDefault();
+
+        var rowselectedTable1 = [];
+        var rowselectedTable2 = [];
+        var rowselectedTable3 = [];
+
+        //var dataSourceTable1 = $("#gridTable1").data("kendoGrid").dataSource.data();
+        var dataSourceTable2 = $("#gridTable2").data("kendoGrid").dataSource.data();
+        var dataSourceTable3 = $("#gridTable3").data("kendoGrid").dataSource.data();
+
+        //for (var j = 0; j < dataSourceTable1.length; j++) {
+        //    var dataItem = dataSourceTable1[j];
+        //    var model = {};
+
+        //    model.Id = dataItem.Id;
+        //    model.Content = dataItem.Content;
+        //    model.ImplementationDate = dataItem.ImplementationDate;
+        //    model.Value = dataItem.Value;
+
+        //    rowselectedTable1.push(model);
+        //}
+
+        for (var j = 0; j < dataSourceTable2.length; j++) {
+            var dataItem = dataSourceTable2[j];
+            var model = {};
+            model.Id = dataItem.Id;
+            model.Content = dataItem.Content;
+            model.InterestPaymentDate = dataItem.InterestPaymentDate;
+            model.CalculateInterestNumber = dataItem.CalculateInterestNumber;
+            model.AccruedInterest = dataItem.AccruedInterest;
+
+            rowselectedTable2.push(model);
+        }
+
+        for (var j = 0; j < dataSourceTable3.length; j++) {
+            var dataItem = dataSourceTable3[j];
+            var model = {};
+            model.Id = dataItem.Id;
+            model.IncurredId = (typeof dataItem.IncurredId === 'object' && dataItem.IncurredId !== null) ? dataItem.IncurredId.Id : dataItem.IncurredId;
+            model.Value = dataItem.Value;
+            model.Note = dataItem.Note;
+
+            rowselectedTable3.push(model);
+        }
+        var dataSubmitTable1 = JSON.stringify(rowselectedTable1);
+        var dataSubmitTable2 = JSON.stringify(rowselectedTable2);
+        var dataSubmitTable3 = JSON.stringify(rowselectedTable3);
+
+        $("input[name='dataTable1']").val(dataSubmitTable1);
+        $("input[name='dataTable2']").val(dataSubmitTable2);
+        $("input[name='dataTable3']").val(dataSubmitTable3);
+
+        changeSaveTable1 = true;
+
+        if (changeSaveTable1 && changePurchaseDate) {
+            $("#debt").submit();
+            }
+    });
+
+    $("#InterestPayPeriod").change(function () {
+        $("#gridTable2").data("kendoGrid").dataSource.read();
+    });
+
+    $("#InterestRateString").change(function (e) {
+        var value = parseFloat($("#InterestRateString").val().replace(/,/g, ""));
+        $("#InterestRate").val(value);
+
+        $("#gridTable2").data("kendoGrid").dataSource.read();
+    });
+
+    $("#CustomerId").change(function () {
+        var multiSelect = $("#sourceInBuyAndSellBond").data("kendoMultiSelect");
+        multiSelect.value([]);
+        multiSelect.dataSource.read();
+    });
+
+    $("#UnitPrice").change(function (e) {
+
+        if ($("#UnitPrice").val() != null && $("#UnitPrice").val() != '' && $("#Quantily").val() != null && $("#Quantily").val() != '') {
+            var unitPrice = parseFloat($("#UnitPrice").val().replace(/,/g, ""));
+            var quantily = parseFloat($("#Quantily").val().replace(/,/g, ""));
+            var cal = unitPrice * quantily;
+
+            $("#Value").val(cal);
+            $("#StringValue").val((cal).toLocaleString(
+                'en', // leave undefined to use the visitor's browser
+                // locale or a string like 'en-US' to override it.
+                { minimumFractionDigits: 0 }
+            ));
+
+            $("#gridTable2").data("kendoGrid").dataSource.read();
+        }
+    });
+
+    $("#Quantily").change(function (e) {
+        if ($("#UnitPrice").val() != null && $("#UnitPrice").val() != '' && $("#Quantily").val() != null && $("#Quantily").val() != '') {
+            var unitPrice = parseFloat($("#UnitPrice").val().replace(/,/g, ""));
+            var quantily = parseFloat($("#Quantily").val().replace(/,/g, ""));
+            var cal = unitPrice * quantily;
+
+            $("#Value").val(cal);
+            $("#StringValue").val((cal).toLocaleString(
+                'en', // leave undefined to use the visitor's browser
+                // locale or a string like 'en-US' to override it.
+                { minimumFractionDigits: 0 }
+            ));
+
+            $("#gridTable2").data("kendoGrid").dataSource.read();
+        }
+    });
+
+    $("#Period").change(function () {
+        //var date = $("#purchase").data("kendoDatePicker").value();
+        //var months = $("#Period").val();
+
+        //if (months != "" && months != null && date != null && date != "") {
+        //    var purchaseDate = stringToDate($("#purchase").val().toString(), "dd/MM/yyyy", "/");
+        //    var newDate = new Date(purchaseDate.setMonth(parseInt(purchaseDate.getMonth()) + parseInt(months)));
+        //    var calDate = kendo.toString(kendo.parseDate(newDate), 'dd/MM/yyyy');
+
+        //    $("#periodDate").data("kendoDatePicker").value(calDate);
+
+        //    var startDate = stringToDate($("#purchase").val().toString(), "dd/MM/yyyy", "/");
+        //    var endDate = stringToDate(calDate, "dd/MM/yyyy", "/");
+
+        //    var countDate = datediff(startDate, endDate);
+        //    $("#CalculateInterestDate").val(countDate);
+        //}
+        //else {
+        //    $("#periodDate").data("kendoDatePicker").value(date);
+        //}
+
+        //$("#gridTable2").data("kendoGrid").dataSource.read();
+    });
+
+    function purchaseDateChange(e) {
+        if ($("#purchase").val() != null && $("#purchase").val() != "" && $("#periodtime").val() != null && $("#periodtime").val() != "" ) {
+            var startDate = stringToDate($("#purchase").val().toString(), "dd/MM/yyyy", "/");
+            var endDate = stringToDate($("#periodtime").val().toString(), "dd/MM/yyyy", "/");
+
+            var countDate = datediff(startDate, endDate);
+            $("#CalculateInterestDate").val(countDate);
+        }
+
+        if ($("#purchase").val() != null && $("#transfer").val() != null) {
+            var startDate = stringToDate($("#purchase").val().toString(), "dd/MM/yyyy", "/");
+            var endDate = stringToDate($("#transfer").val().toString(), "dd/MM/yyyy", "/");
+
+            if (startDate > endDate) {
+                if ($(".err-transfer-date").hasClass('d-none')) {
+                    $(".err-transfer-date").toggleClass('d-none');
+                }
+                changePurchaseDate = false;
+            }
+            else {
+                if (!$(".err-transfer-date").hasClass('d-none')) {
+                    $(".err-transfer-date").toggleClass('d-none');
+                }
+                changePurchaseDate = true;
+            }
+        }
+
+        //$("#periodDate").data("kendoDatePicker").value(calDate);
+        //$("#secondary").data("kendoDatePicker").value(thisDate);
+        $("#gridTable2").data("kendoGrid").dataSource.read();
+    }
+
+    function periodDateChange(e) {
+        if ($("#purchase").val() != null && $("#purchase").val() != "" && $("#periodtime").val() != null && $("#periodtime").val() != "") {
+            var startDate = stringToDate($("#purchase").val().toString(), "dd/MM/yyyy", "/");
+            var endDate = stringToDate($("#periodtime").val().toString(), "dd/MM/yyyy", "/");
+
+            var countDate = datediff(startDate, endDate);
+            $("#CalculateInterestDate").val(countDate);
+        }
+
+        //$("#periodDate").data("kendoDatePicker").value(calDate);
+        //$("#secondary").data("kendoDatePicker").value(thisDate);
+        $("#gridTable2").data("kendoGrid").dataSource.read();
+    }
+
+
+
+    function transferDateChange(e) {
+        if ($("#purchase").val() != null && $("#transfer").val() != null) {
+            var startDate = stringToDate($("#purchase").val().toString(), "dd/MM/yyyy", "/");
+            var endDate = stringToDate($("#transfer").val().toString(), "dd/MM/yyyy", "/");
+
+            if (startDate > endDate) {
+                if ($(".err-transfer-date").hasClass('d-none')) {
+                    $(".err-transfer-date").toggleClass('d-none');
+                }
+                changePurchaseDate = false;
+            }
+            else {
+                if (!$(".err-transfer-date").hasClass('d-none')) {
+                    $(".err-transfer-date").toggleClass('d-none');
+                }
+                changePurchaseDate = true;
+            }
+        }
+    }
+
+    function stringToDate(_date, _format, _delimiter) {
+        var formatLowerCase = _format.toLowerCase();
+        var formatItems = formatLowerCase.split(_delimiter);
+        var dateItems = _date.split(_delimiter);
+        var monthIndex = formatItems.indexOf("mm");
+        var dayIndex = formatItems.indexOf("dd");
+        var yearIndex = formatItems.indexOf("yyyy");
+        var month = parseInt(dateItems[monthIndex]);
+        month -= 1;
+        var formatedDate = new Date(dateItems[yearIndex], month, dateItems[dayIndex]);
+        return formatedDate;
+    }
+    function datediff(first, second) {
+        // Take the difference between the dates and divide by milliseconds per day.
+        // Round to nearest whole number to deal with DST.
+        return Math.round((second - first) / (1000 * 60 * 60 * 24));
+    }
+
+    function CheckBoxOnChange(e) {
+        if (checkBox) {
+            checkBox = false;
+            $("#table2").hide();
+            $("#interestRate_box").hide();
+            $("#periodDate_box").hide();
+            $("#period_box").hide();
+            $("#interestPayPeriod_box").hide();
+        } else {
+            checkBox = true;
+            $("#table2").show();
+            $("#interestRate_box").show();
+            $("#periodDate_box").show();
+            $("#period_box").show();
+            $("#interestPayPeriod_box").show();
+        }
+    }
+
+    function setInputFilter(textbox, inputFilter) {
+        ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function (event) {
+            textbox.addEventListener(event, function () {
+                if (inputFilter(this.value)) {
+                    this.oldValue = this.value;
+                    this.oldSelectionStart = this.selectionStart;
+                    this.oldSelectionEnd = this.selectionEnd;
+                } else if (this.hasOwnProperty("oldValue")) {
+                    this.value = this.oldValue;
+                    this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+                } else {
+                    this.value = "";
+                }
+            });
+        });
+    }
+
+
+    setInputFilter(document.getElementById("InterestPayPeriod"), function (value) {
+        return /^\d*$/.test(value);
+    });
+
+    setInputFilter(document.getElementById("Period"), function (value) {
+        return /^\d*$/.test(value);
+    });
+
+    setInputFilter(document.getElementById("InterestRate"), function (value) {
+        return /^\d*$/.test(value);
+    });
+
+    //add script for cmt by customer
+    $("#InvestmentReturnString").change(function (e) {
+        var investmentReturn = parseFloat($("#InvestmentReturnString").val().replace(/,/g, ""));
+        $("#InvestmentReturn").val(investmentReturn);
+    });
+
+    $("#PersonalIncomeTaxString").change(function (e) {
+        var personalIncomeTax = parseFloat($("#PersonalIncomeTaxString").val().replace(/,/g, ""));
+        $("#PersonalIncomeTax").val(personalIncomeTax);
+    });
+
+    $("#PropertyManagementFeesString").change(function (e) {
+        var propertyManagementFees = parseFloat($("#PropertyManagementFeesString").val().replace(/,/g, ""));
+        $("#PropertyManagementFees").val(propertyManagementFees);
+    });
+
+    $("#InputInterestRateString").change(function (e) {
+        var inputInterestRate = parseFloat($("#InputInterestRateString").val().replace(/,/g, ""));
+        $("#InputInterestRate").val(inputInterestRate);
+    });
+
+    $("#PeriodString").change(function (e) {
+        var Period = parseFloat($("#PeriodString").val().replace(/,/g, ""));
+        $("#Period").val(Period);
+    });
+
+    $("#TotalValueSoldString").change(function (e) {
+        var totalValueSold = parseFloat($("#TotalValueSoldString").val().replace(/,/g, ""));
+        $("#TotalValueSold").val(totalValueSold);
+    });
+
+    $("#PersonalIncomeTaxCalculationString").change(function (e) {
+        var personalIncomeTaxCalculation = parseFloat($("#PersonalIncomeTaxCalculationString").val().replace(/,/g, ""));
+        $("#PersonalIncomeTaxCalculation").val(personalIncomeTaxCalculation);
+    });
+
+    $("#RoundedPurchaseValueString").change(function (e) {
+        var roundedPurchaseValue = parseFloat($("#RoundedPurchaseValueString").val().replace(/,/g, ""));
+        $("#RoundedPurchaseValue").val(roundedPurchaseValue);
+    });
+
+    $("#calculator_button").click(function (e) {
+        var calculateInterestDate = parseFloat($("#CalculateInterestDate").val());
+
+        if ($("#Value").val() != null && $("#InputInterestRate").val() != null && $("#InterestRate").val() != null && $("#CalculateInterestDate").val() != null
+            && $("#Value").val() != "" && $("#InputInterestRate").val() != '' && $("#InterestRate").val() != '' && $("#CalculateInterestDate").val() != '') {
+            var value = parseFloat($("#Value").val().replace(/,/g, ""));
+            var interestRate = parseFloat($("#InterestRateString").val().replace(/,/g, ""));
+            var inputInterestRate = parseFloat($("#InputInterestRateString").val().replace(/,/g, ""));
+
+            var cal = ((value * inputInterestRate * 0.01 * calculateInterestDate) / 365 - (value * interestRate * 0.01 * calculateInterestDate) / 365).toFixed(2);
+            $("#InterestRateInOut").val(cal);
+            $("#InterestRateInOutString").val(String(cal).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+        }
+
+        if ($("#RoundedPurchaseValueString").val() != null && $("#PropertyManagementFeesString").val() != null &&
+            $("#RoundedPurchaseValueString").val() != "" && $("#PropertyManagementFeesString").val() != '') {
+            var roundedPurchaseValue = parseFloat($("#RoundedPurchaseValueString").val().replace(/,/g, ""));
+            var propertyManagementFees = parseFloat($("#PropertyManagementFeesString").val().replace(/,/g, ""));
+            var calWealth = (roundedPurchaseValue * propertyManagementFees * 0.01).toFixed(2);
+            $("#WealthManageBenefits").val(calWealth);
+            $("#WealthManageBenefitsString").val(String(calWealth).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+        }
+
+        if ($("#Value").val() != null && $("#InterestRateString").val() != null && $("#CalculateInterestDate").val() != null &&
+            $("#Value").val() != "" && $("#InterestRateString").val() != '' && $("#CalculateInterestDate").val() != '') {
+            var denominations = parseFloat($("#DenominationsString").val().replace(/,/g, ""));
+            var inputInterestRate = parseFloat($("#InputInterestRateString").val().replace(/,/g, ""));
+            var cal = ((denominations * inputInterestRate * 0.01 * calculateInterestDate) / 365).toFixed(2);
+            $("#PreTaxProfit").val(cal);
+            $("#PreTaxProfitString").val(String(cal).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+
+            if ($("#PreTaxProfit").val() != null && $("#PersonalIncomeTaxString").val() != null &&
+                $("#PreTaxProfit").val() != "" && $("#PersonalIncomeTaxString").val() != '') {
+                var preTaxProfit = parseFloat($("#PreTaxProfit").val());
+                var personalIncomeTaxString = parseFloat($("#PersonalIncomeTaxString").val().replace(/,/g, ""));
+                var assetTypeId = $("#AssetTypeId").val();
+                var value = parseFloat($("#Value").val().replace(/,/g, ""));
+                var calPerIncomeTaxCal;
+                if (assetTypeId == 51 || assetTypeId == 54 || assetTypeId == 53) //hợp đồng hợp tác đầu tư
+                {
+                    calPerIncomeTaxCal = (preTaxProfit * personalIncomeTaxString * 0.01).toFixed(2);
+                }
+                else if (assetTypeId == 52 ) //hợp đồng mua bán
+                {
+                    calPerIncomeTaxCal = (value * personalIncomeTaxString * 0.01).toFixed(2);
+                }
+
+                $("#PersonalIncomeTaxCalculation").val(calPerIncomeTaxCal);
+                $("#PersonalIncomeTaxCalculationString").val(String(calPerIncomeTaxCal).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+
+                if ($("#PreTaxProfit").val() != null && $("#PersonalIncomeTaxCalculation").val() != null &&
+                    $("#PreTaxProfit").val() != "" && $("#PersonalIncomeTaxCalculation").val() != '') {
+                    var preTaxProfit = parseFloat($("#PreTaxProfit").val());
+                    var personalIncomeTaxCalculation = parseFloat($("#PersonalIncomeTaxCalculation").val());
+                    var calProfitAfterTax = (preTaxProfit - personalIncomeTaxCalculation).toFixed(2);
+
+                    $("#ProfitAfterTax").val(calProfitAfterTax);
+                    $("#ProfitAfterTaxString").val(String(calProfitAfterTax).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+
+                    var realIncome;
+                    var propertyManagementFees = parseFloat($("#PropertyManagementFeesString").val().replace(/,/g, ""));
+                    var unitPrice = parseFloat($("#UnitPrice").val().replace(/,/g, ""));
+                    if (assetTypeId == 52 ) //hợp đồng mua bán TP
+                    {
+                        realIncome = value - calPerIncomeTaxCal - propertyManagementFees;
+                    }
+                    else if (assetTypeId == 53) //hợp tác trái phiếu
+                    {
+                        realIncome = unitPrice + calProfitAfterTax;
+                    }
+                    else if (assetTypeId == 51) //đầu tư mm hàng
+                    {
+                        realIncome = unitPrice + calProfitAfterTax;
+                    }
+                    else if (assetTypeId == 54) //đầu tư mm tiền
+                    {
+                        realIncome = unitPrice + calProfitAfterTax;
+                    }
+                    $("#RealValueReceived").val(realIncome);
+                    $("#RealValueReceivedString").val(String(realIncome).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+
+                    if ($("#ProfitAfterTax").val() != null && $("#CalculateInterestDate").val() != null && $("#RoundedPurchaseValueString").val() != null &&
+                        $("#ProfitAfterTax").val() != "" && $("#CalculateInterestDate").val() != '' && $("#RoundedPurchaseValueString").val() != '') {
+                        var profitAfterTax = parseFloat($("#ProfitAfterTax").val());
+                        var roundedPurchaseValue = parseFloat($("#RoundedPurchaseValueString").val().replace(/,/g, ""));
+                        var calRates = ((calculateInterestDate != 0 && roundedPurchaseValue != 0) ? ((((profitAfterTax * 365) / calculateInterestDate) / roundedPurchaseValue) * 100) : 0).toFixed(2);
+
+                        $("#Rates").val(calRates);
+                        $("#RatesString").val(String(calRates).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                    }
+
+                    if ($("#ProfitAfterTax").val() != null && $("#Value").val() != null &&
+                        $("#ProfitAfterTax").val() != "" && $("#Value").val() != '') {
+                        var value = parseFloat($("#Value").val().replace(/,/g, ""));
+                        var profitAfterTax = parseFloat($("#ProfitAfterTax").val());
+                        var calTotalValueSold = (value + profitAfterTax).toFixed(2);
+
+                        $("#TotalValueSold").val(calTotalValueSold);
+                        $("#TotalValueSoldString").val(String(calTotalValueSold).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+
+                        if ($("#TotalValueSold").val() != null && $("#RoundedPurchaseValueString").val() != null && $("#WealthManageBenefits").val() != null &&
+                            $("#TotalValueSold").val() != "" && $("#RoundedPurchaseValueString").val() != '' && $("#WealthManageBenefits").val() != '') {
+                            var totalValueSold = parseFloat($("#TotalValueSold").val());
+                            var wealthManageBenefits = parseFloat($("#WealthManageBenefits").val());
+                            var roundedPurchaseValue = parseFloat($("#RoundedPurchaseValueString").val().replace(/,/g, ""));
+                            var calNetInterest = (totalValueSold - roundedPurchaseValue - wealthManageBenefits).toFixed(2);
+
+                            $("#NetInterest").val(calNetInterest);
+                            $("#NetInterestString").val(calNetInterest).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+
+<style>
+    .k-dirty-cell {
+        color: black !important;
+    }
+</style>
+
+<script src="https://kendo.cdn.telerik.com/2022.1.301/js/cultures/kendo.culture.en-GB.min.js"></script>
