@@ -937,3 +937,8 @@ D:\Code\Finance-manager\WEB\obj\Debug\WEB.csproj.CoreCompileInputs.cache
 D:\Code\Finance-manager\WEB\obj\Debug\WEB.csproj.CopyComplete
 D:\Code\Finance-manager\WEB\obj\Debug\WEB.dll
 D:\Code\Finance-manager\WEB\obj\Debug\WEB.pdb
+D:\Code\LogAnalysis\WEB\obj\Debug\WEB.csproj.App.config
+D:\Code\LogAnalysis\WEB\obj\Debug\WEB.csproj.AssemblyReference.cache
+D:\Code\LogAnalysis\WEB\obj\Debug\WEB.csproj.CoreCompileInputs.cache
+D:\Code\LogAnalysis\WEB\obj\Debug\WEB.dll
+D:\Code\LogAnalysis\WEB\obj\Debug\WEB.pdb

@@ -330,7 +330,6 @@
     <Compile Include="Areas\Admin\Controllers\AdvPositionController.cs" />
     <Compile Include="Areas\Admin\Controllers\BaseController.cs" />
     <Compile Include="Areas\Admin\Controllers\ContractSummaryController.cs" />
-    <Compile Include="Areas\Admin\Controllers\NewsController.cs" />
     <Compile Include="Areas\Admin\Controllers\InvestmentReportController.cs" />
     <Compile Include="Areas\Admin\Controllers\ContentTypeController.cs" />
     <Compile Include="Areas\Admin\Controllers\BuyAndSellBondController.cs" />
@@ -347,9 +346,7 @@
     <Compile Include="Areas\Admin\Controllers\OrderController.cs" />
     <Compile Include="Areas\Admin\Controllers\ReportTypeOfAssetsController.cs" />
     <Compile Include="Areas\Admin\Controllers\SubscribeNoticeController.cs" />
-    <Compile Include="Areas\Admin\Controllers\AssetCategoryController.cs" />
     <Compile Include="Areas\Admin\Controllers\TLBsPromiseController.cs" />
-    <Compile Include="Areas\Admin\Controllers\TypeOfAssetsController.cs" />
     <Compile Include="Areas\Admin\Controllers\CustomerController.cs" />
     <Compile Include="Areas\Admin\Controllers\WebCategoryController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProvinceController.cs" />
@@ -7356,12 +7353,6 @@
     <Content Include="Areas\Admin\Views\Customer\Edit.cshtml" />
     <Content Include="Areas\Admin\Views\Customer\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Customer\Undo.cshtml" />
-    <Content Include="Areas\Admin\Views\TypeOfAssets\Add.cshtml" />
-    <Content Include="Areas\Admin\Views\TypeOfAssets\Delete.cshtml" />
-    <Content Include="Areas\Admin\Views\TypeOfAssets\Deletes.cshtml" />
-    <Content Include="Areas\Admin\Views\TypeOfAssets\Edit.cshtml" />
-    <Content Include="Areas\Admin\Views\TypeOfAssets\Index.cshtml" />
-    <Content Include="Areas\Admin\Views\TypeOfAssets\Undo.cshtml" />
     <Content Include="Areas\ContentType\Views\PersonalInfo\Index.cshtml" />
     <Content Include="Areas\ContentType\Views\Shared\_LayoutFinanceManager.cshtml" />
     <Content Include="Content\themes\web\FM\css\style.css.map" />
@@ -7899,10 +7890,6 @@
     <Content Include="Areas\ContentType\Views\Report\_PubIndex.cshtml" />
     <Content Include="Content\themes\web\css\scss\_report.scss" />
     <Content Include="Areas\ContentType\Views\ChangePassword\_PubIndex.cshtml" />
-    <Content Include="Areas\Admin\Views\News\Add.cshtml" />
-    <Content Include="Areas\Admin\Views\News\Edit.cshtml" />
-    <Content Include="Areas\Admin\Views\News\Index.cshtml" />
-    <Content Include="Areas\Admin\Views\News\Undo.cshtml" />
     <Content Include="Areas\ContentType\Views\ContractWarning\_PubIndex.cshtml" />
     <Content Include="Areas\ContentType\Views\News\_PubIndex.cshtml" />
     <Content Include="Areas\ContentType\Views\NewsDetail\_PubIndex.cshtml" />
@@ -7910,10 +7897,6 @@
     <Content Include="Areas\Admin\Views\ContractWarnings\EarningDueWarning.cshtml" />
     <Content Include="Areas\Admin\Views\ContractWarnings\SettlementWarning.cshtml" />
     <Content Include="Areas\Admin\Views\ContractWarnings\DisbursementWarning.cshtml" />
-    <Content Include="Areas\Admin\Views\AssetCategory\Add.cshtml" />
-    <Content Include="Areas\Admin\Views\AssetCategory\Edit.cshtml" />
-    <Content Include="Areas\Admin\Views\AssetCategory\Index.cshtml" />
-    <Content Include="Areas\Admin\Views\AssetCategory\Undo.cshtml" />
     <Content Include="Areas\Admin\Views\InvestmentReport\Index.cshtml" />
     <Content Include="Areas\Admin\Views\TLBsPromise\Index.cshtml" />
     <Content Include="Areas\Admin\Views\ReportTypeOfAssets\Index.cshtml" />
