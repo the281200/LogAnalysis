@@ -9,6 +9,10 @@ using WEB.Models;
 using System.Data.Entity;
 using System.Web.Routing;
 using System.Globalization;
+using Tx.Windows;
+using System.Web.Hosting;
+using System.Net;
+using System.IO;
 
 namespace WEB.Controllers
 {
@@ -284,6 +288,24 @@ namespace WEB.Controllers
             db.SaveChanges();
 
             return RedirectToAction("Index");
+        }
+        public void GetDataFromLogFile()
+        {
+            var uri = "/Uploads";
+            var uriLogFile = uri + "/log_data.log";
+            WebClient client = new WebClient();
+            client.Credentials = new NetworkCredential("uainpsgt", "6gppUx3H56");
+            client.DownloadFile("ftp://uainpsgt@103.130.212.186/logs/iis/W3SVC50/u_extend1.log", HostingEnvironment.MapPath(uriLogFile));
+            var iisLog = W3CEnumerable.FromFile(HostingEnvironment.MapPath(uriLogFile));
+            List<string> IpsLog = new List<string>();
+            foreach (var item in iisLog)
+            {
+                IpsLog.Add(item.c_ip);
+            }
+            List<string> test = IpsLog;
+            //@"\httpdocs\Uploads\log_test.log"
+            //HostingEnvironment.MapPath("/Uploads")
+            //@"C:\local\path\file.zip"
         }
 
         public ActionResult RequestCheckContract()

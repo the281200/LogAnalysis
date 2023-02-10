@@ -51,7 +51,7 @@
                        type = "text",
                        name = "BKS",
                             @class = "input-block-level",@*@style = "width: 11vw",*@@readonly = "readonly",
-@tabindex = "12"
+@*@tabindex = "12"*@
 })
                         @Html.ValidationMessageFor(m => m.CalculateInterestDate)
                     </div>
@@ -100,7 +100,7 @@
                             .Name("transfer") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
                             .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
                             .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
-                            .HtmlAttributes(new { type = "text", @tabindex = "13" })
+                            .HtmlAttributes(new { type = "text", @tabindex = "14" })
                             .Culture("vi-VN")
                             .Value(Model.TransferredTime)
             .Events(e =>
@@ -139,7 +139,7 @@
                     <div class="controls textbox-form-new col-10">
                         @(Html.Kendo().MultiSelect()
                   .Name("sourceInBuyAndSellBond")
-          .HtmlAttributes(new { style = "width:100%", @tabindex = "14" })
+          .HtmlAttributes(new { style = "width:100%", @tabindex = "15" })
           .Placeholder("Nguồn sơ cấp...")
           .DataTextField("Name")
           .DataValueField("Id")
@@ -200,7 +200,7 @@
                                 @Html.Label("Lãi suất (%)", new { @class = "control-label" })
                             </div>
                             <div class="controls textbox-form-new col-10">
-                                @Html.TextBoxFor(m => m.InterestRateString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "15" })
+                                @Html.TextBoxFor(m => m.InterestRateString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "17" })
                                 @Html.ValidationMessageFor(m => m.InterestRateString)
                                 @Html.HiddenFor(m => m.InterestRate)
                             </div>
@@ -222,16 +222,15 @@
                 </div>
             </div>
 
-            <div class="col-6">
-                <div class="row" style="margin-left: -15px;">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="width-text-modal label-form-new col-2">
-                                @Html.Label("Loại tài sản/HĐ", new { @class = "control-label" })
-                                <span class="form-obligatory">*</span>
-                            </div>
-                            <div class="controls textbox-form-new col-10">
-                                @(Html.Kendo().ComboBoxFor(m=>m.AssetTypeId)
+            <div class="col-6 mt-4">
+                <div class="row">
+
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Loại tài sản/HĐ", new { @class = "control-label" })
+                        <span class="form-obligatory">*</span>
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+                        @(Html.Kendo().ComboBoxFor(m=>m.AssetTypeId)
           .Name("AssetTypeId")
           .HtmlAttributes(new { style = "width:100%", @tabindex = "17" })
           .Placeholder("Chọn loại tài sản...")
@@ -247,23 +246,38 @@
                .ServerFiltering(false);
           })
     )
-                                @Html.ValidationMessageFor(m => m.AssetTypeId)
+                        @Html.ValidationMessageFor(m => m.AssetTypeId)
 
-                            </div>
-                        </div>
                     </div>
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="width-text-modal label-form-new col-2">
-                                @Html.Label("Kỳ hạn TP (tháng)", new { @class = "control-label" })
-                                <span class="form-obligatory">*</span>
-                            </div>
-                            <div class="controls textbox-form-new col-10">
-                                @Html.TextBoxFor(m => m.PeriodString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "18" })
-                                @Html.HiddenFor(m => m.Period)
-                                @Html.ValidationMessageFor(m => m.Period)
-                            </div>
-                        </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-6">
+                <div class="row">
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Mệnh giá", new { @class = "control-label" })
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+                        @Html.TextBoxFor(m => m.DenominationsString, new { type = "text", name = "DenominationsString", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "6" })
+                        @Html.HiddenFor(m => m.Denominations)
+                        @Html.ValidationMessageFor(m => m.Denominations)
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="row">
+                    <div class="width-text-modal label-form-new col-2">
+                        @Html.Label("Kỳ hạn TP (tháng)", new { @class = "control-label" })
+                        <span class="form-obligatory">*</span>
+                    </div>
+                    <div class="controls textbox-form-new col-10">
+
+                        @Html.TextBoxFor(m => m.PeriodString, new { type = "text", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "19" })
+                        @Html.HiddenFor(m => m.Period)
+                        @Html.ValidationMessageFor(m => m.Period)
                     </div>
                 </div>
             </div>
@@ -278,7 +292,7 @@
                     <div class="controls textbox-form-new col-10">
                         @(Html.Kendo().ComboBoxFor(m=>m.AssetCategorysId)
           .Name("AssetCategorysId")
-          .HtmlAttributes(new { style = "width:100%", @tabindex = "6" })
+          .HtmlAttributes(new { style = "width:100%", @tabindex = "7" })
           .Placeholder("Chọn mã trái phiếu...")
           .DataTextField("Name")
           .DataValueField("Id")
@@ -314,7 +328,7 @@
                     .Name("bond") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
                     .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
                     .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
-                    .HtmlAttributes(new { type = "text", @tabindex = "19" })
+                    .HtmlAttributes(new { type = "text", @tabindex = "20" })
                     .Culture("vi-VN")
                    .Value(Model.BondIssueDate)
     //.Events(e =>
@@ -335,7 +349,7 @@
                         @Html.Label("Số lượng (TS/TP)", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.StringQuantily, new { type = "text", name = "Quantily", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "7" })
+                        @Html.TextBoxFor(m => m.StringQuantily, new { type = "text", name = "Quantily", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "8" })
                         @Html.HiddenFor(m => m.Quantily)
                         @Html.ValidationMessageFor(m => m.Quantily)
                         @Html.ValidationMessageFor(m => m.StringQuantily)
@@ -352,7 +366,7 @@
                     .Name("primary") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
                     .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
                     .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
-                    .HtmlAttributes(new { type = "text", @tabindex = "20" })
+                    .HtmlAttributes(new { type = "text", @tabindex = "21" })
                     .Culture("vi-VN")
                    .Value(Model.PrimaryPurchaseDate)
 
@@ -376,7 +390,7 @@
                         <span class="form-obligatory">*</span>
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.StringUnitPrice, new { type = "text", name = "UnitPrice", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "8" })
+                        @Html.TextBoxFor(m => m.StringUnitPrice, new { type = "text", name = "UnitPrice", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "9" })
                         @Html.HiddenFor(m => m.UnitPrice)
                         @Html.ValidationMessageFor(m => m.UnitPrice)
                     </div>
@@ -393,7 +407,7 @@
                     .Name("secondary") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
                     .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
                     .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
-                    .HtmlAttributes(new { type = "text", @tabindex = "21" })
+                    .HtmlAttributes(new { type = "text", @tabindex = "22" })
                     .Culture("vi-VN")
                    .Value(Model.SecondaryPurchaseDate)
 
@@ -416,7 +430,7 @@
                         <span class="form-obligatory">*</span>
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.StringValue, new { type = "text", name = "Value", @style = "width: 21vh;border-color: #dadada;", @class = "input-block-level", @onkeypress = "return CheckNumeric()", @tabindex = "9", @onkeyup = "FormatCurrency(this)", @readonly = "readonly" })
+                        @Html.TextBoxFor(m => m.StringValue, new { type = "text", name = "Value", @style = "width: 21vh;border-color: #dadada;", @class = "input-block-level", @onkeypress = "return CheckNumeric()"@*, @tabindex = "9"*@, @onkeyup = "FormatCurrency(this)", @readonly = "readonly" })
                         @Html.HiddenFor(m => m.Value)
                         @Html.ValidationMessageFor(m => m.Value)
                         @Html.ValidationMessageFor(m => m.StringValue)
@@ -431,7 +445,7 @@
 
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.InterestPayPeriod, new { type = "text", name = "BKS", @class = "input-block-level number", @tabindex = "22" })
+                        @Html.TextBoxFor(m => m.InterestPayPeriod, new { type = "text", name = "BKS", @class = "input-block-level number", @tabindex = "23" })
                         @Html.ValidationMessageFor(m => m.InterestPayPeriod)
                     </div>
                 </div>
@@ -444,7 +458,7 @@
                         @Html.Label("Giá trị mua làm tròn", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.RoundedPurchaseValueString, new { type = "text", name = "PersonalIncomeTaxString", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "10" })
+                        @Html.TextBoxFor(m => m.RoundedPurchaseValueString, new { type = "text", name = "PersonalIncomeTaxString", @class = "input-block-level number", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @tabindex = "11" })
                         @Html.HiddenFor(m => m.RoundedPurchaseValue)
                         @Html.ValidationMessageFor(m => m.RoundedPurchaseValue)
                     </div>
@@ -457,7 +471,7 @@
                         @Html.Label("Thuế TNCN %", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.PersonalIncomeTaxString, new { type = "text", name = "PersonalIncomeTaxString", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "23" })
+                        @Html.TextBoxFor(m => m.PersonalIncomeTaxString, new { type = "text", name = "PersonalIncomeTaxString", @class = "input-block-level number", @onkeypress = "return CheckNumericFloat()", @onkeyup = "FormatCurrency(this)", @tabindex = "24" })
                         @Html.HiddenFor(m => m.PersonalIncomeTax)
                         @Html.ValidationMessageFor(m => m.PersonalIncomeTax)
                     </div>
@@ -478,7 +492,7 @@
                     .Name("periodtime") // The name of the DatePicker is mandatory. It specifies the "id" attribute of the widget.
                     .Min(new DateTime(1900, 1, 1)) // Sets the min date of the DatePicker.
                     .Max(new DateTime(2099, 12, 31)) // Sets the max date of the DatePicker.
-                    .HtmlAttributes(new { type = "text", @tabindex = "11" })
+                    .HtmlAttributes(new { type = "text", @tabindex = "12" })
                     .Culture("vi-VN")
                     .Events(e =>
                     {
@@ -502,7 +516,7 @@
                             type = "text",
                             name = "BKS",
                             @class = "input-block-level number",@*@onkeypress = "return CheckNumeric()",*@@onkeyup = "FormatCurrency(this)",
-@tabindex = "24"
+@tabindex = "25"
 })
                         @Html.HiddenFor(m => m.PropertyManagementFees)
                         @Html.ValidationMessageFor(m => m.PropertyManagementFees)
@@ -523,10 +537,10 @@
             <div class="col-6">
                 <div class="row">
                     <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Tổng TT/lãi trước thuế", new { @class = "control-label" })
+                        @Html.Label("Lãi trước thuế", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.PreTaxProfitString, new { type = "text", name = "PreTaxProfitString", @class = "input-block-level number", @readonly = "readonly", @tabindex = "25", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @style = "border-color: #dadada;" })
+                        @Html.TextBoxFor(m => m.PreTaxProfitString, new { type = "text", name = "PreTaxProfitString", @class = "input-block-level number", @readonly = "readonly", @tabindex = "26", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @style = "border-color: #dadada;" })
                         @Html.HiddenFor(m => m.PreTaxProfit)
                         @Html.ValidationMessageFor(m => m.PreTaxProfit)
                     </div>
@@ -535,47 +549,7 @@
             <div class="col-6">
                 <div class="row">
                     <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Phí QLTS (đ)", new { @class = "control-label" })
-                    </div>
-                    <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.WealthManageBenefitsString, new { type = "text", name = "BKS", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "29" })
-                        @Html.HiddenFor(m => m.WealthManageBenefits)
-                        @Html.ValidationMessageFor(m => m.WealthManageBenefits)
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="row">
-                    <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Tiền thuế TNCN", new { @class = "control-label" })
-                    </div>
-                    <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.PersonalIncomeTaxCalculationString, new { type = "text", name = "PreTaxProfitString", @class = "input-block-level number", @readonly = "readonly", @tabindex = "26", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @style = "border-color: #dadada;" })
-                        @Html.HiddenFor(m => m.PersonalIncomeTaxCalculation)
-                        @Html.ValidationMessageFor(m => m.PersonalIncomeTaxCalculation)
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="row">
-                    <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Tổng giá trị khi bán", new { @class = "control-label" })
-                    </div>
-                    <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.TotalValueSoldString, new { type = "text", name = "BKS", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "30" })
-                        @Html.HiddenFor(m => m.TotalValueSold)
-                        @Html.ValidationMessageFor(m => m.TotalValueSold)
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="row">
-                    <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Tổng TT/lãi sau thuế", new { @class = "control-label" })
+                        @Html.Label("Lãi sau thuế", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
                         @Html.TextBoxFor(m => m.ProfitAfterTaxString, new { type = "text", name = "BKS", @class = "input-block-level number", @style = "border-color: #dadada;", @readonly = "readonly", @tabindex = "27" })
@@ -584,47 +558,34 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6">
-                <div class="row">
-                    <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Lợi nhuận cả kỳ", new { @class = "control-label" })
-                    </div>
-                    <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.NetInterestString, new { type = "text", name = "BKS", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "31" })
-                        @Html.HiddenFor(m => m.NetInterest)
-                        @Html.ValidationMessageFor(m => m.NetInterest)
-                    </div>
-                </div>
-            </div>
-
         </div>
         <div class="row">
             <div class="col-6">
                 <div class="row">
                     <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Tỷ suất đầu tư %", new { @class = "control-label" })
+                        @Html.Label("Thuế", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.RatesString, new { type = "text", name = "BKS", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "28" })
-                        @Html.HiddenFor(m => m.Rates)
-                        @Html.ValidationMessageFor(m => m.Rates)
+                        @Html.TextBoxFor(m => m.PersonalIncomeTaxCalculationString, new { type = "text", name = "PersonalIncomeTaxCalculationString", @class = "input-block-level number", @readonly = "readonly", @tabindex = "26", @onkeypress = "return CheckNumeric()", @onkeyup = "FormatCurrency(this)", @style = "border-color: #dadada;" })
+                        @Html.HiddenFor(m => m.PersonalIncomeTaxCalculation)
+                        @Html.ValidationMessageFor(m => m.PersonalIncomeTaxCalculation)
                     </div>
                 </div>
             </div>
-
             <div class="col-6">
                 <div class="row">
                     <div class="width-text-modal label-form-new col-2">
-                        @Html.Label("Lãi In/Out TLBS", new { @class = "control-label" })
+                        @Html.Label("Giá trị thực nhận", new { @class = "control-label" })
                     </div>
                     <div class="controls textbox-form-new col-10">
-                        @Html.TextBoxFor(m => m.InterestRateInOutString, new { type = "text", name = "BKS", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "32" })
-                        @Html.HiddenFor(m => m.InterestRateInOut)
-                        @Html.ValidationMessageFor(m => m.InterestRateInOut)
+                        @Html.TextBoxFor(m => m.RealValueReceivedString, new { type = "text", name = "RealValueReceivedString", @class = "input-block-level number", @readonly = "readonly", @style = "border-color: #dadada;", @tabindex = "30" })
+                        @Html.HiddenFor(m => m.RealValueReceived)
+                        @Html.ValidationMessageFor(m => m.RealValueReceived)
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
     <div class="d-none">
@@ -738,7 +699,7 @@
     function getDataTable2(e) {
         return {
             tableParentId: $("#Id").val(),
-            value: $("#Value").val(),
+            value: $("#UnitPrice").val(),
             purchaseDate: $("#purchase").val(),
             periodDate: $("#periodtime").val(),
             interestPayPeriod: $("#InterestPayPeriod").val(),
@@ -1878,12 +1839,12 @@
         var calculateInterestDate = parseFloat($("#CalculateInterestDate").val());
 
         if ($("#Value").val() != null && $("#InputInterestRate").val() != null && $("#InterestRate").val() != null && $("#CalculateInterestDate").val() != null
-           && $("#Value").val() != "" && $("#InputInterestRate").val() != '' && $("#InterestRate").val() != '' && $("#CalculateInterestDate").val() != '') {
+            && $("#Value").val() != "" && $("#InputInterestRate").val() != '' && $("#InterestRate").val() != '' && $("#CalculateInterestDate").val() != '') {
             var value = parseFloat($("#Value").val().replace(/,/g, ""));
             var interestRate = parseFloat($("#InterestRateString").val().replace(/,/g, ""));
             var inputInterestRate = parseFloat($("#InputInterestRateString").val().replace(/,/g, ""));
 
-            var cal = ((value * inputInterestRate * 0.01 * calculateInterestDate) / 365 - (value * interestRate * 0.01 * calculateInterestDate)/365).toFixed(2);
+            var cal = ((value * inputInterestRate * 0.01 * calculateInterestDate) / 365 - (value * interestRate * 0.01 * calculateInterestDate) / 365).toFixed(2);
             $("#InterestRateInOut").val(cal);
             $("#InterestRateInOutString").val(String(cal).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
         }
@@ -1897,19 +1858,29 @@
             $("#WealthManageBenefitsString").val(String(calWealth).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
         }
 
-        if ($("#Value").val() != null && $("#InterestRateString").val() != null && $("#CalculateInterestDate").val() != null  &&
+        if ($("#Value").val() != null && $("#InterestRateString").val() != null && $("#CalculateInterestDate").val() != null &&
             $("#Value").val() != "" && $("#InterestRateString").val() != '' && $("#CalculateInterestDate").val() != '') {
-            var value = parseFloat($("#Value").val().replace(/,/g, ""));
-            var interestRate = parseFloat($("#InterestRateString").val().replace(/,/g, ""));
-            var cal = ((value * interestRate * 0.01 * calculateInterestDate)/365).toFixed(2);
+            var denominations = parseFloat($("#DenominationsString").val().replace(/,/g, ""));
+            var inputInterestRate = parseFloat($("#InputInterestRateString").val().replace(/,/g, ""));
+            var cal = ((denominations * inputInterestRate * 0.01 * calculateInterestDate) / 365).toFixed(2);
             $("#PreTaxProfit").val(cal);
             $("#PreTaxProfitString").val(String(cal).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
 
-            if ($("#PreTaxProfit").val() != null && $("#PersonalIncomeTaxString").val() != null&&
+            if ($("#PreTaxProfit").val() != null && $("#PersonalIncomeTaxString").val() != null &&
                 $("#PreTaxProfit").val() != "" && $("#PersonalIncomeTaxString").val() != '') {
                 var preTaxProfit = parseFloat($("#PreTaxProfit").val());
                 var personalIncomeTaxString = parseFloat($("#PersonalIncomeTaxString").val().replace(/,/g, ""));
-                var calPerIncomeTaxCal = (preTaxProfit * personalIncomeTaxString * 0.01).toFixed(2);
+                var assetTypeId = $("#AssetTypeId").val();
+                var value = parseFloat($("#Value").val().replace(/,/g, ""));
+                var calPerIncomeTaxCal;
+                if (assetTypeId == 51 || assetTypeId == 54 || assetTypeId == 53) //hợp đồng hợp tác đầu tư
+                {
+                    calPerIncomeTaxCal = (preTaxProfit * personalIncomeTaxString * 0.01).toFixed(2);
+                }
+                else if (assetTypeId == 52) //hợp đồng mua bán
+                {
+                    calPerIncomeTaxCal = (value * personalIncomeTaxString * 0.01).toFixed(2);
+                }
 
                 $("#PersonalIncomeTaxCalculation").val(calPerIncomeTaxCal);
                 $("#PersonalIncomeTaxCalculationString").val(String(calPerIncomeTaxCal).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
@@ -1923,6 +1894,28 @@
                     $("#ProfitAfterTax").val(calProfitAfterTax);
                     $("#ProfitAfterTaxString").val(String(calProfitAfterTax).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
 
+                    var realIncome;
+                    var propertyManagementFees = parseFloat($("#PropertyManagementFeesString").val().replace(/,/g, ""));
+                    var unitPrice = parseFloat($("#UnitPrice").val().replace(/,/g, ""));
+                    if (assetTypeId == 52) //hợp đồng mua bán TP
+                    {
+                        realIncome = value - calPerIncomeTaxCal - propertyManagementFees;
+                    }
+                    else if (assetTypeId == 53) //hợp tác trái phiếu
+                    {
+                        realIncome = unitPrice + calProfitAfterTax;
+                    }
+                    else if (assetTypeId == 51) //đầu tư mm hàng
+                    {
+                        realIncome = unitPrice + calProfitAfterTax;
+                    }
+                    else if (assetTypeId == 54) //đầu tư mm tiền
+                    {
+                        realIncome = unitPrice + calProfitAfterTax;
+                    }
+                    $("#RealValueReceived").val(realIncome);
+                    $("#RealValueReceivedString").val(String(realIncome).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+
                     if ($("#ProfitAfterTax").val() != null && $("#CalculateInterestDate").val() != null && $("#RoundedPurchaseValueString").val() != null &&
                         $("#ProfitAfterTax").val() != "" && $("#CalculateInterestDate").val() != '' && $("#RoundedPurchaseValueString").val() != '') {
                         var profitAfterTax = parseFloat($("#ProfitAfterTax").val());
@@ -1933,7 +1926,7 @@
                         $("#RatesString").val(String(calRates).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
                     }
 
-                    if ($("#ProfitAfterTax").val() != null && $("#Value").val() != null  &&
+                    if ($("#ProfitAfterTax").val() != null && $("#Value").val() != null &&
                         $("#ProfitAfterTax").val() != "" && $("#Value").val() != '') {
                         var value = parseFloat($("#Value").val().replace(/,/g, ""));
                         var profitAfterTax = parseFloat($("#ProfitAfterTax").val());
