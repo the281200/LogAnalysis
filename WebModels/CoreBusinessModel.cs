@@ -512,4 +512,31 @@ namespace WebModels
         public DateTime? CreatedAt { get; set; }
     }
 
+    [Table("LogData")]
+    public partial class LogData
+    {
+        [Key]
+        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
+        [Display(ResourceType = typeof(WebResources), Name = "ID")]
+        public int ID { get; set; }
+        public DateTime date { get; set; }
+        public string sIp { get; set; }
+        public string csMethod { get; set; }
+        public string csUriStem { get; set; }
+        public string csUriQuery { get; set; }
+        public string sPort { get; set; }
+        public string csUsername { get; set; }
+        public string cIp { get; set; }
+        public string csVersion { get; set; }
+        public string csUserAgent { get; set; }
+        public string csReferer { get; set; }
+        public string csHost { get; set; }
+        public int? scStatus { get; set; }
+        public int? scSubstatus { get; set; }
+        public long? scWin32Status { get; set; }
+        public int? scBytes { get; set; }
+        public int? csBytes { get; set; }
+        public int? timeTaken { get; set; }
+    }
+
 }

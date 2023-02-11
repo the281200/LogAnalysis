@@ -82,6 +82,7 @@ namespace WebModels
         public DbSet<SourceInBuyAndSellBond> SourceInBuyAndSellBonds { get; set; }
         public DbSet<New> News { get; set; }
         public DbSet<AssetCategory> AssetCategorys { get; set; }
+        public DbSet<LogData> LogData { get; set; }
     }
 
     public enum Gender

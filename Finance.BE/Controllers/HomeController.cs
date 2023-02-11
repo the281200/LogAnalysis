@@ -296,16 +296,52 @@ namespace WEB.Controllers
             WebClient client = new WebClient();
             client.Credentials = new NetworkCredential("uainpsgt", "6gppUx3H56");
             client.DownloadFile("ftp://uainpsgt@103.130.212.186/logs/iis/W3SVC50/u_extend1.log", HostingEnvironment.MapPath(uriLogFile));
+            var lastDataTime = db.LogData.OrderByDescending(x => x.date).Select(x=>x.date).FirstOrDefault();
+            if(lastDataTime == null)
+            {
+                lastDataTime = DateTime.Now.AddMonths(-1);
+            }
             var iisLog = W3CEnumerable.FromFile(HostingEnvironment.MapPath(uriLogFile));
-            List<string> IpsLog = new List<string>();
+            List<LogData> listLog = new List<LogData>();
             foreach (var item in iisLog)
             {
-                IpsLog.Add(item.c_ip);
+                if (lastDataTime != null && item.dateTime > lastDataTime)
+                {
+                    int tempValscStatus;
+                    int tempValSubstatus;
+                    int tempValscBytes;
+                    int tempValcsBytes;
+                    int tempValtimeTaken;
+                    long tempValWin32Status;
+                    var log = new LogData()
+                    {
+                        date = item.dateTime,
+                        sIp = item.s_ip,
+                        csMethod = item.cs_method,
+                        csUriStem = item.cs_uri_stem,
+                        csUriQuery = item.cs_uri_query,
+                        sPort = item.s_port,
+                        csUsername = item.cs_username,
+                        cIp = item.c_ip,
+                        csVersion = item.cs_version,
+                        csUserAgent = item.cs_User_Agent,
+                        csReferer = item.cs_Referer,
+                        csHost = item.cs_host,
+                        scStatus = Int32.TryParse(item.sc_status, out tempValscStatus) ? tempValscStatus : (int?)null,
+                        scSubstatus = Int32.TryParse(item.sc_substatus, out tempValSubstatus) ? tempValSubstatus : (int?)null,
+                        scWin32Status = long.TryParse(item.sc_win32_status, out tempValWin32Status) ? tempValWin32Status : (long?)null,
+                        scBytes = Int32.TryParse(item.sc_bytes, out tempValscBytes) ? tempValscBytes : (int?)null,
+                        csBytes = Int32.TryParse(item.cs_bytes, out tempValcsBytes) ? tempValcsBytes : (int?)null,
+                        timeTaken = Int32.TryParse(item.time_taken, out tempValtimeTaken) ? tempValtimeTaken : (int?)null
+                    };
+                    listLog.Add(log);
+                }
+
             }
-            List<string> test = IpsLog;
-            //@"\httpdocs\Uploads\log_test.log"
-            //HostingEnvironment.MapPath("/Uploads")
-            //@"C:\local\path\file.zip"
+            db.LogData.AddRange(listLog);
+            db.SaveChanges();
+
+
         }
 
         public ActionResult RequestCheckContract()
