@@ -70,6 +70,22 @@ namespace WEB.Areas.Admin.Controllers
             ViewBag.SumValueDetail = sumValueDetail.ToString("N0", CultureInfo.InvariantCulture) + " "+ "Đồng"; 
             ViewBag.SumValueView = SumValueView;
             ViewBag.NumContract = getNumContract;
+            // query logdata overview
+            var logData = db.LogData.AsNoTracking().ToList();
+            var totalRequest = logData.Count();
+            var failedRequest = logData.Where(x => x.scStatus >= 400).Count();
+            var twoHundredStatusCodes = logData.Where(x => x.scStatus >= 200 && x.scStatus < 300); //200
+            var threeHundredStatusCodes = logData.Where(x => x.scStatus >= 300 && x.scStatus < 400);//300
+            var fourHundredStatusCodes = logData.Where(x => x.scStatus >= 400 && x.scStatus < 500);//400
+            var fiveHundredStatusCodes = logData.Where(x => x.scStatus >= 500);//500
+            var badRequestStatusCodes = logData.Where(x => x.scStatus == 400); //400
+            var unauthorizedStatusCodes = logData.Where(x => x.scStatus == 401); //401
+            var forbidenStatusCodes = logData.Where(x => x.scStatus == 403); //403
+            var notFoundStatusCodes = logData.Where(x => x.scStatus == 404); //404
+            var internalServerErrorStatusCodes = logData.Where(x => x.scStatus == 500); //500
+            var badGatewayStatusCodes = logData.Where(x => x.scStatus == 502); //502
+            var serviceUnavailableStatusCodes = logData.Where(x => x.scStatus == 503); //503
+            var gatewayTimeoutStatusCodes = logData.Where(x => x.scStatus == 504); //504
             return View();
         }
         public ActionResult Loading()
