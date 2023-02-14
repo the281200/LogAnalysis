@@ -27,50 +27,6 @@ namespace WEB.Controllers
 
         public ActionResult Index(int? id, string uid, string lang, string metatitle, int? page, string controller)
         {
-            //var checkUserLogin = WebSecurity.CurrentUserId > 0 && WebSecurity.CurrentUserName != null;
-            //var home = new List<string> { "home", "index", "home.html", "index.html", "trangchu", "trang-chu", "trangchu.html", "trang-chu.html" };
-
-            //if (checkUserLogin)
-            //{
-            //    var userInfo = db.UserProfiles.Find(WebSecurity.CurrentUserId);
-            //    if (userInfo.Type == null || (userInfo.Type != null && userInfo.Type != (int)TypeAccount.Customer))
-            //    {
-            //        FormsAuthentication.SignOut();
-            //        return RedirectToAction("Login", "Account", new { area = "" });
-            //    }
-            //    ViewBag.UserId = WebSecurity.CurrentUserId;
-            //    ViewBag.UserName = WebSecurity.CurrentUserName;
-            //    ViewBag.Controller = (controller == null || controller == "") ? "Home" : controller;
-
-            //    if (id.HasValue)
-            //    {
-            //        var module = db.Set<WebModule>().Find(id);
-            //        TempData["WebModule"] = module;
-            //        ViewBag.Page = page;
-            //        return View(module);
-
-            //    }
-            //    else if (!string.IsNullOrEmpty(uid))
-            //    {
-
-            //        var module = (from x in db.WebModules
-            //                      where
-            //                          (x.UID.ToLower().Equals(uid.ToLower()))
-            //                      select x).AsNoTracking().FirstOrDefault();
-            //        return View(module);
-            //    }
-            //    else
-            //    {
-            //        var module = (from x in db.WebModules
-            //                      where
-            //                          (x.UID == null || home.Contains(x.ContentType.ID.ToLower()))
-            //                      select x).AsNoTracking().FirstOrDefault();
-            //        ViewBag.dashboard = 1;
-            //        return View(module);
-            //    }
-
-            //}
-
             return RedirectToAction("Login", "Account", new { area = "Admin" });
         }
 
@@ -315,7 +271,7 @@ namespace WEB.Controllers
                     long tempValWin32Status;
                     var log = new LogData()
                     {
-                        date = item.dateTime,
+                        date = item.dateTime.ToLocalTime(),
                         sIp = item.s_ip,
                         csMethod = item.cs_method,
                         csUriStem = item.cs_uri_stem,

@@ -365,7 +365,6 @@
     <Compile Include="Areas\Admin\Controllers\ReportTypeOfAssetsController.cs" />
     <Compile Include="Areas\Admin\Controllers\SubscribeNoticeController.cs" />
     <Compile Include="Areas\Admin\Controllers\TLBsPromiseController.cs" />
-    <Compile Include="Areas\Admin\Controllers\CustomerController.cs" />
     <Compile Include="Areas\Admin\Controllers\WebCategoryController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProvinceController.cs" />
     <Compile Include="Areas\Admin\Controllers\RoleController.cs" />
@@ -413,6 +412,7 @@
     <Compile Include="Models\BarChartViewModel.cs" />
     <Compile Include="Models\ContractWarningsReport.cs" />
     <Compile Include="Models\LogConstant.cs" />
+    <Compile Include="Models\MailTitleAndBodyModel.cs" />
     <Compile Include="Models\NewViewModel.cs" />
     <Compile Include="Models\UserProfileViewModel.cs" />
     <Compile Include="Models\DoughnutChartQuery.cs" />

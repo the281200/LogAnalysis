@@ -25,7 +25,7 @@ namespace WEB.App_Start
             app.UseHangfireDashboard("/testHangfire");
             /*RecurringJob.AddOrUpdate( () => order.RequestCheckContract(), "0 0 0 * * ?", TimeZoneInfo.Utc);
             RecurringJob.AddOrUpdate( () => order.RequestCheckNoti(), "0 0 0 * * ?", TimeZoneInfo.Utc);*/
-            //RecurringJob.AddOrUpdate(() => order.GetDataFromLogFile(), "0 5 * * *", TimeZoneInfo.Local);
+            RecurringJob.AddOrUpdate(() => order.GetDataFromLogFile(), "0 5 * * *", TimeZoneInfo.Local);
             app.UseHangfireServer();
         }
     }

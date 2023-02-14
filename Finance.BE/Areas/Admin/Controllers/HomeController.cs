@@ -1,9 +1,14 @@
 ﻿using Common;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
+using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -73,11 +78,12 @@ namespace WEB.Areas.Admin.Controllers
             // query logdata overview
             var logData = db.LogData.AsNoTracking().ToList();
             var totalRequest = logData.Count();
-            var failedRequest = logData.Where(x => x.scStatus >= 400).Count();
+            var failedRequest = logData.Where(x => x.scStatus >= 400);//fail
             var twoHundredStatusCodes = logData.Where(x => x.scStatus >= 200 && x.scStatus < 300); //200
             var threeHundredStatusCodes = logData.Where(x => x.scStatus >= 300 && x.scStatus < 400);//300
             var fourHundredStatusCodes = logData.Where(x => x.scStatus >= 400 && x.scStatus < 500);//400
             var fiveHundredStatusCodes = logData.Where(x => x.scStatus >= 500);//500
+
             var badRequestStatusCodes = logData.Where(x => x.scStatus == 400); //400
             var unauthorizedStatusCodes = logData.Where(x => x.scStatus == 401); //401
             var forbidenStatusCodes = logData.Where(x => x.scStatus == 403); //403
@@ -86,6 +92,8 @@ namespace WEB.Areas.Admin.Controllers
             var badGatewayStatusCodes = logData.Where(x => x.scStatus == 502); //502
             var serviceUnavailableStatusCodes = logData.Where(x => x.scStatus == 503); //503
             var gatewayTimeoutStatusCodes = logData.Where(x => x.scStatus == 504); //504
+
+
             return View();
         }
         public ActionResult Loading()
@@ -111,35 +119,23 @@ namespace WEB.Areas.Admin.Controllers
         [AllowAnonymous]
         public JsonResult GetPackageBuy()
         {
-            var buyAndSellBonds = db.BuyAndSellBonds.ToList();
             var listKeyValue = new List<ChartViewModel>();
-            var yearAgo = DateTime.Now.AddYears(-1);
-            var months = MonthsBetween(yearAgo, DateTime.Now);
-            long? sumMonthValue = 0;
-
-            //lấy tổng giá trị tài sản trc 12 tháng trong chart
-            var getSumValueContractAgo = buyAndSellBonds.Where(x => x.IsActive == true && x.PurchaseDate < yearAgo).Select(x => x.Value).ToList().Sum();
-
-            var getSumInterestContractAgo = db.IncurredPurchases.Where(x => (x.TransactionType == (int)(TypeTransaction.GetInterestByTime) || x.TransactionType == (int)(TypeTransaction.GetInterestOntime)) && x.IsActive == true && x.IncurredDate < yearAgo).Select(x => x.AmountOfMoney).ToList().Sum();
-
-            var getSumSourceAgo = db.Periods.Where(x => x.IsActive != false && x.IncurredId != null && x.Incurred.IncurredDate < yearAgo && x.BuyAndSellBondId != 0).Select(x => x.Value).ToList().Sum();
-
-            var SumValueAgo = getSumValueContractAgo + getSumInterestContractAgo - getSumSourceAgo; //tổng giá trị tài sản trc 12 tháng trong chart
-
-            foreach (var item in months)
+            var now = DateTime.Now.Date;
+            var listDaysBetween = new List<DateTime>();
+            for (int i=-7; i<=0 ; i++)
             {
+                var day = now.AddDays(i);
+                listDaysBetween.Add(day);
+            }
+            foreach(var item in listDaysBetween)
+            {
+                var dayAfter = item.AddDays(1).Date;
                 var keyValue = new ChartViewModel();
-
-                var valueSumContract = buyAndSellBonds.Where(x => x.IsActive != false && x.PurchaseDate > yearAgo && x.PurchaseDate.Value.Month == item.Month && x.PurchaseDate.Value.Year == item.Year).Select(x => x.Value).ToList().Sum();
-                var valueSumInterestContract = db.IncurredPurchases.Where(x => (x.TransactionType == (int)(TypeTransaction.GetInterestByTime) || x.TransactionType == (int)(TypeTransaction.GetInterestOntime)) && x.IsActive != false && x.IncurredDate.Value.Month == item.Month && x.IncurredDate.Value.Year == item.Year).Select(x => x.AmountOfMoney).ToList().Sum();
-                var getSumSource = db.Periods.Where(x => x.IsActive != false && x.IncurredId != null && x.Incurred.IncurredDate.Value.Month == item.Month && x.Incurred.IncurredDate.Value.Year == item.Year).Select(x => x.Value).ToList().Sum();
-                var sumValuePerMonth = valueSumContract + valueSumInterestContract - getSumSource;
-
-                sumMonthValue = sumMonthValue + sumValuePerMonth;
-
-                var key = "Tháng " + item.Month + "/" + item.Year;
+                var test = db.LogData.Where(x => DbFunctions.TruncateTime(x.date) >= DbFunctions.TruncateTime(item) && DbFunctions.TruncateTime(x.date) < DbFunctions.TruncateTime(dayAfter)).ToList();
+                var requestInTime = db.LogData.Where(x => DbFunctions.TruncateTime(x.date) >= DbFunctions.TruncateTime(item) && DbFunctions.TruncateTime(x.date) < DbFunctions.TruncateTime(dayAfter)).Count();
+                var key = item.ToString("dd/MM/yyyy");
                 keyValue.xAxes = key;
-                keyValue.yAxes = sumMonthValue + SumValueAgo;
+                keyValue.yAxes = requestInTime;
                 listKeyValue.Add(keyValue);
             }
             return Json(listKeyValue, JsonRequestBehavior.AllowGet);
@@ -339,36 +335,6 @@ namespace WEB.Areas.Admin.Controllers
             return color;
         }
 
-        public static IEnumerable<(int Month, int Year)> MonthsBetween(
-         DateTime startDate,
-         DateTime endDate)
-        {
-            DateTime iterator;
-            DateTime limit;
-
-            if (endDate > startDate)
-            {
-                iterator = new DateTime(startDate.Year, startDate.Month, 1);
-                limit = endDate;
-            }
-            else
-            {
-                iterator = new DateTime(endDate.Year, endDate.Month, 1);
-                limit = startDate;
-            }
-
-            var dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
-            while (iterator <= limit)
-            {
-                yield return (
-                    iterator.Month,
-                    iterator.Year
-                );
-
-                iterator = iterator.AddMonths(1);
-            }
-        }
-
         static int GetWeekNumberOfMonth(DateTime date)
         {
             date = date.Date;
@@ -380,6 +346,161 @@ namespace WEB.Areas.Admin.Controllers
                 firstMonthMonday = firstMonthDay.AddDays((DayOfWeek.Monday + 7 - firstMonthDay.DayOfWeek) % 7);
             }
             return (date - firstMonthMonday).Days / 7 + 1;
+        }
+
+        public ConfigSendMailInfo GetInfoConfigSendMail()
+        {
+            var getConfigInfo = db.WebConfigs.ToList();
+            var listEmailUser = db.UserProfiles.Select(x => x.Email).ToList();
+            var listEmailTo = ""; 
+            foreach (var item in listEmailUser)
+            {
+                listEmailTo = listEmailTo + item + ",";
+            }
+            return new ConfigSendMailInfo
+            {
+                Host = getConfigInfo.Where(x => x.Key == "email-send-smtp").FirstOrDefault().Value,
+                Port = getConfigInfo.Where(x => x.Key == "email-send-port").FirstOrDefault().Value,
+                SendFrom = getConfigInfo.Where(x => x.Key == "email-send").FirstOrDefault().Value,
+                EmailPass = getConfigInfo.Where(x => x.Key == "email-send-password").FirstOrDefault().Value,
+                Ssl = getConfigInfo.Where(x => x.Key == "email-send-ssl").FirstOrDefault().Value,
+                EmailTo = listEmailTo
+            };
+        }
+        public MailTitleAndBodyModel CreateTitleAndBody(UserProfile user, string detailAlert, DateTime? time, string title)
+        {
+            var body = "";
+            body += "<table align='center' border='0' cellpadding='0' cellspacing='0' lang='container' style='max-width:700px' width='100%'>";
+            body += "<tbody>";
+            body += "<tr>";
+            body += "<td bgcolor='#f0f0f0' style='background:#f0f0f0' valign='top' width='100%'>";
+            body += "<table border='0' cellpadding='0' cellspacing='0' lang='main_content' style='width:100%' width='100%'>";
+            body += "<tbody>";
+            body += "<tr>";
+            body += "<td valign='top' width='100%'>";
+            body += "<div style='font-size:30px;line-height:30px;height:30px'>";
+            body += "</div>";
+            body += "</td>";
+            body += "</tr>";
+            body += "<tr>";
+            body += "<td valign = 'top' width = '100%'>";
+            body += "<table border='0' cellpadding='0' cellspacing='0' style='width:100%' width='100%'>";
+            body += "<tbody>";
+            body += "<tr>";
+            body += "<td style='width:20px' width='20'>";
+            body += "<div lang='space40'>";
+            body += "</div>";
+            body += "</td>";
+            body += "<td valign='top'>";
+            body += "<p style='margin:0;padding:0;font-size:18px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-style: italic;'>";
+            body += "Kính chào: Quý khách" + " " + user.FullName;
+            body += "</p>";
+            body += "<div style='font-size:10px;line-height:10px;height:10px'>";
+            body += "</div>";
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Website phantichnhatky.xyz xin thông báo và lưu ý khách hàng về " + detailAlert;
+            body += "</p>";
+            body += "<br>";
+
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Mong quý khách hàng lưu ý và kiểm tra lại hệ thống.";
+            body += "</p>";
+            body += "<br/>";
+
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Link truy cập hệ thống thu thập và phân tích nhật ký máy chủ web: https://phantichnhatky.xyz/" + " ";
+            body += "</p>";
+            body += "<br/>";
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Chân thành cảm ơn Quý khách hàng đã quan tâm và sử dụng dịch vụ của phantichnhatky.xyz<br>";
+            body += "Mọi yêu cầu cần giải đáp, Xin Quý khách vui lòng liên hệ với chúng tôi.";
+            body += "</p>";
+            body += "<br/>";
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Thông tin liên hệ (Contact Center): <br>";
+            body += "Điện thoại: 0984247608<br>";
+            body += "Website: https://phantichnhatky.xyz/ <br>";
+            body += " Email: nguyenmanhthe281200@gmail.com<br>";
+            body += "</p>";
+            body += "<br/>";
+           /* body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-style: italic;'>HỆ THỐNG THU THẬP VÀ PHÂN TÍCH NHẬT KÝ MÁY CHỦ WEB</p>";
+            body += "<img src = '" + "https://phantichnhatky.xyz" + "/Content/themes/admin/img/footerMail.jpg' style='max-width:650px' width='100%' />";*/
+            body += "</td>";
+            body += "<td style='width:20px' width='20'>";
+            body += "<div lang='space40'>";
+            body += "</div>";
+            body += "</td>";
+            body += "</tr>";
+            body += "</tbody>";
+            body += "</table>";
+            body += "</td>";
+            body += "</tr>";
+            body += "<tr>";
+            body += "<td valign='top' width='100%'>";
+            body += "<div style='font-size:30px;line-height:30px;height:30px'>";
+            body += "</div>";
+            body += "</td>";
+            body += "</tr>";
+            body += "</tbody>";
+            body += "</table>";
+            body += "</td>";
+            body += "</tr>";
+            body += "</tbody>";
+            body += "</table>";
+
+            return new MailTitleAndBodyModel
+            {
+                Title = "[phantichnhatky.xyz] " + title,
+                Body = body
+            };
+        }
+
+        public static bool SendMailSystem(ConfigSendMailInfo configSendMailInfo, MailTitleAndBodyModel mailTitleAndBodyModel)
+        {
+            bool _return = false;
+
+            try
+            {
+                var client = new SmtpClient(configSendMailInfo.Host, int.Parse(configSendMailInfo.Port));
+                client.UseDefaultCredentials = false;
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential(configSendMailInfo.SendFrom, configSendMailInfo.EmailPass);
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)48 | (SecurityProtocolType)192 |
+                (SecurityProtocolType)768 | (SecurityProtocolType)3072;
+                var message = new MailMessage();
+                message.From = new MailAddress(configSendMailInfo.SendFrom, configSendMailInfo.SendFrom);
+                message.Subject = mailTitleAndBodyModel.Title;
+                string[] Multi = configSendMailInfo.EmailTo.Split(',');
+                foreach (string email in Multi)
+                {
+                    message.To.Add(new MailAddress(email));
+                }
+                message.Body = mailTitleAndBodyModel.Body;
+                message.IsBodyHtml = true;
+                message.BodyEncoding = Encoding.UTF8;
+
+                var mailThread = new Thread(new ThreadStart(() =>
+                {
+                    try
+                    {
+                        client.Send(message);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }));
+
+                mailThread.Start();
+
+                _return = true;
+            }
+            catch (Exception ex)
+            {
+                _return = false;
+            }
+
+            return _return;
         }
     }
 }
