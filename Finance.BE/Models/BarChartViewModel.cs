@@ -8,6 +8,6 @@ namespace WEB.Models
         public string type { set; get; }
         public string stack { set; get; }
         public string backgroundColor { set; get; }
-        public List<long> data { set; get; }
+        public List<int> data { set; get; }
     }
 }

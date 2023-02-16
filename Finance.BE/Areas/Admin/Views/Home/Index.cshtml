@@ -34,10 +34,10 @@
 
                                 <div class="Investors-text">
 
-                                        <span class="number">
-                                            @ViewBag.SumValueView
-                                        </span>
-                                    
+                                    <span class="number">
+                                        @ViewBag.SumValueView
+                                    </span>
+
 
 
 
@@ -62,23 +62,36 @@
                     </div>
                 </div>
                 <div class="row chart-cursor">
-                    <div  class="mt-5 col-6"  >
-                       
-                            <canvas id="chart1"></canvas>
-                       
-                        
+                    <div class="mt-5 col-6">
+
+                        <canvas id="chart1"></canvas>
+
+
                     </div>
 
-                    <div class="mt-5 col-6" >
-                        
-                            <canvas id="lineChart"></canvas>
-                       
-                       
+
+                </div>
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="lineChart"></canvas>
+
+
+                    </div>
+                </div>
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topPaths"></canvas>
+
                     </div>
                 </div>
 
 
-              
             </div>
         </div>
     </div>
@@ -86,9 +99,9 @@
 <script>
     //option
     var chartLineType = 'line';
-    var chartDoughnutType = 'doughnut';
+    var chartBarType = 'bar';
 
-    var options = {
+    var options = { //option linechart
         responsive: true,
         maintainAspectRatio: false,
         scaleShowLabels: true,
@@ -188,16 +201,20 @@
     var xAxesLineChart = [];
     var yAxesLineChart = [];
 
-  @*  var xAxesBarChart = [];
-    var yAxesBarChart = [];*@
-    var xAxesDougnutChart = [];
+    var xAxesBarChart = [];
+    var yAxesBarChart = [];
+@*    var xAxesDougnutChart = [];
     var yAxesDougnutChart = [];
-    var zAxesDougnutChart = [];
+    var zAxesDougnutChart = [];*@
+
+    var xAxesTopPaths = [];
+    var yAxesTopPaths = [];
 
     var ctxLineChart = document.getElementById('lineChart').getContext('2d');
-   @* var ctxBarChart = document.getElementById('MyChart').getContext('2d');*@
+    var ctxBarChart = document.getElementById('chart1').getContext('2d');
+    var ctxTopPaths = document.getElementById('topPaths').getContext('2d');
 
-    var ctxDougnutChart = document.getElementById('chart1').getContext('2d');
+@*    var ctxDougnutChart = document.getElementById('chart1').getContext('2d');*@
 
     var gradient = ctxLineChart.createLinearGradient(0, 0, 0, 450);
     gradient.addColorStop(0, 'rgba(39, 174, 96, 0.2)');
@@ -233,9 +250,11 @@
         options: options
     });
 
-   @* const dataBarChart = {
+//create stack bar chart
+    const dataBarChart = {
         labels: xAxesBarChart,
-        datasets: yAxesBarChart
+        datasets: yAxesBarChart,
+        backgroundColor: yAxesBarChart.backgroundColor,
     };
 
     var barChart = new Chart(ctxBarChart, {
@@ -256,9 +275,35 @@
                 }]
             },
         }
-    });*@
+    });
 
-    const dataDougnutChart = {
+//create TopPaths bar chart
+    const dataTopPathsBarChart = {
+        labels: xAxesTopPaths,
+        datasets: yAxesTopPaths
+
+    };
+
+    var topPathsChart = new Chart(ctxTopPaths, {
+        type: chartBarType,
+        data: dataTopPathsBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+        }
+    });
+
+@*    const dataDougnutChart = {
 
         labels: xAxesDougnutChart,
         datasets: [{
@@ -270,7 +315,7 @@
     };
 
     var doughnutChart = new Chart(ctxDougnutChart, {
-        type: chartDoughnutType,
+        type: chartBarType,
         data: dataDougnutChart,
         options: {
             plugins: {
@@ -291,8 +336,8 @@
                 }
             }
         }
-        
-    });
+
+    });*@
 
 
     @* scales: {
@@ -321,7 +366,8 @@
 
 
     },*@
-    var x = 0;
+
+    @*var x = 0;
 
     document.getElementById("chart1").onclick = clickHandler;
 
@@ -331,7 +377,7 @@
         if (points.length) {
             const firstPoint = points[0];
             const label = doughnutChart.data.labels[firstPoint.index];
-            @*const value = doughnutChart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];*@
+            //const value = doughnutChart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
 
             xAxesDougnutChart.splice(0, xAxesDougnutChart.length);
             yAxesDougnutChart.splice(0, yAxesDougnutChart.length);
@@ -351,7 +397,7 @@
                             zAxesDougnutChart.push(response[i].zAxes);
                         }
                         doughnutChart.update();
-                        x = 1; 
+                        x = 1;
                     },
                     error: function (xhr) {
                     }
@@ -376,14 +422,15 @@
             }
 
         }
-    }
+    }*@
 
 
 
     $(document).ready(function () {
         readDataLineChart();
-        @*readDataBarChart();*@
-        readDataDougnutChart();
+        readDataBarChart();
+        readDataTopPathsChart();
+        //readDataDougnutChart();
     });
 
     function readDataLineChart() {
@@ -407,13 +454,13 @@
         });
 
     }
-@*
+
    function readDataBarChart() {
         xAxesBarChart.splice(0, xAxesBarChart.length);
         yAxesBarChart.splice(0, yAxesBarChart.length);
 
         $.ajax({
-            url: '@Url.Action("GetTotalMoneyUser", "Home", new { area = "admin" })',
+            url: '@Url.Action("GetDataRequest", "Home", new { area = "admin" })',
             type: "get",
             dataType: "json",
             success: function (response) {
@@ -446,10 +493,50 @@
         });
 
 
-    }*@
+    }
+
+    function readDataTopPathsChart() {
+        xAxesTopPaths.splice(0, xAxesTopPaths.length);
+        yAxesTopPaths.splice(0, yAxesTopPaths.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataTopPath", "Home", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesTopPaths.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.label = dataItem.label;
+                    model.type = dataItem.type;
+                    model.stack = dataItem.stack;
+                    model.backgroundColor = dataItem.backgroundColor;
+
+                    var data = [];
+                    for (var j = 0; j < dataItem.data.length; j++) {
+                        data.push(dataItem.data[j]);
+                    }
+                    model.data = data;
+
+                    yAxesTopPaths.push(model);
+                }
+
+                console.log(yAxesTopPaths);
+                topPathsChart.update();
+            },
+            error: function (xhr) {
+            }
+        });
 
 
-   function readDataDougnutChart() {
+    }
+
+
+  @* function readDataDougnutChart() {
         xAxesDougnutChart.splice(0, xAxesDougnutChart.length);
        yAxesDougnutChart.splice(0, yAxesDougnutChart.length);
        zAxesDougnutChart.splice(0, zAxesDougnutChart.length);
@@ -472,7 +559,7 @@
         });
 
 
-    }
+    }*@
 
 </script>
 

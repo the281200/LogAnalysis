@@ -261,7 +261,7 @@ namespace WEB.Controllers
             List<LogData> listLog = new List<LogData>();
             foreach (var item in iisLog)
             {
-                if (lastDataTime != null && item.dateTime > lastDataTime)
+                if (lastDataTime != null && item.dateTime.ToLocalTime() > lastDataTime)
                 {
                     int tempValscStatus;
                     int tempValSubstatus;

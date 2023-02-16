@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -144,142 +145,130 @@ namespace WEB.Areas.Admin.Controllers
 
         //bar chart
 
-        /*[AllowAnonymous]
-        public JsonResult GetTotalMoneyUser()
+        [AllowAnonymous]
+        public JsonResult GetDataRequest()
         {
             var listCustomer = db.UserProfiles.Where(x => x.IsActive != false && x.Type == (int)TypeAccount.Customer).ToList();
             var listQueryValue = new List<QueryBarChartModel>();
-
             var listAccetType = db.TypeOfAssets.Where(x => x.IsActive != false).ToList();
             var buyAndSellBonds = db.BuyAndSellBonds.ToList();
 
             var listColor = new List<string>
                 { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7"};
 
-
-            foreach (var user in listCustomer)
+            var timenow = DateTime.Now;
+            var listTime = new List<DateTime>();
+            var listTimeString = new List<string>();
+            for (int i=0; i>-60; i--)
             {
-                foreach (var type in listAccetType)
-                {
-                    var dataQuery = new QueryBarChartModel();
-
-                    //sum and get list Id all value with userId and type
-                    var listBuyAndSellBonds = buyAndSellBonds.Where(x => x.IsActive != false && x.CustomerId == user.UserId && x.TypeOfAsset == type).ToList();
-                    var listIdBuyAndSellBond = listBuyAndSellBonds.Select(x => x.Id).ToList();
-                    var valueSumContract = listBuyAndSellBonds.Sum(x => x.Value);
-
-                    //Sum value Interest Contract with TransactionType is GetInterest contain list id in listBuyAndSellBonds
-                    var valueSumInterestContract = db.IncurredPurchases.Where(x =>( x.TransactionType == (int)(TypeTransaction.GetInterestByTime) || x.TransactionType == (int)(TypeTransaction.GetInterestOntime)) && x.IsActive != false
-                    && listIdBuyAndSellBond.Contains(x.BuyAndSellBondId ?? default)).Select(x => x.AmountOfMoney).ToList().Sum();
-
-                    //subtract using source by listBuyAndSellBonds
-                    var getSumSource = db.Periods.Where(x => x.IsActive != false && x.IncurredId != null && listIdBuyAndSellBond.Contains((x.Incurred.BuyAndSellBondId ?? default))).Select(x => x.Value).ToList().Sum();
-
-                    var sumValue = valueSumContract + valueSumInterestContract - getSumSource;
-
-                    dataQuery.UserId = user.UserId;
-                    dataQuery.UserName = user.FullName;
-                    dataQuery.Type = type.AssetName;
-                    dataQuery.Value = sumValue;
-                    listQueryValue.Add(dataQuery);
-                }
+                var time = timenow.AddMinutes(i);
+                listTime.Add(time);
+                listTimeString.Add(time.ToString("HH:mm"));
             }
-
-            var listUserValueMax = new List<SelectValueMax>();
-            foreach (var item in listQueryValue.GroupBy(x => x.UserId))
+            listTime.Reverse();
+            listTimeString.Reverse();
+            var xAxes = listTimeString.ToArray();
+            List<StatusCodeViewModel> listStatusCode = new List<StatusCodeViewModel>
             {
-                var sumTypeOfValue = item.Sum(x => x.Value);
-                listUserValueMax.Add(new SelectValueMax
-                {
-                    UserId = item.Key,
-                    Value = sumTypeOfValue,
-                    UserName = item.First().UserName
-                });
-            }
-
-            var listUserResult = listUserValueMax.OrderByDescending(x => x.Value).Take(10);
-
-            var xAxes = listUserResult.Select(x => x.UserName).ToArray();
+                new StatusCodeViewModel{ code = "2xx" , number = 200},
+                new StatusCodeViewModel{ code = "3xx" , number = 300},
+                new StatusCodeViewModel{ code = "4xx" , number = 400},
+                new StatusCodeViewModel{ code = "5xx" , number = 500}
+            };
 
             var listDataExport = new List<BarChartViewModel>();
 
-            foreach (var item in listAccetType)
+            foreach (var item in listStatusCode)
             {
+                var numberPlus = item.number + 100;
                 var barChartViewModel = new BarChartViewModel();
-                barChartViewModel.label = item.AssetName;
+                barChartViewModel.label = item.code;
                 barChartViewModel.type = "bar";
                 barChartViewModel.stack = "base";
 
                 var random = new Random();
-                barChartViewModel.backgroundColor = getRandColor(random);
+                //barChartViewModel.backgroundColor = getRandColor(random);
 
-                var listValue = new List<long>();
+                var listValue = new List<int>();
 
-                foreach (var user in listUserResult)
+                foreach (var time in listTime)
                 {
-                    var value = listQueryValue.Where(x => x.UserId == user.UserId && x.Type == item.AssetName).Select(x => x.Value).FirstOrDefault() ?? default;
-                    listValue.Add(value);
+                    var timedate = time.Date;
+                    var timeOfDay = time.TimeOfDay;
+                    var timePlus = time.AddMinutes(1);
+                    var timePlusOfDay = time.AddMinutes(1).TimeOfDay;
+                    /*var test = from m in db.LogData
+                               where m.date >= time && m.date < timePlus && m.scStatus >= item.number && m.scStatus < numberPlus
+                               select m;*/
+                    //var timePlusDay = time.AddMinutes(1).TimeOfDay;
+                    var test = db.LogData.Where(x => DbFunctions.TruncateTime(x.date) == timedate 
+                    && SqlFunctions.DatePart("hour", x.date) == time.Hour
+                    && SqlFunctions.DatePart("minute", x.date) == time.Minute
+                    && x.scStatus >= item.number 
+                    && x.scStatus < numberPlus
+                    ).ToList();
+                    //var value = db.LogData.Where(x => DbFunctions.TruncateTime(x.date) >= timedate && DbFunctions.DiffMinutes(x.) &&x.date.TimeOfDay >= timeOfDay && x.date.TimeOfDay < timeOfDayPlus && x.scStatus >= item.number && x.scStatus < numberPlus).ToList();
+                    listValue.Add(test.Count());
                 }
+
+                
 
                 barChartViewModel.data = listValue;
                 listDataExport.Add(barChartViewModel);
             }
-
-
-            for (var i = 0; i < listDataExport.Count(); i++){
+            for (var i = 0; i < listDataExport.Count(); i++)
+            {
                 listDataExport[i].backgroundColor = listColor[i];
             }
-
             var stringJsonYAxes = listDataExport.ToArray();
-
             return Json(new { xAxes = xAxes, yAxes = stringJsonYAxes }, JsonRequestBehavior.AllowGet);
 
-        }*/
-
-        [AllowAnonymous]
-        public JsonResult GetTotalMoneyUser()
-        {
-            //var listCustomer = db.UserProfiles.Where(x => x.IsActive != false && x.Type == (int)TypeAccount.Customer).ToList();
-            var listQueryValue = new List<DoughnutChartQuery>();
-          
-            var listAccetType = db.TypeOfAssets.Where(x => x.IsActive != false).ToList();
-            var buyAndSellBonds = db.BuyAndSellBonds.Where(x => x.IsActive != false).ToList();
-            var listColor = new List<string>
-                { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7", "#a1eb34", "#34e5eb", "#34a2eb", "#eb3474", "#eb8034", "#b134eb", "#eb4f34"};
-
-
-            foreach (var type in listAccetType)
-            {
-                var dataQuery = new DoughnutChartQuery();
-
-                //sum and get list Id all value with userId and type
-                var listBuyAndSellBonds = buyAndSellBonds.Where(x => x.IsActive != false && x.TypeOfAsset == type).ToList();
-                var listIdBuyAndSellBond = listBuyAndSellBonds.Select(x => x.Id).ToList();
-                var valueSumContract = listBuyAndSellBonds.Sum(x => x.Value);
-
-                //Sum value Interest Contract with TransactionType is GetInterest contain list id in listBuyAndSellBonds
-                var valueSumInterestContract = db.IncurredPurchases.Where(x => (x.TransactionType == (int)(TypeTransaction.GetInterestByTime) || x.TransactionType == (int)(TypeTransaction.GetInterestOntime)) && x.IsActive != false
-                && listIdBuyAndSellBond.Contains(x.BuyAndSellBondId ?? default)).Select(x => x.AmountOfMoney).ToList().Sum();
-
-                //subtract using source by listBuyAndSellBonds
-                var getSumSource = db.Periods.Where(x => x.IsActive != false && x.IncurredId != null && listIdBuyAndSellBond.Contains((x.Incurred.BuyAndSellBondId ?? default))).Select(x => x.Value).ToList().Sum();
-
-                var sumValue = valueSumContract + valueSumInterestContract - getSumSource;
-                var random = new Random();
-
-                dataQuery.xAxes = type.AssetName; //Type
-                dataQuery.yAxes = sumValue; //Value
-                dataQuery.zAxes = getRandColor(random); //Color
-                listQueryValue.Add(dataQuery);
-            }
-            for (var i = 0; i < listQueryValue.Count(); i++)
-            {
-                listQueryValue[i].zAxes = listColor[i];
-            }
-
-            return Json(listQueryValue, JsonRequestBehavior.AllowGet);
-
         }
+
+        /* [AllowAnonymous]
+         public JsonResult GetTotalMoneyUser()
+         {
+             //var listCustomer = db.UserProfiles.Where(x => x.IsActive != false && x.Type == (int)TypeAccount.Customer).ToList();
+             var listQueryValue = new List<DoughnutChartQuery>();
+
+             var listAccetType = db.TypeOfAssets.Where(x => x.IsActive != false).ToList();
+             var buyAndSellBonds = db.BuyAndSellBonds.Where(x => x.IsActive != false).ToList();
+             var listColor = new List<string>
+                 { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7", "#a1eb34", "#34e5eb", "#34a2eb", "#eb3474", "#eb8034", "#b134eb", "#eb4f34"};
+
+
+             foreach (var type in listAccetType)
+             {
+                 var dataQuery = new DoughnutChartQuery();
+
+                 //sum and get list Id all value with userId and type
+                 var listBuyAndSellBonds = buyAndSellBonds.Where(x => x.IsActive != false && x.TypeOfAsset == type).ToList();
+                 var listIdBuyAndSellBond = listBuyAndSellBonds.Select(x => x.Id).ToList();
+                 var valueSumContract = listBuyAndSellBonds.Sum(x => x.Value);
+
+                 //Sum value Interest Contract with TransactionType is GetInterest contain list id in listBuyAndSellBonds
+                 var valueSumInterestContract = db.IncurredPurchases.Where(x => (x.TransactionType == (int)(TypeTransaction.GetInterestByTime) || x.TransactionType == (int)(TypeTransaction.GetInterestOntime)) && x.IsActive != false
+                 && listIdBuyAndSellBond.Contains(x.BuyAndSellBondId ?? default)).Select(x => x.AmountOfMoney).ToList().Sum();
+
+                 //subtract using source by listBuyAndSellBonds
+                 var getSumSource = db.Periods.Where(x => x.IsActive != false && x.IncurredId != null && listIdBuyAndSellBond.Contains((x.Incurred.BuyAndSellBondId ?? default))).Select(x => x.Value).ToList().Sum();
+
+                 var sumValue = valueSumContract + valueSumInterestContract - getSumSource;
+                 var random = new Random();
+
+                 dataQuery.xAxes = type.AssetName; //Type
+                 dataQuery.yAxes = sumValue; //Value
+                 dataQuery.zAxes = getRandColor(random); //Color
+                 listQueryValue.Add(dataQuery);
+             }
+             for (var i = 0; i < listQueryValue.Count(); i++)
+             {
+                 listQueryValue[i].zAxes = listColor[i];
+             }
+
+             return Json(listQueryValue, JsonRequestBehavior.AllowGet);
+
+         }*/
 
 
         [AllowAnonymous]
