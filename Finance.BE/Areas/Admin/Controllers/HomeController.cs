@@ -143,16 +143,12 @@ namespace WEB.Areas.Admin.Controllers
 
         }
 
-        //bar chart
+        //bar chart Request
 
         [AllowAnonymous]
         public JsonResult GetDataRequest()
         {
-            var listCustomer = db.UserProfiles.Where(x => x.IsActive != false && x.Type == (int)TypeAccount.Customer).ToList();
             var listQueryValue = new List<QueryBarChartModel>();
-            var listAccetType = db.TypeOfAssets.Where(x => x.IsActive != false).ToList();
-            var buyAndSellBonds = db.BuyAndSellBonds.ToList();
-
             var listColor = new List<string>
                 { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7"};
 
@@ -185,10 +181,6 @@ namespace WEB.Areas.Admin.Controllers
                 barChartViewModel.label = item.code;
                 barChartViewModel.type = "bar";
                 barChartViewModel.stack = "base";
-
-                var random = new Random();
-                //barChartViewModel.backgroundColor = getRandColor(random);
-
                 var listValue = new List<int>();
 
                 foreach (var time in listTime)
@@ -197,10 +189,6 @@ namespace WEB.Areas.Admin.Controllers
                     var timeOfDay = time.TimeOfDay;
                     var timePlus = time.AddMinutes(1);
                     var timePlusOfDay = time.AddMinutes(1).TimeOfDay;
-                    /*var test = from m in db.LogData
-                               where m.date >= time && m.date < timePlus && m.scStatus >= item.number && m.scStatus < numberPlus
-                               select m;*/
-                    //var timePlusDay = time.AddMinutes(1).TimeOfDay;
                     var test = db.LogData.Where(x => DbFunctions.TruncateTime(x.date) == timedate 
                     && SqlFunctions.DatePart("hour", x.date) == time.Hour
                     && SqlFunctions.DatePart("minute", x.date) == time.Minute
@@ -224,6 +212,49 @@ namespace WEB.Areas.Admin.Controllers
             return Json(new { xAxes = xAxes, yAxes = stringJsonYAxes }, JsonRequestBehavior.AllowGet);
 
         }
+
+
+        //TopPath chart Request 
+        [AllowAnonymous]
+        public JsonResult GetDataTopPath()
+        {
+            var listColor = new List<string>
+                { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7"};
+            var now = DateTime.Now.Date;
+            var listPath = (from log in db.LogData
+                            where log.csReferer != null
+                            group log by log.csReferer into refererGroup
+                            orderby refererGroup.Count() descending
+                            select new { Referer = refererGroup.Key, Count = refererGroup.Count() })
+             .Take(5);
+            var barChartViewModel = new VerticalBarChartViewModel();
+            barChartViewModel.axis = "y";
+            barChartViewModel.fill = "false";
+            barChartViewModel.borderWidth = "1";
+            var listxAxes = new List<string>();
+            var listdata = new List<int>();
+            var listbackground = new List<string>();
+            foreach (var item in listPath)
+            {
+                listxAxes.Add(item.Referer.Replace("https://phantichnhatky.xyz", "").Replace("https://www.phantichnhatky.xyz", ""));
+                listdata.Add(item.Count);
+            }
+            for (var i = 0; i < listdata.Count(); i++)
+            {
+                listbackground.Add(listColor[i]);
+            }
+            barChartViewModel.data = listdata.ToArray();
+            barChartViewModel.backgroundColor = listbackground.ToArray();
+             
+            var xAxesArr = listxAxes.ToArray();
+            var yAxesList = new List<VerticalBarChartViewModel>();
+            yAxesList.Add(barChartViewModel);
+            var yAxesArr = yAxesList.ToArray();
+            return Json(new { xAxes = xAxesArr, yAxes = yAxesArr }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
 
         /* [AllowAnonymous]
          public JsonResult GetTotalMoneyUser()

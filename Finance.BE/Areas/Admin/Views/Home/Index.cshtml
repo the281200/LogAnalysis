@@ -511,22 +511,17 @@
                 for (var i = 0; i < response.yAxes.length; i++) {
                     var dataItem = response.yAxes[i];
                     var model = {};
-                    model.label = dataItem.label;
-                    model.type = dataItem.type;
-                    model.stack = dataItem.stack;
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
                     model.backgroundColor = dataItem.backgroundColor;
-
-                    var data = [];
-                    for (var j = 0; j < dataItem.data.length; j++) {
-                        data.push(dataItem.data[j]);
-                    }
-                    model.data = data;
-
                     yAxesTopPaths.push(model);
                 }
-
+                console.log(xAxesTopPaths);
                 console.log(yAxesTopPaths);
                 topPathsChart.update();
+
             },
             error: function (xhr) {
             }

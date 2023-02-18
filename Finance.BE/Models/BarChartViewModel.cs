@@ -10,4 +10,13 @@ namespace WEB.Models
         public string backgroundColor { set; get; }
         public List<int> data { set; get; }
     }
+
+    public class VerticalBarChartViewModel
+    {
+        public string axis { set; get; }
+        public string fill { set; get; }
+        public string borderWidth { set; get; }
+        public string[] backgroundColor { set; get; }
+        public int[] data { set; get; }
+    }
 }
