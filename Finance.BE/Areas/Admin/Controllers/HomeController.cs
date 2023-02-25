@@ -254,6 +254,126 @@ namespace WEB.Areas.Admin.Controllers
 
         }
 
+        //ClientIP chart  
+        [AllowAnonymous]
+        public JsonResult GetDataClientIP()
+        {
+            var listColor = new List<string>
+                { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7"};
+            var now = DateTime.Now.Date;
+            var listPath = (from log in db.LogData
+                            where log.cIp != null
+                            group log by log.cIp into refererGroup
+                            orderby refererGroup.Count() descending
+                            select new { Referer = refererGroup.Key, Count = refererGroup.Count() })
+             .Take(5);
+            var barChartViewModel = new VerticalBarChartViewModel();
+            barChartViewModel.axis = "y";
+            barChartViewModel.fill = "false";
+            barChartViewModel.borderWidth = "1";
+            var listxAxes = new List<string>();
+            var listdata = new List<int>();
+            var listbackground = new List<string>();
+            foreach (var item in listPath)
+            {
+                listxAxes.Add(item.Referer);
+                listdata.Add(item.Count);
+            }
+            for (var i = 0; i < listdata.Count(); i++)
+            {
+                listbackground.Add(listColor[i]);
+            }
+            barChartViewModel.data = listdata.ToArray();
+            barChartViewModel.backgroundColor = listbackground.ToArray();
+
+            var xAxesArr = listxAxes.ToArray();
+            var yAxesList = new List<VerticalBarChartViewModel>();
+            yAxesList.Add(barChartViewModel);
+            var yAxesArr = yAxesList.ToArray();
+            return Json(new { xAxes = xAxesArr, yAxes = yAxesArr }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        //ClientIP chart  
+        [AllowAnonymous]
+        public JsonResult GetDataProtocolVersion()
+        {
+            var listColor = new List<string>
+                { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7"};
+            var now = DateTime.Now.Date;
+            var listPath = (from log in db.LogData
+                            where log.csVersion != null
+                            group log by log.csVersion into refererGroup
+                            orderby refererGroup.Count() descending
+                            select new { Referer = refererGroup.Key, Count = refererGroup.Count() })
+             .Take(3);
+            var barChartViewModel = new VerticalBarChartViewModel();
+            barChartViewModel.axis = "y";
+            barChartViewModel.fill = "false";
+            barChartViewModel.borderWidth = "1";
+            var listxAxes = new List<string>();
+            var listdata = new List<int>();
+            var listbackground = new List<string>();
+            foreach (var item in listPath)
+            {
+                listxAxes.Add(item.Referer);
+                listdata.Add(item.Count);
+            }
+            for (var i = 0; i < listdata.Count(); i++)
+            {
+                listbackground.Add(listColor[i]);
+            }
+            barChartViewModel.data = listdata.ToArray();
+            barChartViewModel.backgroundColor = listbackground.ToArray();
+
+            var xAxesArr = listxAxes.ToArray();
+            var yAxesList = new List<VerticalBarChartViewModel>();
+            yAxesList.Add(barChartViewModel);
+            var yAxesArr = yAxesList.ToArray();
+            return Json(new { xAxes = xAxesArr, yAxes = yAxesArr }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        //ClientIP chart  
+        [AllowAnonymous]
+        public JsonResult GetDataHttpMethod()
+        {
+            var listColor = new List<string>
+                { "#C0392B","#8E44AD", "#2980B9", "#16A085", "#27AE60" , "#F1C40F", "#F39C12", "#F39C12", "#BA4A00", "#95A5A6", "#566573", "#4FC3F7"};
+            var now = DateTime.Now.Date;
+            var listPath = (from log in db.LogData
+                            where log.csMethod != null
+                            group log by log.csMethod into refererGroup
+                            orderby refererGroup.Count() descending
+                            select new { Referer = refererGroup.Key, Count = refererGroup.Count() })
+             .Take(5);
+            var barChartViewModel = new VerticalBarChartViewModel();
+            barChartViewModel.axis = "y";
+            barChartViewModel.fill = "false";
+            barChartViewModel.borderWidth = "1";
+            var listxAxes = new List<string>();
+            var listdata = new List<int>();
+            var listbackground = new List<string>();
+            foreach (var item in listPath)
+            {
+                listxAxes.Add(item.Referer);
+                listdata.Add(item.Count);
+            }
+            for (var i = 0; i < listdata.Count(); i++)
+            {
+                listbackground.Add(listColor[i]);
+            }
+            barChartViewModel.data = listdata.ToArray();
+            barChartViewModel.backgroundColor = listbackground.ToArray();
+
+            var xAxesArr = listxAxes.ToArray();
+            var yAxesList = new List<VerticalBarChartViewModel>();
+            yAxesList.Add(barChartViewModel);
+            var yAxesArr = yAxesList.ToArray();
+            return Json(new { xAxes = xAxesArr, yAxes = yAxesArr }, JsonRequestBehavior.AllowGet);
+
+        }
+
 
 
         /* [AllowAnonymous]

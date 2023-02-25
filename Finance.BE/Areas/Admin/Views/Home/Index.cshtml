@@ -10,7 +10,7 @@
 
         <div class="row-fluid">
             <div class="span12">
-                <div class="row_content">
+                @*<div class="row_content">
                     <div class="Investors_content" style="background-color: #F6931E;">
                         <div class="Investors">
                             <div class="d-flex align-items-center">
@@ -60,7 +60,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>*@
                 <div class="row chart-cursor">
                     <div class="mt-5 col-6">
 
@@ -87,6 +87,36 @@
                     <div class="mt-5 col-6">
 
                         <canvas id="topPaths"></canvas>
+
+                    </div>
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topClientIP"></canvas>
+
+                    </div>
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topProtocolVersion"></canvas>
+
+                    </div>
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topHttpMethod"></canvas>
 
                     </div>
                 </div>
@@ -210,9 +240,21 @@
     var xAxesTopPaths = [];
     var yAxesTopPaths = [];
 
+    var xAxesClientIP = [];
+    var yAxesClientIP = [];
+
+    var xAxesProtocolVersion = [];
+    var yAxesProtocolVersion = [];
+
+    var xAxesHttpMethod = [];
+    var yAxesHttpMethod = [];
+
     var ctxLineChart = document.getElementById('lineChart').getContext('2d');
     var ctxBarChart = document.getElementById('chart1').getContext('2d');
     var ctxTopPaths = document.getElementById('topPaths').getContext('2d');
+    var ctxClientIP = document.getElementById('topClientIP').getContext('2d');
+    var ctxProtocolVersion = document.getElementById('topProtocolVersion').getContext('2d');
+    var ctxHttpMethod = document.getElementById('topHttpMethod').getContext('2d');
 
 @*    var ctxDougnutChart = document.getElementById('chart1').getContext('2d');*@
 
@@ -300,6 +342,96 @@
                 }]
 
             },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+    //create ClientIP bar chart
+    const dataClientIPBarChart = {
+        labels: xAxesClientIP,
+        datasets: yAxesClientIP
+
+    };
+
+    var clientIPChart = new Chart(ctxClientIP, {
+        type: chartBarType,
+        data: dataClientIPBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+    //create ProtocolVersion bar chart
+    const dataProtocolVersionBarChart = {
+        labels: xAxesProtocolVersion,
+        datasets: yAxesProtocolVersion
+
+    };
+
+    var protocolVersionChart = new Chart(ctxProtocolVersion, {
+        type: chartBarType,
+        data: dataProtocolVersionBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+    //create HttpMethod bar chart
+    const dataHttpMethodBarChart = {
+        labels: xAxesHttpMethod,
+        datasets: yAxesHttpMethod
+
+    };
+
+    var httpMethodChart = new Chart(ctxHttpMethod, {
+        type: chartBarType,
+        data: dataHttpMethodBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
         }
     });
 
@@ -430,6 +562,9 @@
         readDataLineChart();
         readDataBarChart();
         readDataTopPathsChart();
+        readDataClientIPChart();
+        readDataProtocolVersionChart();
+        readDataHttpMethodChart();
         //readDataDougnutChart();
     });
 
@@ -495,10 +630,44 @@
 
     }
 
+    function readDataClientIPChart() {
+        xAxesClientIP.splice(0, xAxesClientIP.length);
+        yAxesClientIP.splice(0, yAxesClientIP.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataClientIP", "Home", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesClientIP.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesClientIP.push(model);
+                }
+                console.log(xAxesClientIP);
+                console.log(yAxesClientIP);
+                clientIPChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
     function readDataTopPathsChart() {
         xAxesTopPaths.splice(0, xAxesTopPaths.length);
         yAxesTopPaths.splice(0, yAxesTopPaths.length);
-
         $.ajax({
             url: '@Url.Action("GetDataTopPath", "Home", new { area = "admin" })',
             type: "get",
@@ -529,6 +698,78 @@
 
 
     }
+
+    function readDataProtocolVersionChart() {
+        xAxesProtocolVersion.splice(0, xAxesProtocolVersion.length);
+        yAxesProtocolVersion.splice(0, yAxesProtocolVersion.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataProtocolVersion", "Home", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesProtocolVersion.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesProtocolVersion.push(model);
+                }
+                console.log(xAxesProtocolVersion);
+                console.log(yAxesProtocolVersion);
+                protocolVersionChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+    function readDataHttpMethodChart() {
+        xAxesHttpMethod.splice(0, xAxesHttpMethod.length);
+        yAxesHttpMethod.splice(0, yAxesHttpMethod.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataHttpMethod", "Home", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesHttpMethod.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesHttpMethod.push(model);
+                }
+                console.log(xAxesClientIP);
+                console.log(yAxesClientIP);
+                httpMethodChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+
 
 
   @* function readDataDougnutChart() {

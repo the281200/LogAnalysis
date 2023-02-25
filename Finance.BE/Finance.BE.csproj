@@ -348,6 +348,7 @@
     <Compile Include="Areas\Admin\Controllers\AdvPositionController.cs" />
     <Compile Include="Areas\Admin\Controllers\BaseController.cs" />
     <Compile Include="Areas\Admin\Controllers\ContractSummaryController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ErrorRequestController.cs" />
     <Compile Include="Areas\Admin\Controllers\InvestmentReportController.cs" />
     <Compile Include="Areas\Admin\Controllers\ContentTypeController.cs" />
     <Compile Include="Areas\Admin\Controllers\BuyAndSellBondController.cs" />
@@ -1991,12 +1992,6 @@
     <Content Include="Content\themes\admin\img\LaiXeChiActive.png" />
     <Content Include="Content\themes\admin\img\loading.gif" />
     <Content Include="Content\themes\admin\img\location-14.png" />
-    <Content Include="Content\themes\admin\img\logo%402x.png" />
-    <Content Include="Content\themes\admin\img\logo-big%402x.png" />
-    <Content Include="Content\themes\admin\img\logo-big.png" />
-    <Content Include="Content\themes\admin\img\logo-company - Copy.png" />
-    <Content Include="Content\themes\admin\img\logo-company.png" />
-    <Content Include="Content\themes\admin\img\logo-company1.png" />
     <Content Include="Content\themes\admin\img\logo.png" />
     <Content Include="Content\themes\admin\img\menu-edit.png" />
     <Content Include="Content\themes\admin\img\menu.png" />
@@ -2006,6 +2001,8 @@
     <Content Include="Content\themes\admin\img\navigation-bg-small.png" />
     <Content Include="Content\themes\admin\img\navigation-bg.png" />
     <Content Include="Content\themes\admin\img\notification.png" />
+    <Content Include="Content\themes\admin\img\Phantichnhatky.png" />
+    <Content Include="Content\themes\admin\img\Phantichnhatkylogo.png" />
     <Content Include="Content\themes\admin\img\plugins\chosen\chosen-sprite.png" />
     <Content Include="Content\themes\admin\img\plugins\colorbox\controls.png" />
     <Content Include="Content\themes\admin\img\plugins\colorbox\loading.gif" />
@@ -2133,7 +2130,6 @@
     <Content Include="Content\themes\admin\img\QLTaiTrongActive.png" />
     <Content Include="Content\themes\admin\img\quanly-doitac-white.png" />
     <Content Include="Content\themes\admin\img\route-14.png" />
-    <Content Include="Content\themes\admin\img\Screenshot 2021-01-22 170606.jpg" />
     <Content Include="Content\themes\admin\img\send.png" />
     <Content Include="Content\themes\admin\img\show-Active.png" />
     <Content Include="Content\themes\admin\img\show.png" />
@@ -7923,6 +7919,7 @@
     <Content Include="Areas\Admin\Views\Customer\AddIndividualCustomers.cshtml" />
     <Content Include="Areas\Admin\Views\Customer\AddBusinessCustomers.cshtml" />
     <Content Include="Areas\Admin\Views\Customer\EditBusiness.cshtml" />
+    <Content Include="Areas\Admin\Views\ErrorRequest\Index.cshtml" />
     <None Include="Properties\PublishProfiles\ConVietLinh.pubxml" />
     <None Include="Properties\PublishProfiles\FLAT.pubxml" />
     <Content Include="Images\apple-touch-icon-precomposed.png" />
