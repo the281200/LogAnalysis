@@ -562,3 +562,10 @@ D:\Code\LogAnalysis\Finance.BE\obj\Release\Finance.BE.csproj.CoreCompileInputs.c
 D:\Code\LogAnalysis\Finance.BE\obj\Release\Finance.BE.csproj.CopyComplete
 D:\Code\LogAnalysis\Finance.BE\obj\Release\WEB.dll
 D:\Code\LogAnalysis\Finance.BE\obj\Release\WEB.pdb
+D:\Code\LogAnalysis\Finance.BE\bin\System.Reactive.dll
+D:\Code\LogAnalysis\Finance.BE\bin\System.Reactive.Linq.dll
+D:\Code\LogAnalysis\Finance.BE\bin\System.Security.Principal.Windows.dll
+D:\Code\LogAnalysis\Finance.BE\bin\Tx.Core.dll
+D:\Code\LogAnalysis\Finance.BE\bin\Tx.Windows.dll
+D:\Code\LogAnalysis\Finance.BE\bin\System.Reactive.xml
+D:\Code\LogAnalysis\Finance.BE\bin\System.Reactive.Linq.xml

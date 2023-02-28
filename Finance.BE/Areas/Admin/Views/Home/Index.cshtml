@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>*@
-                <div class="row chart-cursor">
+@*                <div class="row chart-cursor">
                     <div class="mt-5 col-6">
 
                         <canvas id="chart1"></canvas>
@@ -70,7 +70,7 @@
                     </div>
 
 
-                </div>
+                </div>*@
                 <div class="row chart-cursor">
 
 
@@ -250,7 +250,7 @@
     var yAxesHttpMethod = [];
 
     var ctxLineChart = document.getElementById('lineChart').getContext('2d');
-    var ctxBarChart = document.getElementById('chart1').getContext('2d');
+@*    var ctxBarChart = document.getElementById('chart1').getContext('2d');*@
     var ctxTopPaths = document.getElementById('topPaths').getContext('2d');
     var ctxClientIP = document.getElementById('topClientIP').getContext('2d');
     var ctxProtocolVersion = document.getElementById('topProtocolVersion').getContext('2d');
@@ -293,7 +293,7 @@
     });
 
 //create stack bar chart
-    const dataBarChart = {
+@*    const dataBarChart = {
         labels: xAxesBarChart,
         datasets: yAxesBarChart,
         backgroundColor: yAxesBarChart.backgroundColor,
@@ -317,7 +317,7 @@
                 }]
             },
         }
-    });
+    });*@
 
 //create TopPaths bar chart
     const dataTopPathsBarChart = {
@@ -560,7 +560,7 @@
 
     $(document).ready(function () {
         readDataLineChart();
-        readDataBarChart();
+        @*readDataBarChart();*@
         readDataTopPathsChart();
         readDataClientIPChart();
         readDataProtocolVersionChart();

@@ -1,0 +1,442 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Phiên truy cập lỗi";
+
+}
+
+<div id="main">
+    <div id="left"></div>
+    <div class="container-fluid">
+
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="row chart-cursor">
+                    <div class="mt-5 col-6">
+
+                        <canvas id="chart1"></canvas>
+
+
+                    </div>
+
+
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topPaths"></canvas>
+
+                    </div>
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topClientIP"></canvas>
+
+                    </div>
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topProtocolVersion"></canvas>
+
+                    </div>
+                </div>
+
+                <div class="row chart-cursor">
+
+
+                    <div class="mt-5 col-6">
+
+                        <canvas id="topHttpMethod"></canvas>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //option
+
+    var chartBarType = 'bar';
+
+
+
+
+
+    var xAxesBarChart = [];
+    var yAxesBarChart = [];
+
+
+    var xAxesTopPaths = [];
+    var yAxesTopPaths = [];
+
+    var xAxesClientIP = [];
+    var yAxesClientIP = [];
+
+    var xAxesProtocolVersion = [];
+    var yAxesProtocolVersion = [];
+
+    var xAxesHttpMethod = [];
+    var yAxesHttpMethod = [];
+
+
+    var ctxBarChart = document.getElementById('chart1').getContext('2d');
+    var ctxTopPaths = document.getElementById('topPaths').getContext('2d');
+    var ctxClientIP = document.getElementById('topClientIP').getContext('2d');
+    var ctxProtocolVersion = document.getElementById('topProtocolVersion').getContext('2d');
+    var ctxHttpMethod = document.getElementById('topHttpMethod').getContext('2d');
+
+
+
+//create stack bar chart
+    const dataBarChart = {
+        labels: xAxesBarChart,
+        datasets: yAxesBarChart,
+        backgroundColor: yAxesBarChart.backgroundColor,
+    };
+
+    var barChart = new Chart(ctxBarChart, {
+        type: chartBarType,
+        data: dataBarChart,
+        options: {
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                }]
+            },
+        }
+    });
+
+//create TopPaths bar chart
+    const dataTopPathsBarChart = {
+        labels: xAxesTopPaths,
+        datasets: yAxesTopPaths
+
+    };
+
+    var topPathsChart = new Chart(ctxTopPaths, {
+        type: chartBarType,
+        data: dataTopPathsBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+    //create ClientIP bar chart
+    const dataClientIPBarChart = {
+        labels: xAxesClientIP,
+        datasets: yAxesClientIP
+
+    };
+
+    var clientIPChart = new Chart(ctxClientIP, {
+        type: chartBarType,
+        data: dataClientIPBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+    //create ProtocolVersion bar chart
+    const dataProtocolVersionBarChart = {
+        labels: xAxesProtocolVersion,
+        datasets: yAxesProtocolVersion
+
+    };
+
+    var protocolVersionChart = new Chart(ctxProtocolVersion, {
+        type: chartBarType,
+        data: dataProtocolVersionBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+    //create HttpMethod bar chart
+    const dataHttpMethodBarChart = {
+        labels: xAxesHttpMethod,
+        datasets: yAxesHttpMethod
+
+    };
+
+    var httpMethodChart = new Chart(ctxHttpMethod, {
+        type: chartBarType,
+        data: dataHttpMethodBarChart,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                xAxes: [{
+
+                    ticks: {
+                        beginAtZero: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }]
+
+            },
+            labels: {
+                display: false
+            }
+        }
+    });
+
+
+
+
+    $(document).ready(function () {
+        
+        readDataBarChart();
+        readDataTopPathsChart();
+        readDataClientIPChart();
+        readDataProtocolVersionChart();
+        readDataHttpMethodChart();
+       
+    });
+
+
+
+   function readDataBarChart() {
+        xAxesBarChart.splice(0, xAxesBarChart.length);
+        yAxesBarChart.splice(0, yAxesBarChart.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataRequest", "ErrorRequest", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesBarChart.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.label = dataItem.label;
+                    model.type = dataItem.type;
+                    model.stack = dataItem.stack;
+                    model.backgroundColor = dataItem.backgroundColor;
+
+                    var data = [];
+                    for (var j = 0; j < dataItem.data.length; j++) {
+                        data.push(dataItem.data[j]);
+                    }
+                    model.data = data;
+
+                    yAxesBarChart.push(model);
+                }
+
+                console.log(yAxesBarChart);
+                barChart.update();
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+    function readDataClientIPChart() {
+        xAxesClientIP.splice(0, xAxesClientIP.length);
+        yAxesClientIP.splice(0, yAxesClientIP.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataClientIP", "ErrorRequest", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesClientIP.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesClientIP.push(model);
+                }
+                console.log(xAxesClientIP);
+                console.log(yAxesClientIP);
+                clientIPChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+    function readDataTopPathsChart() {
+        xAxesTopPaths.splice(0, xAxesTopPaths.length);
+        yAxesTopPaths.splice(0, yAxesTopPaths.length);
+        $.ajax({
+            url: '@Url.Action("GetDataTopPath", "ErrorRequest", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesTopPaths.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesTopPaths.push(model);
+                }
+                console.log(xAxesTopPaths);
+                console.log(yAxesTopPaths);
+                topPathsChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+    function readDataProtocolVersionChart() {
+        xAxesProtocolVersion.splice(0, xAxesProtocolVersion.length);
+        yAxesProtocolVersion.splice(0, yAxesProtocolVersion.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataProtocolVersion", "ErrorRequest", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesProtocolVersion.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesProtocolVersion.push(model);
+                }
+                console.log(xAxesProtocolVersion);
+                console.log(yAxesProtocolVersion);
+                protocolVersionChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+    function readDataHttpMethodChart() {
+        xAxesHttpMethod.splice(0, xAxesHttpMethod.length);
+        yAxesHttpMethod.splice(0, yAxesHttpMethod.length);
+
+        $.ajax({
+            url: '@Url.Action("GetDataHttpMethod", "ErrorRequest", new { area = "admin" })',
+            type: "get",
+            dataType: "json",
+            success: function (response) {
+                for (var i = 0; i < response.xAxes.length; i++) {
+                    xAxesHttpMethod.push(response.xAxes[i]);
+                }
+
+                for (var i = 0; i < response.yAxes.length; i++) {
+                    var dataItem = response.yAxes[i];
+                    var model = {};
+                    model.axis = dataItem.axis;
+                    model.fill = dataItem.fill;
+                    model.borderWidth = dataItem.borderWidth;
+                    model.data = dataItem.data;
+                    model.backgroundColor = dataItem.backgroundColor;
+                    yAxesHttpMethod.push(model);
+                }
+                console.log(xAxesClientIP);
+                console.log(yAxesClientIP);
+                httpMethodChart.update();
+
+            },
+            error: function (xhr) {
+            }
+        });
+
+
+    }
+
+
+</script>

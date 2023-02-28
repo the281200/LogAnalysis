@@ -5,6 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>D:\Publish\phantichnhatky</_PublishTargetUrl>
+    <History>False|2023-02-28T07:20:23.7372902Z;False|2023-02-28T14:17:35.2106210+07:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="App_Data/adminlayouts.xml">
@@ -56,7 +57,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:02:14</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Account/Login.cshtml">
-      <publishTime>01/12/2023 16:02:14</publishTime>
+      <publishTime>02/28/2023 14:00:47</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Account/UserProfile.cshtml">
       <publishTime>01/12/2023 16:02:14</publishTime>
@@ -202,6 +203,9 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="Areas/Admin/Views/Destination/Index.cshtml">
       <publishTime>01/12/2023 16:02:14</publishTime>
     </File>
+    <File Include="Areas/Admin/Views/ErrorRequest/Index.cshtml">
+      <publishTime>02/25/2023 15:11:43</publishTime>
+    </File>
     <File Include="Areas/Admin/Views/ExchangeOfAssets/Add.cshtml">
       <publishTime>01/12/2023 16:02:14</publishTime>
     </File>
@@ -227,13 +231,13 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:02:14</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Home/Index.cshtml">
-      <publishTime>01/12/2023 16:02:14</publishTime>
+      <publishTime>02/28/2023 14:11:17</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Home/Loading.cshtml">
       <publishTime>01/12/2023 16:02:14</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Home/_ContentLeft.cshtml">
-      <publishTime>02/07/2023 15:22:09</publishTime>
+      <publishTime>02/22/2023 14:43:55</publishTime>
     </File>
     <File Include="Areas/Admin/Views/IncurredPurchases/Add.cshtml">
       <publishTime>01/12/2023 16:02:14</publishTime>
@@ -338,7 +342,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:02:14</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Shared/_Layout.cshtml">
-      <publishTime>01/12/2023 16:02:14</publishTime>
+      <publishTime>02/25/2023 17:07:00</publishTime>
     </File>
     <File Include="Areas/Admin/Views/Shared/_LayoutEmpty.cshtml">
       <publishTime>01/12/2023 16:02:14</publishTime>
@@ -833,7 +837,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:04:24</publishTime>
     </File>
     <File Include="bin/en-US/WebModels.resources.dll">
-      <publishTime>02/09/2023 09:38:54</publishTime>
+      <publishTime>02/28/2023 14:17:22</publishTime>
     </File>
     <File Include="bin/EntityFramework.dll">
       <publishTime>01/12/2023 16:04:24</publishTime>
@@ -1048,8 +1052,17 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="bin/System.Numerics.Vectors.dll">
       <publishTime>01/12/2023 16:04:26</publishTime>
     </File>
+    <File Include="bin/System.Reactive.dll">
+      <publishTime>05/25/2018 23:44:26</publishTime>
+    </File>
+    <File Include="bin/System.Reactive.Linq.dll">
+      <publishTime>05/25/2018 23:45:22</publishTime>
+    </File>
     <File Include="bin/System.Runtime.CompilerServices.Unsafe.dll">
       <publishTime>01/12/2023 16:04:26</publishTime>
+    </File>
+    <File Include="bin/System.Security.Principal.Windows.dll">
+      <publishTime>05/15/2018 20:29:42</publishTime>
     </File>
     <File Include="bin/System.Spatial.dll">
       <publishTime>01/12/2023 16:04:26</publishTime>
@@ -1096,14 +1109,20 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="bin/System.Web.WebPages.Razor.dll">
       <publishTime>01/12/2023 16:04:25</publishTime>
     </File>
+    <File Include="bin/Tx.Core.dll">
+      <publishTime>02/15/2019 06:48:44</publishTime>
+    </File>
+    <File Include="bin/Tx.Windows.dll">
+      <publishTime>07/31/2020 06:35:22</publishTime>
+    </File>
     <File Include="bin/uk-UA/Kendo.Mvc.resources.dll">
       <publishTime>01/12/2023 16:04:23</publishTime>
     </File>
     <File Include="bin/vi-VN/WebModels.resources.dll">
-      <publishTime>02/09/2023 09:38:54</publishTime>
+      <publishTime>02/28/2023 14:17:22</publishTime>
     </File>
     <File Include="bin/WEB.dll">
-      <publishTime>02/09/2023 09:38:56</publishTime>
+      <publishTime>02/28/2023 14:21:22</publishTime>
     </File>
     <File Include="bin/Web.Helpers.dll">
       <publishTime>02/09/2023 09:38:54</publishTime>
@@ -1115,7 +1134,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>02/09/2023 09:38:54</publishTime>
     </File>
     <File Include="bin/WEB.pdb">
-      <publishTime>02/09/2023 09:38:56</publishTime>
+      <publishTime>02/28/2023 14:21:22</publishTime>
     </File>
     <File Include="bin/WebGrease.dll">
       <publishTime>01/12/2023 16:04:27</publishTime>
@@ -1127,13 +1146,13 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:04:25</publishTime>
     </File>
     <File Include="bin/WebModels.dll">
-      <publishTime>02/09/2023 09:38:54</publishTime>
+      <publishTime>02/28/2023 14:17:22</publishTime>
     </File>
     <File Include="bin/WebModels.dll.config">
       <publishTime>01/12/2023 16:04:20</publishTime>
     </File>
     <File Include="bin/WebModels.pdb">
-      <publishTime>02/09/2023 09:38:54</publishTime>
+      <publishTime>02/28/2023 14:17:22</publishTime>
     </File>
     <File Include="bin/zh-CN/Kendo.Mvc.resources.dll">
       <publishTime>01/12/2023 16:04:23</publishTime>
@@ -4415,7 +4434,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:02:16</publishTime>
     </File>
     <File Include="Content/themes/admin/css/vantai.css">
-      <publishTime>01/12/2023 16:02:16</publishTime>
+      <publishTime>02/09/2023 14:40:15</publishTime>
     </File>
     <File Include="Content/themes/admin/css/vantai1.css">
       <publishTime>01/12/2023 16:02:16</publishTime>
@@ -5925,6 +5944,12 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     </File>
     <File Include="Content/themes/admin/img/notification.png">
       <publishTime>01/12/2023 16:02:17</publishTime>
+    </File>
+    <File Include="Content/themes/admin/img/Phantichnhatky.png">
+      <publishTime>02/25/2023 16:25:39</publishTime>
+    </File>
+    <File Include="Content/themes/admin/img/Phantichnhatkylogo.png">
+      <publishTime>02/25/2023 17:06:11</publishTime>
     </File>
     <File Include="Content/themes/admin/img/plugins/.DS_Store">
       <publishTime>01/12/2023 16:02:17</publishTime>
@@ -23300,7 +23325,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:02:29</publishTime>
     </File>
     <File Include="packages.config">
-      <publishTime>01/12/2023 16:03:02</publishTime>
+      <publishTime>02/10/2023 16:27:24</publishTime>
     </File>
     <File Include="Scripts/bootstrap-datepicker.min.js">
       <publishTime>01/12/2023 16:02:29</publishTime>
@@ -24065,7 +24090,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/12/2023 16:02:34</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>02/09/2023 09:28:53</publishTime>
+      <publishTime>02/10/2023 16:27:26</publishTime>
     </File>
   </ItemGroup>
 </Project>

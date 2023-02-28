@@ -15,14 +15,14 @@
 
 <div class='login' id="loginModal">
     <img class="wave" src="~/Content/themes/admin/img/wave.png">
-    <div class="container-login">
+    <div class="">
         <div class="img-login">
             <img src="~/Content/themes/admin/img/delivery-truck.svg">
         </div>
-        <div class="login-content">
+        <div class="login-content" style=" margin-top: 6rem;">
             <div action="index.html" class="form-login">
-                <img src="~/Content/themes/admin/img/tlbonds.jpg" class="img-company">
-                <div class="login-header mb-5">HỆ THỐNG QUẢN LÝ DANH MỤC ĐẦU TƯ </div>
+                <img src="~/Content/themes/admin/img/Phantichnhatkylogo.png" class="img-company">
+                <div class="login-header mb-5">HỆ THỐNG THU THẬP VÀ PHÂN TÍCH NHẬT KÝ MÁY CHỦ WEB </div>
                 @*<h2>@WebModels.AccountResources.SignIn </h2>*@
                 @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-validate", @id = "login-admin" }))
                 {
