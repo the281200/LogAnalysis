@@ -94,8 +94,17 @@ namespace WEB.Areas.Admin.Controllers
             var serviceUnavailableStatusCodes = logData.Where(x => x.scStatus == 503); //503
             var gatewayTimeoutStatusCodes = logData.Where(x => x.scStatus == 504); //504
 
+            var requestStatusCode = new RequestStatusCodeModel()
+            {
+                TotalRequest = totalRequest,
+                FailedRequest = failedRequest.Count(),
+                TwoHundredStatusCodes = twoHundredStatusCodes.Count(),
+                ThreeHundredStatusCodes = threeHundredStatusCodes.Count(),
+                FourHundredStatusCodes = fourHundredStatusCodes.Count(),
+                FiveHundredStatusCodes = fiveHundredStatusCodes.Count(),
 
-            return View();
+            };
+            return View(requestStatusCode);
         }
         public ActionResult Loading()
         {

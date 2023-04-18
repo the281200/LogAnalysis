@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ErrorsRequestStatusCode
+@{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Phiên truy cập lỗi";
 
@@ -7,7 +8,19 @@
 <div id="main">
     <div id="left"></div>
     <div class="container-fluid">
-
+        <div>
+            <h2>Failed Request @Model.FailedRequest</h2><br />
+            <h2>4xx Status Codes @Model.FourHundredStatusCodes</h2><br />
+            <h2>5xx Status Codes @Model.FiveHundredStatusCodes</h2><br />
+            <h2>Bad Request Status Codes @Model.BadRequestStatusCodes</h2><br />
+            <h2>Unauthorized Status Codes @Model.UnauthorizedStatusCodes</h2><br />
+            <h2>Forbiden Status Codes @Model.ForbidenStatusCodes</h2><br />
+            <h2>NotFound Status Codes @Model.NotFoundStatusCodes</h2><br />
+            <h2>Internal Server Error Status Codes @Model.InternalServerErrorStatusCodes</h2><br />
+            <h2>Bad Gateway Status Codes @Model.BadGatewayStatusCodes</h2><br />
+            <h2>Service Unavailable Status Codes @Model.ServiceUnavailableStatusCodes</h2><br />
+            <h2>Gateway Timeout Status Codes @Model.GatewayTimeoutStatusCodes</h2><br />
+        </div>
         <div class="row-fluid">
             <div class="span12">
 
@@ -248,13 +261,13 @@
 
 
     $(document).ready(function () {
-        
+
         readDataBarChart();
         readDataTopPathsChart();
         readDataClientIPChart();
         readDataProtocolVersionChart();
         readDataHttpMethodChart();
-       
+
     });
 
 
