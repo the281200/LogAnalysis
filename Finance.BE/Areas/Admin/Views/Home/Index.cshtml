@@ -7,69 +7,75 @@
 
 <div id="main">
     <div id="left"></div>
-    <div class="container-fluid">
-        <div>
-            <h2>Total Request @Model.TotalRequest</h2><br />
-            <h2>Failed Request @Model.FailedRequest</h2><br />
-            <h3>2xx Status Codes @Model.TwoHundredStatusCodes</h3><br />
-            <h3>3xx Status Codes @Model.ThreeHundredStatusCodes</h3><br />
-            <h3>4xx Status Codes @Model.FourHundredStatusCodes</h3><br />
-            <h3>5xx Status Codes @Model.FiveHundredStatusCodes</h3><br />
+    <div class="container-fluid box-log">
+        <div class="row" style="margin-left:-15px;">
+            <div class=" col-sm-8 pr-0 ">
+                <div class="pl-2 chart-cursor  pr-2">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+            <div class="col-sm-4 pl-0">
+                <div class="row box-style">
+                    <div class="col-sm-6 log-item">
+                        <h2>Total Request</h2><br />
+                        <strong class="color-bluemix">@Model.TotalRequest</strong>
+                    </div>
+                    <div class="col-sm-6 log-item">
+                        <h2>Failed Request  </h2><br />
+                        <strong class="color-red">@Model.FailedRequest</strong>
+                    </div>
+                </div>
+                
+            </div>
+           
+
         </div>
-        <div class="row-fluid">
-            <div class="span12">
-
-                <div class="row chart-cursor">
-
-
-                    <div class="mt-5 col-6">
-
-                        <canvas id="lineChart"></canvas>
-
-
+        <div class="row log-content">
+            <div class="col-sm-3 log-item">
+                <h2>2xx Status Codes </h2><br />
+                <strong class="color-green">@Model.TwoHundredStatusCodes</strong>
+            </div>
+            <div class="col-sm-3 log-item">
+                <h2>3xx Status Codes</h2><br />
+                <strong class="color-blue">@Model.ThreeHundredStatusCodes</strong>
+            </div>
+            <div class="col-sm-3 log-item">
+                <h2>4xx Status Codes</h2><br />
+                <strong class="color-yellow">@Model.FourHundredStatusCodes</strong>
+            </div>
+            <div class="col-sm-3 log-item">
+                <h2>5xx Status Codes</h2><br />
+                <strong class="color-red">@Model.FiveHundredStatusCodes</strong>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="chart-content">
+                <div class="row ">
+                    <div class="col-sm-6 p-0">
+                        <div class="chart-cursor">
+                            <canvas id="topPaths"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 p-0">
+                        <div class="chart-cursor">
+                            <canvas id="topClientIP"></canvas>
+                        </div>
                     </div>
                 </div>
-                <div class="row chart-cursor">
-
-
-                    <div class="mt-5 col-6">
-
-                        <canvas id="topPaths"></canvas>
-
+            </div>
+            <div class="chart-content">
+                <div class="row ">
+                    <div class="col-sm-6 p-0">
+                        <div class="chart-cursor">
+                            <canvas id="topProtocolVersion"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 p-0">
+                        <div class="chart-cursor">
+                            <canvas id="topHttpMethod"></canvas>
+                        </div>
                     </div>
                 </div>
-
-                <div class="row chart-cursor">
-
-
-                    <div class="mt-5 col-6">
-
-                        <canvas id="topClientIP"></canvas>
-
-                    </div>
-                </div>
-
-                <div class="row chart-cursor">
-
-
-                    <div class="mt-5 col-6">
-
-                        <canvas id="topProtocolVersion"></canvas>
-
-                    </div>
-                </div>
-
-                <div class="row chart-cursor">
-
-
-                    <div class="mt-5 col-6">
-
-                        <canvas id="topHttpMethod"></canvas>
-
-                    </div>
-                </div>
-
-
             </div>
         </div>
     </div>
