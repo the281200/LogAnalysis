@@ -1,4 +1,6 @@
 ﻿using Common;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -105,6 +107,28 @@ namespace WEB.Areas.Admin.Controllers
 
             };
             return View(requestStatusCode);
+        }
+
+        [AllowAnonymous]
+        public ActionResult LogData_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = db.LogData.AsNoTracking().OrderByDescending(x => x.date).ToList().Select(x => new
+            {
+                x.ID,
+                x.date,
+                x.csMethod,
+                x.sPort,
+                x.cIp,
+                x.csVersion,
+                x.scStatus,
+                x.scBytes,
+                x.csBytes,
+                x.timeTaken
+            }).Take(200);
+
+            return Json(data.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+
+
         }
         public ActionResult Loading()
         {

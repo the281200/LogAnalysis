@@ -2,8 +2,114 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Tổng quan";
-
+    WebContext db = new WebContext();
+    var roles = Roles.GetRolesForUser();
+    var userRoleIds = db.WebRoles.Where(x => roles.Contains(x.RoleName)).Select(y => y.RoleId);
+    var roleWebModule = db.AccessWebModuleRoles.AsNoTracking().FirstOrDefault(x => userRoleIds.Contains(x.RoleId));
 }
+<script type="text/javascript">
+    var rowselected = [];
+    var isCheckedAll = false;
+
+    function binding_handler(e) {
+    }
+
+   @* function changepassword_handler(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        opendlg("/admin/Customer/changepassword/?userName=" + dataItem.UserName);
+    }*@
+
+    function delete_handler(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        opendlg("/admin/IncurredPurchases/delete/" + dataItem.ID);
+    }
+
+    function edit_handler(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        opendlg("/admin/IncurredPurchases/edit/" + dataItem.ID);
+    }
+
+    function modules_handler(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        opendlg("/admin/IncurredPurchases/ModulesMapping/" + dataItem.ID);
+
+    }
+
+    function sites_handler(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        opendlg("/admin/IncurredPurchases/AdminSitesMapping/" + dataItem.ID);
+    }
+
+    $(document).ready(function () {
+        $("#btnadd").click(function () {
+            opendlg("/admin/IncurredPurchases/add");
+        });
+        $("#btnedit").click(function () {
+            var selected = [];
+            $('input:checkbox[name=checkedNodes]').each(function () {
+                if ($(this).is(':checked')) {
+                    selected.push($(this).val());
+                }
+            });
+            if (rowselected.length > 0) {
+                opendlg("/admin/IncurredPurchases/edit/" + selected[0]);
+            } else {
+                alert("Không có khoản mục nào được chọn.");
+            }
+        });
+
+        $("#btnundo").click(function () {
+            opendlg("/admin/IncurredPurchases/Undo");
+        });
+
+        $("#btndelete").click(function () {
+           var dataSource = $("#grid").data("kendoGrid").dataSource.data();
+            var models = [];
+            if (rowselected.length > 0) {
+                for (var i = 0; i < rowselected.length; i++) {
+                    for (var j = 0; j < dataSource.length; j++) {
+                        var dataItem = dataSource[j];
+                        if (dataItem.ID == rowselected[i]) {
+                            models.push(dataItem.ID);
+                        }
+                    }
+                }
+                var dataSubmit = JSON.stringify(models);
+
+                $.post('@Url.Action("Deletes", "IncurredPurchases")', { data: dataSubmit}, function (data) {
+                    if (data.success) {
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        show_stack_bottom_right('success', 'Xóa phát sinh tài sản', 'Xóa thành công.');
+                    }
+                    else {
+                       @* show_stack_bottom_right('error', 'Xóa phát sinh mua/bán trái phiếu', 'Xóa thất bại.');*@
+                        alert("Vui lòng chọn để xóa phát sinh tài sản!");
+                    }
+                });
+            }
+            else {
+                alert("Vui lòng chọn để xóa phát sinh tài sản!");
+            }
+        });
+    });
+
+    function onDataBound(e) {
+        $('#grid .k-grid-content').height(screen.height * 0.5);
+
+        $('input[name="checkedNodes"]').each(function () {
+            if (rowselected.indexOf(this.value) != -1) {
+                $(this).attr('checked', 'checked');
+            } else {
+                $(this).removeAttr('checked');
+            }
+        });
+    };
+</script>
 
 <div id="main">
     <div id="left"></div>
@@ -70,6 +176,47 @@
                 </div>
 
 
+            </div>
+        </div>
+
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="box">
+                    <div class="box-content nopadding">
+                        @(Html.Kendo().Grid<LogData>()
+                                .Name("grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(p => p.ID).Title(Resources.Common.ID).HtmlAttributes(new { style = "text-align:center;" }).Hidden();
+                                    columns.Bound(p => p.ID).Title(Resources.Common.ID).HtmlAttributes(new { style = "text-align:center;" }).Hidden();
+                                    columns.Bound(p => p.date).Title("Thời gian").Format("{0:dd-MM-yyyy HH:mm:ss}").Width(400);
+                                    columns.Bound(p => p.csMethod).Title("Phương thức HTTP").Width(200);
+                                    columns.Bound(p => p.sPort).Title("Cổng máy chủ").Width(200);
+                                    columns.Bound(p => p.csUsername).Title("Tên người dùng").Width(200);
+                                    columns.Bound(p => p.cIp).Title("IP người dùng").Width(150);
+                                    columns.Bound(p => p.csVersion).Title("Phiên bản HTTP").Width(300);
+                                    columns.Bound(p => p.scStatus).Title("Mã trạng thái HTTP").Width(300);
+                                    columns.Bound(p => p.scBytes).Title("Số byte gửi").Width(300);
+                                    columns.Bound(p => p.csBytes).Title("Số byte nhận").Width(300);
+                                    columns.Bound(p => p.timeTaken).Title("Thời gian thực hiện (ms)").Width(300);
+                                })
+                                .Pageable()
+                                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                                .Sortable()
+                                .Filterable()
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Model(model => model.Id(p => p.ID))
+                                    .PageSize(20)
+                                    .Read(read => read.Action("LogData_Read", "Home"))
+                                    .ServerOperation(false)
+                                 )
+                                  .Events(events => events.DataBinding("binding_handler").DataBound("onDataBound"))
+                        )
+
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -744,6 +891,96 @@
 
 
     }*@
+    function getDataFilter() {
+        var dataSource = $("#grid").data("kendoGrid").dataSource;
+        var filters = dataSource.filter();
+        var allData = dataSource.data();
+        var query = new kendo.data.Query(allData);
+        var result = query.filter(filters).data;
+        return result;
+    }
+    function getCheckAll() {
+        var dataFilterID = [];
+        var dataFilter = getDataFilter();
+        var check;
+        for (var i = 0; i < dataFilter.length; i++) {
+            dataFilterID.push(String(dataFilter[i].ID));
+        }
+        for (var i = 0; i < dataFilterID.length; i++) {
+            var index = rowselected.indexOf(dataFilterID[i]);
+            if (index != -1) {
+                check = true;
+            }
+            else {
+                check = false;
+                break;
+            }
+        }
+        return check;
+    }
 
+    function childNodeClick(element) {
+        var dataID = getCheckAll();
+        var id = element.value;
+        if (rowselected.indexOf(id) !== -1) {
+            rowselected.splice(rowselected.indexOf(id), 1);
+        } else {
+            rowselected.push(id);
+        }
+        isCheckedAll = getCheckAll();
+        $('#chkAll').prop('checked', isCheckedAll);
+    }
+
+    $(function () {
+        $(".k-filter").click(function () {
+            setTimeout(function () {
+                $(".k-filter-menu .k-button").click(function () {
+                    setTimeout(function () {
+                        rowselected = [];
+                        isCheckedAll = getCheckAll();
+                        $('#chkAll').prop('checked', isCheckedAll);
+                        $('input[name="checkedNodes"]').each(function () {
+                            if (rowselected.indexOf(this.value) != -1) {
+                                $(this).attr('checked', 'checked');
+                            } else {
+                                $(this).removeAttr('checked');
+                            }
+                        });
+                    }, 10)
+                })
+            }, 100);
+        });
+    });
+
+    function checkAll(e) {
+
+        var rowItems = getDataFilter();
+        isCheckedAll = $(e.target).prop('checked');
+        if (isCheckedAll) {
+            for (var i = 0; i < rowItems.length; i++) {
+                var index = rowselected.indexOf(String(rowItems[i].ID));
+                if (index == -1) {
+                    rowselected.push(String(rowItems[i].ID));
+                }
+            }
+        }
+        else if (!isCheckedAll) {
+            var dataFilterID = [];
+            var dataFilter = getDataFilter();
+            for (var i = 0; i < dataFilter.length; i++) {
+                dataFilterID.push(String(dataFilter[i].ID));
+            }
+            for (var i = 0; i < dataFilterID.length; i++) {
+                var index = rowselected.indexOf(dataFilterID[i]);
+                if (index != -1) {
+                    rowselected.splice(index, 1);
+                }
+            }
+        }
+
+        $('input[name="checkedNodes"]').each(function () {
+            $(this).prop('checked', isCheckedAll);
+        });
+    }
 </script>
 
