@@ -117,6 +117,7 @@
         <div class="row" style="margin-left:-15px;">
             <div class=" col-sm-8 pr-0 ">
                 <div class="pl-2 chart-cursor  pr-2">
+                    <div class="text-chart">Requests</div>
                     <canvas id="lineChart"></canvas>
                 </div>
             </div>
@@ -159,11 +160,13 @@
                 <div class="row ">
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Paths</div>
                             <canvas id="topPaths"></canvas>
                         </div>
                     </div>
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Client IP</div>
                             <canvas id="topClientIP"></canvas>
                         </div>
                     </div>
@@ -173,11 +176,13 @@
                 <div class="row ">
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Protocol Version</div>
                             <canvas id="topProtocolVersion"></canvas>
                         </div>
                     </div>
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Http Method</div>
                             <canvas id="topHttpMethod"></canvas>
                         </div>
                     </div>
@@ -185,8 +190,8 @@
             </div>
         </div>
 
-        <div class="row-fluid">
-            <div class="span12">
+        <div class="container-fluid box-grid">
+            <div class="">
                 <div class="box">
                     <div class="box-content nopadding">
                         @(Html.Kendo().Grid<LogData>()

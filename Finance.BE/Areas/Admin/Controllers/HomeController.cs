@@ -124,7 +124,7 @@ namespace WEB.Areas.Admin.Controllers
                 x.scBytes,
                 x.csBytes,
                 x.timeTaken
-            }).Take(200);
+            }).Take(100);
 
             return Json(data.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
 

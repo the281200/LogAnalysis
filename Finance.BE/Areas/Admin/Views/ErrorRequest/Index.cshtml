@@ -62,18 +62,21 @@
         <div class="container-fluid">
             <div class="chart-content">
                 <div class="row ">
-                    <div class="col-sm-4 p-0">
+@*                    <div class="col-sm-4 p-0">
                         <div class="chart-cursor">
                             <canvas id="chart1"></canvas>
                         </div>
-                    </div>
-                    <div class="col-sm-4 p-0">
+                    </div>*@
+                    <div class="col-sm-6 p-0">
+                      
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Paths</div>
                             <canvas id="topPaths"></canvas>
                         </div>
                     </div>
-                    <div class="col-sm-4 p-0">
+                    <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Client IP</div>
                             <canvas id="topClientIP"></canvas>
                         </div>
                     </div>
@@ -84,11 +87,14 @@
                 <div class="row ">
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Protocol Version</div>
                             <canvas id="topProtocolVersion"></canvas>
                         </div>
                     </div>
                     <div class="col-sm-6 p-0">
+                        
                         <div class="chart-cursor">
+                            <div class="text-chart">Top Http Method</div>
                             <canvas id="topHttpMethod"></canvas>
                         </div>
                     </div>
@@ -124,7 +130,7 @@
     var yAxesHttpMethod = [];
 
 
-    var ctxBarChart = document.getElementById('chart1').getContext('2d');
+@*    var ctxBarChart = document.getElementById('chart1').getContext('2d');*@
     var ctxTopPaths = document.getElementById('topPaths').getContext('2d');
     var ctxClientIP = document.getElementById('topClientIP').getContext('2d');
     var ctxProtocolVersion = document.getElementById('topProtocolVersion').getContext('2d');
@@ -133,7 +139,7 @@
 
 
 //create stack bar chart
-    const dataBarChart = {
+@*    const dataBarChart = {
         labels: xAxesBarChart,
         datasets: yAxesBarChart,
         backgroundColor: yAxesBarChart.backgroundColor,
@@ -157,7 +163,7 @@
                 }]
             },
         }
-    });
+    });*@
 
 //create TopPaths bar chart
     const dataTopPathsBarChart = {
@@ -280,7 +286,7 @@
 
     $(document).ready(function () {
 
-        readDataBarChart();
+@*        readDataBarChart();*@
         readDataTopPathsChart();
         readDataClientIPChart();
         readDataProtocolVersionChart();
@@ -290,7 +296,7 @@
 
 
 
-   function readDataBarChart() {
+@*   function readDataBarChart() {
         xAxesBarChart.splice(0, xAxesBarChart.length);
         yAxesBarChart.splice(0, yAxesBarChart.length);
 
@@ -328,7 +334,7 @@
         });
 
 
-    }
+    }*@
 
     function readDataClientIPChart() {
         xAxesClientIP.splice(0, xAxesClientIP.length);

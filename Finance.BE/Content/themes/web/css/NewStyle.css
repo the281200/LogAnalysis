@@ -121,6 +121,8 @@
     background: white;
     margin: 10px;
     padding: 40px 20px;
+    border-radius: 15px;
+    box-shadow: 2px -1px 14px 3px #4457721a;
 }
 .log-item h2 {
     font-size: 14.6667px;
@@ -168,12 +170,23 @@
     background: white;
     margin: 10px;
     padding: 40px 0px;
+    border-radius: 15px;
+    box-shadow: 2px -1px 14px 3px #4457721a;
 }
+    .box-log .chart-cursor .text-chart {
+        padding: 10px 26px;
+        font-weight: 600;
+    }
+
+
 .box-log .box-style {
     background: white;
     margin: 10px;
-    padding: 40px 20px;
+    padding: 24px 20px;
+    border-radius: 15px;
+    box-shadow: 2px -1px 14px 3px #4457721a;
 }
+
 .chart-content {
     margin: 0px 15px 15px 32px;
 }
@@ -183,3 +196,8 @@
         margin: auto;
     }
 
+.box-grid {
+    padding: 0 0 50px;
+    margin: 0 12px;
+    width: calc(100% - 24px);
+}
