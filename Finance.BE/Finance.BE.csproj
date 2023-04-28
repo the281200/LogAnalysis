@@ -347,6 +347,7 @@
     <Compile Include="Areas\Admin\Controllers\AdvertisementController.cs" />
     <Compile Include="Areas\Admin\Controllers\AdvPositionController.cs" />
     <Compile Include="Areas\Admin\Controllers\BaseController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ConfigController.cs" />
     <Compile Include="Areas\Admin\Controllers\ContractSummaryController.cs" />
     <Compile Include="Areas\Admin\Controllers\ErrorRequestController.cs" />
     <Compile Include="Areas\Admin\Controllers\InvestmentReportController.cs" />
@@ -456,6 +457,7 @@
     <Compile Include="Models\UserReport.cs" />
     <Compile Include="Models\VanTaiAuthorizeAttribute.cs" />
     <Compile Include="Models\WebAttribute.cs" />
+    <Compile Include="Models\WebConfigViewModel.cs" />
     <Compile Include="Models\WebStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -7587,6 +7589,7 @@
     <Content Include="Areas\Admin\Views\Customer\AddBusinessCustomers.cshtml" />
     <Content Include="Areas\Admin\Views\Customer\EditBusiness.cshtml" />
     <Content Include="Areas\Admin\Views\ErrorRequest\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Config\Index.cshtml" />
     <None Include="Properties\PublishProfiles\ConVietLinh.pubxml" />
     <None Include="Properties\PublishProfiles\FLAT.pubxml" />
     <Content Include="Images\apple-touch-icon-precomposed.png" />

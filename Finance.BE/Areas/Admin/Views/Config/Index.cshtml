@@ -1,0 +1,158 @@
+﻿@model WebConfigViewModel
+@{
+
+    ViewBag.Title = "Thay đổi cài đặt hệ thống";
+
+}
+<div class="alert alert-primary left-icon-big" role="alert" id="alert" style="display: none;">
+    Thay đổi cài đặt hệ thống thành công!
+</div>
+<div class="userprofile">
+
+    <div class="row">
+
+        <div class="col-lg-12">
+            <div class="card">
+
+                <div class="card-body" style=" margin-top: 50px; padding-left: 40px;">
+                    <div class="form-validation">
+                        @using (Ajax.BeginForm("ChangeConfig", "Config", new { area = "Admin"},
+                                new AjaxOptions
+                                {
+                                    OnSuccess = "OnChangeSuccess"
+                                    
+                                }, new { @class = "form-valide", @id = "ChangePassForm" }))
+                        {
+
+                            <script>
+
+                                function OnChangeSuccess(data, status, xhr) {
+
+                                    if (data.Success) {
+                                        $("#alert").css("display", "block");
+                                        $("#alert").fadeTo(3000, 800).slideUp(800, function () {
+                                            $("#alert").slideUp(800);
+                                        });
+
+
+                                    }
+                                }
+                            </script>
+
+
+                            <div>
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("Email nhận thông tin", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.EmailReceive, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("Email gửi thông tin", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.EmailSend, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("SMTP email gửi", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.EmailSendSMTP, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("Port email gửi", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.EmailSendPort, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("Mật khẩu email gửi", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.EmailSendPassword, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("SSL email gửi", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.EmailSendSSL, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("LicenseKey", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.LicenseKey, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("Số yêu cầu tối đa/phút", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.Threshold, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="validation-group">
+                                    <div class="controls">
+                                        @Html.ValidationSummary(true)
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+
+                                    </div>
+                                    <div class="col-lg-8 ">
+                                        <button type="submit" class="btn btn-primary">@Resources.Common.SaveChanges</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                            @Html.AntiForgeryToken()
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
