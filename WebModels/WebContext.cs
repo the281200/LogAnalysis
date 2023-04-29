@@ -83,6 +83,7 @@ namespace WebModels
         public DbSet<New> News { get; set; }
         public DbSet<AssetCategory> AssetCategorys { get; set; }
         public DbSet<LogData> LogData { get; set; }
+        public DbSet<Notification> Notification { get; set; }
     }
 
     public enum Gender

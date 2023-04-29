@@ -202,8 +202,6 @@
                                     columns.Bound(p => p.ID).Title(Resources.Common.ID).HtmlAttributes(new { style = "text-align:center;" }).Hidden();
                                     columns.Bound(p => p.date).Title("Thời gian").Format("{0:dd-MM-yyyy HH:mm:ss}").Width(400);
                                     columns.Bound(p => p.csMethod).Title("Phương thức HTTP").Width(200);
-                                    columns.Bound(p => p.sPort).Title("Cổng máy chủ").Width(200);
-                                    columns.Bound(p => p.csUsername).Title("Tên người dùng").Width(200);
                                     columns.Bound(p => p.cIp).Title("IP người dùng").Width(150);
                                     columns.Bound(p => p.csVersion).Title("Phiên bản HTTP").Width(300);
                                     columns.Bound(p => p.scStatus).Title("Mã trạng thái HTTP").Width(300);

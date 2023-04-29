@@ -15,5 +15,6 @@ namespace WEB.Models
         public string EmailSendSSL { set; get; }
         public string LicenseKey { set; get; }
         public string Threshold { set; get; }
+        public string LinkLog { set; get; }
     }
 }

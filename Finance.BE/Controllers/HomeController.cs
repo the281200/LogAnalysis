@@ -13,6 +13,9 @@ using Tx.Windows;
 using System.Web.Hosting;
 using System.Net;
 using System.IO;
+using System.Net.Mail;
+using System.Threading;
+using System.Text;
 
 namespace WEB.Controllers
 {
@@ -251,7 +254,8 @@ namespace WEB.Controllers
             var uriLogFile = uri + "/log_data.log";
             WebClient client = new WebClient();
             client.Credentials = new NetworkCredential("uainpsgt", "6gppUx3H56");
-            client.DownloadFile("ftp://uainpsgt@103.130.212.186/logs/iis/W3SVC50/u_extend1.log", HostingEnvironment.MapPath(uriLogFile));
+            var linkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").Select(x => x.Value).FirstOrDefault();
+            client.DownloadFile( linkLog != null ? linkLog : "ftp://uainpsgt@103.130.212.186/logs/iis/W3SVC50/u_extend1.log", HostingEnvironment.MapPath(uriLogFile));
             var lastDataTime = db.LogData.OrderByDescending(x => x.date).Select(x=>x.date).FirstOrDefault();
             if(lastDataTime == null)
             {
@@ -565,36 +569,453 @@ namespace WEB.Controllers
             }
         }
 
-       /* public void SendMailContactDisbursementDetail()
+        public List<LogData> GetLogData(DateTime startTime, DateTime endTime)
         {
-            var checkContactDisbursementDetail = db.ContactDisbursementDetails.Where(
-               x => DbFunctions.TruncateTime(x.ImplementationDate) == DbFunctions.TruncateTime(DateTime.Now)
-               && x.IsActive != false
-               && x.BuyAndSellBond.Customer != null).Include(x => x.BuyAndSellBond).Include(x => x.BuyAndSellBond.Customer).ToList();
 
-            foreach (var item in checkContactDisbursementDetail)
-            {
-                var title = "[Hệ thống quản lý tài sản] Thông báo đến ngày nhận lợi tức " + item.BuyAndSellBond.ContractName;
-                var body = "Hệ thống quản lý tài sản xin gửi tới Quý khách hàng thông tin hợp đồng " + item.BuyAndSellBond.ContractName + " đã đến ngày nhận lợi tức vào ngày " + string.Format("{0:dd/MM/yyyy}", item.ImplementationDate) +
-                    ". Quý khách hàng có thể truy cập vào hệ thống để kiểm tra và theo dõi tình trạng đầu tư.<br/>Xin cám ơn!";
+            return db.LogData
+                .Where(log => log.date >= startTime && log.date <= endTime)
+                .ToList();
 
-                var checkSendMail = ApplicationService.SendMailSystem(item.BuyAndSellBond.Customer, GetInfoConfigSendMail(), title, body);
-                ApplicationService.SendJsonSMS(item.BuyAndSellBond.Customer.Mobile, body);
-            }
         }
-*/
+
+        //======================== check DDOS attack ================================
+
+        public Dictionary<string, int> AnalyzeLogData(List<LogData> logData, int threshold)
+        {
+            Dictionary<string, int> ipRequestCounts = new Dictionary<string, int>();
+            Dictionary<string, DateTime> lastRequestTimes = new Dictionary<string, DateTime>();
+
+            foreach (var log in logData)
+            {
+                string ipAddress = log.cIp;
+
+                if (!lastRequestTimes.ContainsKey(ipAddress))
+                {
+                    lastRequestTimes[ipAddress] = log.date;
+                    ipRequestCounts[ipAddress] = 1;
+                }
+                else
+                {
+                    TimeSpan timeSinceLastRequest = log.date - lastRequestTimes[ipAddress];
+
+                    if (timeSinceLastRequest.TotalSeconds > 60)
+                    {
+                        lastRequestTimes[ipAddress] = log.date;
+                        ipRequestCounts[ipAddress] = 1;
+                    }
+                    else
+                    {
+                        ipRequestCounts[ipAddress]++;
+                    }
+                }
+            }
+
+            Dictionary<string, int> abnormalIps = ipRequestCounts
+                .Where(ipCount => ipCount.Value > threshold)
+                .ToDictionary(ipCount => ipCount.Key, ipCount => ipCount.Value);
+
+            return abnormalIps;
+        }
+
+/*        public Dictionary<string, int> AnalyzeLogData(List<LogData> logData, int threshold)
+        {
+            Dictionary<string, int> ipRequestCounts = new Dictionary<string, int>();
+
+            foreach (var log in logData)
+            {
+                string ipAddress = log.cIp;
+
+                if (ipRequestCounts.ContainsKey(ipAddress))
+                {
+                    ipRequestCounts[ipAddress]++;
+                }
+                else
+                {
+                    ipRequestCounts[ipAddress] = 1;
+                }
+            }
+
+            Dictionary<string, int> abnormalIps = ipRequestCounts
+                .Where(ipCount => ipCount.Value > threshold)
+                .ToDictionary(ipCount => ipCount.Key, ipCount => ipCount.Value);
+
+            return abnormalIps;
+        }*/
+
+        public void CheckDDOSAttack()
+        {
+            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime endTime = DateTime.Now;
+            int threshold = 100; // Ngưỡng cho phép tối đa 100 yêu cầu trong 1 phút
+            var thresholdString = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault();
+            if(thresholdString != null)
+            {
+                threshold = Int16.Parse(thresholdString);
+            }
+
+
+            List<LogData> logData = GetLogData(startTime, endTime);
+            Dictionary<string, int> abnormalIps = AnalyzeLogData(logData, threshold);
+            if(abnormalIps.Count() > 0)
+            {
+                foreach(var item in abnormalIps)
+                {
+                    string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách vừa bị tấn công DDOS";
+                    string detailAlert = "Địa chỉ IP máy tấn công: " + item.Key + "<br/>" + "Số lần truy cập trong khoảng thời gian 1 phút : " + item.Value;
+                    string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn bị tấn công DDOS";
+                    SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
+                    var notification = new Notification
+                    {
+                        CreatedAt = DateTime.Now,
+                        Title = titleMail,
+                        Content = detailAlert,
+                        Type = "tấn công DDOS",
+                        IsRead = false
+                    };
+                    db.Notification.Add(notification);
+                    db.SaveChanges();
+                }
+            }
+
+        }
+
+        //======================== End check DDOS attack ================================
+
+
+
+        //======================== check XSS attack ================================
+
+        public bool IsXssAttack(LogData logData)
+        {
+            string uriStem = logData.csUriStem;
+            bool isXssAttack = false;
+
+            // Kiểm tra chuỗi đầu vào có chứa các ký tự đặc biệt như <, >, &, ' hay " không.
+            if (uriStem.Contains("<") || uriStem.Contains(">") || uriStem.Contains("&") || uriStem.Contains("'") || uriStem.Contains("\""))
+            {
+                isXssAttack = true;
+            }
+            else
+            {
+                // Kiểm tra chuỗi đầu vào có chứa các thẻ HTML không.
+                string[] htmlTags = new string[] { "<script", "<img", "<iframe", "<form", "<a", "<body", "<html", "<meta" };
+                foreach (string tag in htmlTags)
+                {
+                    if (uriStem.Contains(tag))
+                    {
+                        isXssAttack = true;
+                        break;
+                    }
+                }
+            }
+
+            return isXssAttack;
+        }
+
+        public void CheckXSSAttack()
+        {
+            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime endTime = DateTime.Now;
+            List<LogData> logData = GetLogData(startTime, endTime);
+            foreach(var item in logData)
+            {
+                bool result = IsXssAttack(item);
+                if (result)
+                {
+                    string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách vừa bị tấn công XSS";
+                    string detailAlert = "Địa chỉ IP máy tấn công: " + item.cIp + "<br/>";
+                    string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn bị tấn công XSS";
+                    SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
+                    var notification = new Notification
+                    {
+                        CreatedAt = DateTime.Now,
+                        Title = titleMail,
+                        Content = detailAlert,
+                        Type = "tấn công XSS",
+                        IsRead = false
+                    };
+                    db.Notification.Add(notification);
+                    db.SaveChanges();
+                }
+            }
+
+        }
+
+
+        //======================== End check XSS attack ================================
+
+        //======================== Check Brute force attack ================================
+
+
+
+/*        private bool IsPotentialBruteForceAttack(string requestUrl, string clientIp, string username)
+        {
+            // Check if request URL or user agent contains potential Brute force attack vectors
+            if (requestUrl.Contains("/login") && !string.IsNullOrEmpty(username))
+            {
+                // Count number of login attempts from this IP address in the last 10 minutes
+                int numLoginAttempts = GetNumLoginAttempts(clientIp, DateTime.Now.AddMinutes(-10));
+
+                // If more than 5 login attempts in 1 minute, potential Brute force attack
+                if (numLoginAttempts > 5)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }*/
+
+
+/*        private int GetNumLoginAttempts(string clientIp, DateTime startTime)
+        {
+            // Query database or log file to count number of login attempts from this IP address since start time
+            int numLoginAttempts = 0;
+            var endTime = DateTime.Now;
+            var loginAttempts = db.LogData.Where(x => x.cIp == clientIp && x.date > startTime && x.date <= endTime);
+            var minuteCount = new int[10];
+
+            // count number of login attempts per minute
+            foreach (var attempt in loginAttempts)
+            {
+                var minute = (int)(endTime - attempt.date).TotalMinutes;
+                if (minute < 10) minuteCount[minute]++;
+            }
+
+            // check if any minute has more than 5 login attempts
+            for (int i = 0; i < minuteCount.Length; i++)
+            {
+                if (minuteCount[i] > 5)
+                {
+                    numLoginAttempts += minuteCount[i];
+                }
+            }
+
+            return numLoginAttempts;
+        }*/
+        //code tối ưu
+        private int GetNumLoginAttempts(string clientIp, DateTime startTime)
+        {
+            var endTime = DateTime.Now;
+            var loginAttempts = db.LogData
+                .Where(x => x.cIp == clientIp && x.date > startTime && x.date <= endTime)
+                .GroupBy(x => (int)(endTime - x.date).TotalMinutes / 1)
+                .Select(g => g.Count())
+                .ToList();
+
+            return loginAttempts.Count > 0 ? loginAttempts.Max() : 0;
+        }
+
+        private Tuple<bool, string> IsPotentialBruteForceAttack(List<LogData> logData)
+        {
+            var endTime = DateTime.Now;
+            var startTime = endTime.AddMinutes(-10);
+
+            // Group log data by IP and minute of login attempt
+            var loginGroups = logData
+                .Where(x => x.csUriStem.Contains("/login") && !string.IsNullOrEmpty(x.csUsername))
+                .Where(x => x.date >= startTime && x.date <= endTime)
+                .GroupBy(x => new { x.cIp, Minute = x.date.Minute })
+                .Select(g => new { g.Key.cIp, g.Key.Minute, Count = g.Count() });
+
+            // Check for potential brute force attacks
+            foreach (var group in loginGroups)
+            {
+                if (group.Count > 5)
+                {
+                    return Tuple.Create(true, group.cIp);
+                }
+            }
+
+            return Tuple.Create(false, "");
+        }
+
+
+        public void CheckBruteForceAttack()
+        {
+            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime endTime = DateTime.Now;
+            List<LogData> logData = GetLogData(startTime, endTime);
+            var result = IsPotentialBruteForceAttack(logData);
+            if (result.Item1 == true)
+            {
+                string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách vừa bị tấn công Brute Force";
+                string detailAlert = "Địa chỉ IP máy tấn công: " + result.Item2 + "<br/>";
+                string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn bị tấn công Brute Force";
+                SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
+                var notification = new Notification
+                {
+                    CreatedAt = DateTime.Now,
+                    Title = titleMail,
+                    Content = detailAlert,
+                    Type = "tấn công Brute Force",
+                    IsRead = false
+                };
+                db.Notification.Add(notification);
+                db.SaveChanges();
+            }
+            
+
+        }
+        //======================== End check Brute force attack ================================
         public ConfigSendMailInfo GetInfoConfigSendMail()
         {
             var getConfigInfo = db.WebConfigs.ToList();
-
+            var listEmailUser = db.UserProfiles.Select(x => x.Email).ToList();
+            var listEmailTo = "";
+            foreach (var item in listEmailUser)
+            {
+                listEmailTo = listEmailTo + item + ",";
+            }
             return new ConfigSendMailInfo
             {
                 Host = getConfigInfo.Where(x => x.Key == "email-send-smtp").FirstOrDefault().Value,
                 Port = getConfigInfo.Where(x => x.Key == "email-send-port").FirstOrDefault().Value,
                 SendFrom = getConfigInfo.Where(x => x.Key == "email-send").FirstOrDefault().Value,
                 EmailPass = getConfigInfo.Where(x => x.Key == "email-send-password").FirstOrDefault().Value,
-                Ssl = getConfigInfo.Where(x => x.Key == "email-send-ssl").FirstOrDefault().Value
+                Ssl = getConfigInfo.Where(x => x.Key == "email-send-ssl").FirstOrDefault().Value,
+                EmailTo = listEmailTo
             };
+        }
+        public MailTitleAndBodyModel CreateTitleAndBody(string titleAlert, string detailAlert, string title)
+        {
+            var body = "";
+            body += "<table align='center' border='0' cellpadding='0' cellspacing='0' lang='container' style='max-width:700px' width='100%'>";
+            body += "<tbody>";
+            body += "<tr>";
+            body += "<td bgcolor='#f0f0f0' style='background:#f0f0f0' valign='top' width='100%'>";
+            body += "<table border='0' cellpadding='0' cellspacing='0' lang='main_content' style='width:100%' width='100%'>";
+            body += "<tbody>";
+            body += "<tr>";
+            body += "<td valign='top' width='100%'>";
+            body += "<div style='font-size:30px;line-height:30px;height:30px'>";
+            body += "</div>";
+            body += "</td>";
+            body += "</tr>";
+            body += "<tr>";
+            body += "<td valign = 'top' width = '100%'>";
+            body += "<table border='0' cellpadding='0' cellspacing='0' style='width:100%' width='100%'>";
+            body += "<tbody>";
+            body += "<tr>";
+            body += "<td style='width:20px' width='20'>";
+            body += "<div lang='space40'>";
+            body += "</div>";
+            body += "</td>";
+            body += "<td valign='top'>";
+            body += "<p style='margin:0;padding:0;font-size:18px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-style: italic;'>";
+            body += "Kính chào Quý khách";
+            body += "</p>";
+            body += "<div style='font-size:10px;line-height:10px;height:10px'>";
+            body += "</div>";
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:bold;line-height:24px'>";
+            body += "Website phantichnhatky.xyz xin thông báo: " + titleAlert;
+            body += "</p>";
+            body += "<br>";
+
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += detailAlert;
+            body += "</p>";
+            body += "<br/>";
+
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Mong quý khách hàng lưu ý và kiểm tra lại hệ thống.";
+            body += "</p>";
+            body += "<br/>";
+
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Link truy cập hệ thống thu thập và phân tích nhật ký máy chủ web: https://phantichnhatky.xyz/" + " ";
+            body += "</p>";
+            body += "<br/>";
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Chân thành cảm ơn Quý khách hàng đã quan tâm và sử dụng dịch vụ của phantichnhatky.xyz<br>";
+            body += "Mọi yêu cầu cần giải đáp, Xin Quý khách vui lòng liên hệ với chúng tôi.";
+            body += "</p>";
+            body += "<br/>";
+            body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:normal;line-height:24px'>";
+            body += "Thông tin liên hệ (Contact Center): <br>";
+            body += "Điện thoại: 0984247608<br>";
+            body += "Website: https://phantichnhatky.xyz/ <br>";
+            body += " Email: nguyenmanhthe281200@gmail.com<br>";
+            body += "</p>";
+            body += "<br/>";
+            /* body += "<p style='margin:0;padding:0;font-size:16px;color:#202020;font-family:Helvetica,Arial,sans-serif;font-weight:bold;font-style: italic;'>HỆ THỐNG THU THẬP VÀ PHÂN TÍCH NHẬT KÝ MÁY CHỦ WEB</p>";
+             body += "<img src = '" + "https://phantichnhatky.xyz" + "/Content/themes/admin/img/footerMail.jpg' style='max-width:650px' width='100%' />";*/
+            body += "</td>";
+            body += "<td style='width:20px' width='20'>";
+            body += "<div lang='space40'>";
+            body += "</div>";
+            body += "</td>";
+            body += "</tr>";
+            body += "</tbody>";
+            body += "</table>";
+            body += "</td>";
+            body += "</tr>";
+            body += "<tr>";
+            body += "<td valign='top' width='100%'>";
+            body += "<div style='font-size:30px;line-height:30px;height:30px'>";
+            body += "</div>";
+            body += "</td>";
+            body += "</tr>";
+            body += "</tbody>";
+            body += "</table>";
+            body += "</td>";
+            body += "</tr>";
+            body += "</tbody>";
+            body += "</table>";
+
+            return new MailTitleAndBodyModel
+            {
+                Title = "[phantichnhatky.xyz] " + title,
+                Body = body
+            };
+        }
+
+        public static bool SendMailSystem(ConfigSendMailInfo configSendMailInfo, MailTitleAndBodyModel mailTitleAndBodyModel)
+        {
+            bool _return = false;
+
+            try
+            {
+                var client = new SmtpClient(configSendMailInfo.Host, int.Parse(configSendMailInfo.Port));
+                client.UseDefaultCredentials = false;
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential(configSendMailInfo.SendFrom, configSendMailInfo.EmailPass);
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)48 | (SecurityProtocolType)192 |
+                (SecurityProtocolType)768 | (SecurityProtocolType)3072;
+                var message = new MailMessage();
+                message.From = new MailAddress(configSendMailInfo.SendFrom, configSendMailInfo.SendFrom);
+                message.Subject = mailTitleAndBodyModel.Title;
+                string[] Multi = configSendMailInfo.EmailTo.Split(',');
+                foreach (string email in Multi)
+                {
+                    message.To.Add(new MailAddress(email));
+                }
+                message.Body = mailTitleAndBodyModel.Body;
+                message.IsBodyHtml = true;
+                message.BodyEncoding = Encoding.UTF8;
+
+                var mailThread = new Thread(new ThreadStart(() =>
+                {
+                    try
+                    {
+                        client.Send(message);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }));
+
+                mailThread.Start();
+
+                _return = true;
+            }
+            catch (Exception ex)
+            {
+                _return = false;
+            }
+
+            return _return;
         }
 
     }

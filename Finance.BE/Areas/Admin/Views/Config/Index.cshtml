@@ -91,8 +91,11 @@
 
                                     </div>
                                     <div class="col-lg-8">
-                                        @Html.TextBoxFor(m => m.EmailSendPassword, new { @name = "new", @class = "form-control input-rounded" })
-
+                                        @Html.TextBoxFor(m => m.EmailSendPassword, new { @name = "new", @class = "form-control input-rounded", @type = "password" })
+                                        <div class="input-group-addon input-show-pass">
+                                            <i class="fas fa-eye-slash"></i>
+                                            <i class="fas fa-eye"></i>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -114,6 +117,17 @@
                                     </div>
                                     <div class="col-lg-8">
                                         @Html.TextBoxFor(m => m.LicenseKey, new { @name = "new", @class = "form-control input-rounded" })
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-lg-2">
+                                        @Html.Label("Đường dẫn FTP nhật ký máy chủ", new { @for = "new", @class = "col-form-label" })
+
+                                    </div>
+                                    <div class="col-lg-8">
+                                        @Html.TextBoxFor(m => m.LinkLog, new { @name = "new", @class = "form-control input-rounded" })
 
                                     </div>
                                 </div>
@@ -154,5 +168,35 @@
 
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $(".fa-eye").hide();
 
+        $(".fa-eye-slash").click(function () {
+            $(this).toggleClass("fas fa-eye-slash");
+            $(this).toggleClass("fas fa-eye");
+
+            var input = $("#EmailSendPassword");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+
+        $(".fa-eye").click(function () {
+            $(this).toggleClass("fas fa-eye-slash");
+            $(this).toggleClass("fas fa-eye");
+
+            var input = $("#EmailSendPassword");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+
+        });
+    });
+</script>
 

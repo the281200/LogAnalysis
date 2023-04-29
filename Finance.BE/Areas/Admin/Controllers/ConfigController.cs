@@ -35,7 +35,9 @@ namespace WEB.Areas.Admin.Controllers
                 EmailSendPassword = db.WebConfigs.Where(x => x.Key == "email-send-password").Select(x => x.Value).FirstOrDefault(),
                 EmailSendSSL = db.WebConfigs.Where(x => x.Key == "email-send-ssl").Select(x => x.Value).FirstOrDefault(),
                 LicenseKey = db.WebConfigs.Where(x => x.Key == "LicenseKey").Select(x => x.Value).FirstOrDefault(),
-                Threshold = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault()
+                Threshold = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault(),
+                LinkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").Select(x => x.Value).FirstOrDefault(),
+
             };
             return View(model);
         }
@@ -52,6 +54,7 @@ namespace WEB.Areas.Admin.Controllers
             var EmailSendSSL = db.WebConfigs.Where(x => x.Key == "email-send-ssl").FirstOrDefault();
             var LicenseKey = db.WebConfigs.Where(x => x.Key == "LicenseKey").FirstOrDefault();
             var Threshold = db.WebConfigs.Where(x => x.Key == "threshold").FirstOrDefault();
+            var LinkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").FirstOrDefault();
 
             EmailReceive.Value = model.EmailReceive;
             EmailSend.Value = model.EmailSend;
@@ -61,6 +64,7 @@ namespace WEB.Areas.Admin.Controllers
             EmailSendSSL.Value = model.EmailSendSSL;
             LicenseKey.Value = model.LicenseKey;
             Threshold.Value = model.Threshold;
+            LinkLog.Value = model.LinkLog;
 
             db.SaveChanges();
             return Json(new { Success = true });

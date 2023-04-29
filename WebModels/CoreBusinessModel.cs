@@ -539,4 +539,17 @@ namespace WebModels
         public int? timeTaken { get; set; }
     }
 
+    [Table("Notification")]
+    public partial class Notification
+    {
+        [Key]
+        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
+        [Display(ResourceType = typeof(WebResources), Name = "ID")]
+        public int ID { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public string Type { get; set; }
+        public bool? IsRead { get; set; }
+    }
 }
