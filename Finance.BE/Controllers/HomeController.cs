@@ -811,6 +811,12 @@ namespace WEB.Controllers
             var endTime = DateTime.Now;
             var startTime = endTime.AddMinutes(-10);
 
+            int loginAttempt = 10;
+            var loginAttemptString = db.WebConfigs.Where(x => x.Key == "LoginAttempt").Select(x => x.Value).FirstOrDefault();
+            if (loginAttemptString != null)
+            {
+                loginAttempt = Int16.Parse(loginAttemptString);
+            }
             // Group log data by IP and minute of login attempt
             var loginGroups = logData
                 .Where(x => x.csUriStem.Contains("/login") && !string.IsNullOrEmpty(x.csUsername))
@@ -821,7 +827,7 @@ namespace WEB.Controllers
             // Check for potential brute force attacks
             foreach (var group in loginGroups)
             {
-                if (group.Count > 5)
+                if (group.Count > loginAttempt)
                 {
                     return Tuple.Create(true, group.cIp);
                 }

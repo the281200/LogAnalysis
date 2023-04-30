@@ -30,13 +30,10 @@ namespace WEB.Areas.Admin.Controllers
             {
                 EmailReceive = db.WebConfigs.Where(x => x.Key == "email-receive").Select(x => x.Value).FirstOrDefault(),
                 EmailSend = db.WebConfigs.Where(x => x.Key == "email-send").Select(x => x.Value).FirstOrDefault(),
-                EmailSendSMTP = db.WebConfigs.Where(x => x.Key == "email-send-smtp").Select(x => x.Value).FirstOrDefault(),
-                EmailSendPort = db.WebConfigs.Where(x => x.Key == "email-send-port").Select(x => x.Value).FirstOrDefault(),
                 EmailSendPassword = db.WebConfigs.Where(x => x.Key == "email-send-password").Select(x => x.Value).FirstOrDefault(),
-                EmailSendSSL = db.WebConfigs.Where(x => x.Key == "email-send-ssl").Select(x => x.Value).FirstOrDefault(),
-                LicenseKey = db.WebConfigs.Where(x => x.Key == "LicenseKey").Select(x => x.Value).FirstOrDefault(),
                 Threshold = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault(),
                 LinkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").Select(x => x.Value).FirstOrDefault(),
+                LoginAttempt = db.WebConfigs.Where(x => x.Key == "LoginAttempt").Select(x => x.Value).FirstOrDefault(),
 
             };
             return View(model);
@@ -48,23 +45,17 @@ namespace WEB.Areas.Admin.Controllers
         {
             var EmailReceive = db.WebConfigs.Where(x => x.Key == "email-receive").FirstOrDefault();
             var EmailSend = db.WebConfigs.Where(x => x.Key == "email-send").FirstOrDefault();
-            var EmailSendSMTP = db.WebConfigs.Where(x => x.Key == "email-send-smtp").FirstOrDefault();
-            var EmailSendPort = db.WebConfigs.Where(x => x.Key == "email-send-port").FirstOrDefault();
             var EmailSendPassword = db.WebConfigs.Where(x => x.Key == "email-send-password").FirstOrDefault();
-            var EmailSendSSL = db.WebConfigs.Where(x => x.Key == "email-send-ssl").FirstOrDefault();
-            var LicenseKey = db.WebConfigs.Where(x => x.Key == "LicenseKey").FirstOrDefault();
             var Threshold = db.WebConfigs.Where(x => x.Key == "threshold").FirstOrDefault();
             var LinkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").FirstOrDefault();
+            var LoginAttempt = db.WebConfigs.Where(x => x.Key == "LoginAttempt").FirstOrDefault();
 
             EmailReceive.Value = model.EmailReceive;
             EmailSend.Value = model.EmailSend;
-            EmailSendSMTP.Value = model.EmailSendSMTP;
-            EmailSendPort.Value = model.EmailSendPort;
             EmailSendPassword.Value = model.EmailSendPassword;
-            EmailSendSSL.Value = model.EmailSendSSL;
-            LicenseKey.Value = model.LicenseKey;
             Threshold.Value = model.Threshold;
             LinkLog.Value = model.LinkLog;
+            LoginAttempt.Value = model.LoginAttempt;
 
             db.SaveChanges();
             return Json(new { Success = true });
