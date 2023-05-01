@@ -1,14 +1,19 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Mvc;
 using WEB.Models;
+using WebModels;
 
 namespace WEB.Areas.Admin.Controllers
 {
@@ -53,6 +58,116 @@ namespace WEB.Areas.Admin.Controllers
             };
             return View(errorsRequestStatusCode);
         }
+
+
+        [HttpPost]
+        public ActionResult ExportExcel(string dataString)
+        {
+            List<LogData> listData = new List<LogData>();
+            var dataListJson = dataString.Replace('?', '"');
+            var dataObjSplit0 = dataListJson.Split('[');
+            var dataObjSplit1 = dataObjSplit0[1].Split('}');
+            for (var i = 0; i < (dataObjSplit1.Count() - 1); i++)
+            {
+                LogData dataObj = null;
+                var dataObjString = string.Empty;
+                if (i == 0)
+                {
+                    dataObjString = dataObjSplit1[i] + "}";
+                }
+                else
+                {
+                    var dataObjString0 = dataObjSplit1[i].Substring(1);
+                    dataObjString = dataObjString0 + "}";
+                }
+                dataObj = JsonConvert.DeserializeObject<LogData>(dataObjString);
+                dataObj.date = dataObj.date.ToLocalTime();
+                listData.Add(dataObj);
+            }
+            var result = DownloadDriverPay(listData.OrderByDescending(x => x.ID).ToList());
+            var fileStream = new MemoryStream(result);
+            return File(fileStream, "application/ms-excel", "Phien_truy_cap_loi_nhat_ky_may_chu.xlsx");
+        }
+        public byte[] DownloadDriverPay(List<LogData> models)
+        {
+
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            var fileinfo = new FileInfo(string.Format(@"{0}\Dulieunhatkymaychu.xlsx", HostingEnvironment.MapPath("/Uploads")));
+
+            if (fileinfo.Exists)
+            {
+                using (var p = new ExcelPackage(fileinfo))
+                {
+                    var productWorksheet = p.Workbook.Worksheets[0];
+                    productWorksheet.Select();
+
+                    if (models.Count == 0)
+                    {
+                        return p.GetAsByteArray();
+                    }
+
+                    int i = 6;
+                    List<String> listNumber = new List<String>();
+                    var queryPlan = from a in models
+                                    group a by new { a.ID };
+
+                    /*                    var queryPlanForDriver = from a in models
+                                                                 group a by new { a.EmployeeName };*/
+
+                    /*                    foreach (var listPlan in queryPlan)
+                                        {
+                                            listNumber.Add(listPlan.First().NumberPlate);
+                                        }*/
+
+                    if (models.Select(x => x.date).Min().Date == models.Select(x => x.date).Max().Date)
+                    {
+                        var date = models.Select(x => x.date).Min();
+                        var startDate = new DateTime(date.Year, date.Month, 1);
+                        var endDate = startDate.AddMonths(1).AddDays(-1);
+                        productWorksheet.Cells[2, 1].Value = "Từ ngày " + String.Format("{0:dd/MM/yyyy}", startDate) + " đến ngày "
+                          + String.Format("{0:dd/MM/yyyy}", endDate);
+                    }
+                    else
+                    {
+                        var dateMin = models.Select(x => x.date).Min();
+                        var dateMax = models.Select(x => x.date).Max();
+                        productWorksheet.Cells[2, 1].Value = "Từ ngày " + String.Format("{0:dd/MM/yyyy}", dateMin) + " đến ngày "
+                          + String.Format("{0:dd/MM/yyyy}", dateMax);
+                    }
+
+                    var count = 1;
+                    foreach (var listItem in queryPlan)
+                    {
+                        int start = i;
+
+                        foreach (var item in listItem)
+                        {
+                            productWorksheet.Cells[i, 1].Value = count++;
+                            productWorksheet.Cells[i, 2].Value = item.date;
+                            productWorksheet.Cells[i, 3].Value = item.csMethod;
+                            productWorksheet.Cells[i, 4].Value = item.cIp;
+                            productWorksheet.Cells[i, 5].Value = item.csVersion;
+                            productWorksheet.Cells[i, 6].Value = item.scStatus;
+                            productWorksheet.Cells[i, 7].Value = item.scBytes;
+                            productWorksheet.Cells[i, 8].Value = item.csBytes;
+                            productWorksheet.Cells[i, 9].Value = item.timeTaken;
+                            i++;
+                        }
+                        //var count = listItem.Count();
+                        //productWorksheet.Cells["A" + start.ToString() + ":A" + (i - 1).ToString()].Merge = true;
+                        //productWorksheet.Cells[start, 2].Value = listItem.First().CarOwerName;
+
+                    }
+
+                    return p.GetAsByteArray();
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
 
         [AllowAnonymous]
         public ActionResult ErrorData_Read([DataSourceRequest] DataSourceRequest request)

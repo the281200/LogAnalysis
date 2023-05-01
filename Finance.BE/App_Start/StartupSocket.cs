@@ -23,7 +23,10 @@ namespace WEB.App_Start
             var order = new WEB.Controllers.HomeController();
 
             app.UseHangfireDashboard("/testHangfire");
-            RecurringJob.AddOrUpdate(() => order.GetDataFromLogFile(), "0 */1 * * *", TimeZoneInfo.Local);
+            RecurringJob.AddOrUpdate(() => order.GetDataFromLogFile(), "*/5 * * * *", TimeZoneInfo.Local);
+            RecurringJob.AddOrUpdate(() => order.CheckDDOSAttack(), "*/10 * * * *", TimeZoneInfo.Local);
+            RecurringJob.AddOrUpdate(() => order.CheckXSSAttack(), "*/10 * * * *", TimeZoneInfo.Local);
+            RecurringJob.AddOrUpdate(() => order.CheckBruteForceAttack(), "*/10 * * * *", TimeZoneInfo.Local);
             app.UseHangfireServer();
         }
     }

@@ -46,55 +46,73 @@
     }
 
     $(document).ready(function () {
-        $("#btnadd").click(function () {
-            opendlg("/admin/IncurredPurchases/add");
-        });
-        $("#btnedit").click(function () {
-            var selected = [];
-            $('input:checkbox[name=checkedNodes]').each(function () {
-                if ($(this).is(':checked')) {
-                    selected.push($(this).val());
-                }
-            });
-            if (rowselected.length > 0) {
-                opendlg("/admin/IncurredPurchases/edit/" + selected[0]);
-            } else {
-                alert("Không có khoản mục nào được chọn.");
-            }
-        });
 
-        $("#btnundo").click(function () {
-            opendlg("/admin/IncurredPurchases/Undo");
-        });
-
-        $("#btndelete").click(function () {
-           var dataSource = $("#grid").data("kendoGrid").dataSource.data();
+        $(".input-submit").click(function (e) {
+            e.preventDefault();
+            var dataSource = $("#grid").data("kendoGrid").dataSource.data();
             var models = [];
-            if (rowselected.length > 0) {
-                for (var i = 0; i < rowselected.length; i++) {
-                    for (var j = 0; j < dataSource.length; j++) {
-                        var dataItem = dataSource[j];
-                        if (dataItem.ID == rowselected[i]) {
-                            models.push(dataItem.ID);
-                        }
-                    }
-                }
-                var dataSubmit = JSON.stringify(models);
 
-                $.post('@Url.Action("Deletes", "IncurredPurchases")', { data: dataSubmit}, function (data) {
-                    if (data.success) {
-                        $("#grid").data("kendoGrid").dataSource.read();
-                        show_stack_bottom_right('success', 'Xóa phát sinh tài sản', 'Xóa thành công.');
-                    }
-                    else {
-                       @* show_stack_bottom_right('error', 'Xóa phát sinh mua/bán trái phiếu', 'Xóa thất bại.');*@
-                        alert("Vui lòng chọn để xóa phát sinh tài sản!");
-                    }
+            for (var j = 0; j < dataSource.length; j++) {
+                var dataItem = dataSource[j];
+                var model = {};
+                model.ID = dataItem.ID;
+                model.date = dataItem.date;
+                model.csMethod = dataItem.csMethod;
+                model.cIp = dataItem.cIp;
+                model.csVersion = dataItem.csVersion;
+                model.scStatus = dataItem.scStatus;
+                model.scBytes = dataItem.scBytes;
+                model.csBytes = dataItem.csBytes;
+                model.timeTaken = dataItem.timeTaken;
+
+                models.push(model);
+            }
+
+            var dataSubmit = JSON.stringify(models)
+            $("input[name='dataString']").val(dataSubmit);
+
+            setTimeout(function () {
+                $("#general").submit();
+            }, 100);
+        });
+
+        $("#FieldFilter").keyup(function () {
+            var value = $("#FieldFilter").val();
+@*            if (value == "") {
+                rowselected = [];
+                isCheckedAll = false;
+
+                $('input[name="checkedNodes"]').each(function () {
+                    $(this).prop('checked', isCheckedAll);
                 });
-            }
-            else {
-                alert("Vui lòng chọn để xóa phát sinh tài sản!");
-            }
+
+                $('#chkAll').prop('checked', isCheckedAll);
+            }*@
+
+            var int = parseInt(value);
+            var float = parseFloat(value);
+
+            $("#grid").data("kendoGrid").dataSource.filter({
+                logic: "or",
+                filters: [
+
+                    {
+                        field: "csMethod",
+                        operator: "contains",
+                        value: value
+                    },
+                    {
+                        field: "cIp",
+                        operator: "contains",
+                        value: value
+                    },
+                    {
+                        field: "scStatus",
+                        operator: "eq",
+                        value: float
+                    }
+                ]
+            });
         });
     });
 
@@ -191,6 +209,36 @@
         </div>
 
         <div class="container-fluid box-grid">
+            <div class="flex row-quanlyxe block-div mobile-tools-bar">
+                <div class="flex">
+                    <div class="manage-car-search row-plan-drive d-none">
+                        <form action="">
+                            <img src="~/Content/themes/admin/img/Vector-kehoach.png" alt="calendar" class="img-box-date-picker img-form-plan-drive img-calander-plan-drive">
+                            <input type="text" name="daterange" class="box-date-picker" id="time" value="@ViewBag.Date">
+                        </form>
+                    </div>
+                    <div class="manage-car-search row-plan-drive">
+                        <form action="">
+                            <img src="~/Content/themes/admin/img/Vector-search1.png" alt="search" class="img-box-search img-form-plan-drive">
+                            <input id='FieldFilter' type="text" name="" placeholder="Tìm kiếm" class="box-search box-search-quanlyxe">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="flex block-two-row">
+                    @if (roleWebModule != null && roleWebModule.Add.HasValue && roleWebModule.Add.Value)
+                    {
+                        using (Html.BeginForm("ExportExcel", "Home", FormMethod.Post, new { @id = "general", enctype = "multipart/form-data", @class = "form-horizontal fix" }))
+                        {
+                            @Html.HiddenFor(m => m.dataString)
+                            <div class="btn-download btn-plan-drive input-submit">
+                                <img src="~/Content/themes/admin/img/Vector-download.png" alt="text-14-700">
+                                <input id="exportData" type="submit" class="text-14-500 padding-text-plan-drive" value="Tải xuống">
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
             <div class="">
                 <div class="box">
                     <div class="box-content nopadding">
@@ -990,6 +1038,20 @@
         $('input[name="checkedNodes"]').each(function () {
             $(this).prop('checked', isCheckedAll);
         });
+    }
+
+    function export_data(data) {
+        $("div[class='loader-delete']").hide();
+
+        if (data.status == "Sucess") {
+            $("#background-black").css("filter", "contrast(100%)");
+            window.parent.show_stack_bottom_right('success', 'Tải dữ liệu nhật ký máy chủ', 'Tải thành công.');
+        }
+        else {
+            alert("Đã xuất hiện lỗi trong quá trình kết xuất dữ liệu!");
+            $("#background-black").css("filter", "contrast(100%)");
+            window.parent.show_stack_bottom_right('error', 'Tải dữ liệu nhật ký máy chủ', 'Tải không thành công.');
+        }
     }
 </script>
 

@@ -13,6 +13,7 @@ namespace WEB.Models
         public int ThreeHundredStatusCodes { set; get; }
         public int FourHundredStatusCodes { set; get; }
         public int FiveHundredStatusCodes { set; get; }
+        public string dataString { get; set; }
 
     }
 }

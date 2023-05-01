@@ -8046,6 +8046,7 @@
     <Content Include="Uploads\BaoCaoTongHopTinhHinhNhomTaiSanLoaiHopDong.xlsx" />
     <Content Include="Uploads\BaoCaoTongHopTinhHinhHopDong.xlsx" />
     <Content Include="Uploads\BaoCaoDanhMucTaiSanDauTu.xlsx" />
+    <Content Include="Uploads\Dulieunhatkymaychu.xlsx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -117,5 +117,87 @@
 .hoverPointer:hover {
     cursor: pointer;
 }
+.box-log .log-content {
+    background: white;
+    margin: 10px;
+    padding: 40px 20px;
+    border-radius: 15px;
+    box-shadow: 2px -1px 14px 3px #4457721a;
+}
+.log-item h2 {
+    font-size: 14.6667px;
+    line-height: 22px;
+    font-weight: 700;
+    text-align: center;
+    height: 20%;
+    max-height: 20%;
+}
+.log-item strong {
+    font-weight: 700;
+    height: 80%;
+    max-height: 80%;
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    display: block;
+    font-size: 52px;
+}
+.color-green {
+    color: rgb(24, 174, 0);
+}
+.color-blue {
+    color: rgb(31, 120, 180);
+}
+.color-yellow {
+    color: rgb(255, 134, 46);
+}
+.color-red {
+    color: rgb(255, 0, 0);
+}
+.color-bluemix {
+    color: rgb(166, 206, 227);
+}
+.box-log canvas {
+    width: 100% !important;
+    height: 247px !important;
+    margin: auto;
+}
+.box-log .box-style {
+    align-items: center;
+    height: calc(100% - 20px);
+}
+.box-log .chart-cursor {
+    background: white;
+    margin: 10px;
+    padding: 40px 0px;
+    border-radius: 15px;
+    box-shadow: 2px -1px 14px 3px #4457721a;
+}
+    .box-log .chart-cursor .text-chart {
+        padding: 10px 26px;
+        font-weight: 600;
+    }
 
 
+.box-log .box-style {
+    background: white;
+    margin: 10px;
+    padding: 24px 20px;
+    border-radius: 15px;
+    box-shadow: 2px -1px 14px 3px #4457721a;
+}
+
+.chart-content {
+    margin: 0px 15px 15px 32px;
+}
+    .chart-content canvas {
+        width: 100% !important;
+        height: 291px !important;
+        margin: auto;
+    }
+
+.box-grid {
+    padding: 0 0 50px;
+    margin: 0 12px;
+    width: calc(100% - 24px);
+}

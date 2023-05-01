@@ -19,5 +19,7 @@ namespace WEB.Models
         public int ServiceUnavailableStatusCodes { set; get; }
         public int GatewayTimeoutStatusCodes { set; get; }
 
+        public string dataString { get; set; }
+
     }
 }
