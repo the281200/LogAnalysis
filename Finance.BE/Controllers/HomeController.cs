@@ -819,7 +819,7 @@ namespace WEB.Controllers
             }
             // Group log data by IP and minute of login attempt
             var loginGroups = logData
-                .Where(x => x.csUriStem.Contains("/login") && !string.IsNullOrEmpty(x.csUsername))
+                .Where(x => x.csUriStem.Contains("/Login"))
                 .Where(x => x.date >= startTime && x.date <= endTime)
                 .GroupBy(x => new { x.cIp, Minute = x.date.Minute })
                 .Select(g => new { g.Key.cIp, g.Key.Minute, Count = g.Count() });
@@ -880,7 +880,7 @@ namespace WEB.Controllers
                 SendFrom = getConfigInfo.Where(x => x.Key == "email-send").FirstOrDefault().Value,
                 EmailPass = getConfigInfo.Where(x => x.Key == "email-send-password").FirstOrDefault().Value,
                 Ssl = getConfigInfo.Where(x => x.Key == "email-send-ssl").FirstOrDefault().Value,
-                EmailTo = listEmailTo
+                EmailTo = getConfigInfo.Where(x => x.Key == "email-receive").FirstOrDefault().Value,
             };
         }
         public MailTitleAndBodyModel CreateTitleAndBody(string titleAlert, string detailAlert, string title)
@@ -971,7 +971,7 @@ namespace WEB.Controllers
 
             return new MailTitleAndBodyModel
             {
-                Title = "[phantichnhatky.xyz] " + title,
+                Title = title,
                 Body = body
             };
         }
