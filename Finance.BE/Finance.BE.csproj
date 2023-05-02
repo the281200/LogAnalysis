@@ -362,6 +362,7 @@
     <Compile Include="Areas\Admin\Controllers\IncurredPurchasesController.cs" />
     <Compile Include="Areas\Admin\Controllers\LanguageController.cs" />
     <Compile Include="Areas\Admin\Controllers\NavigationController.cs" />
+    <Compile Include="Areas\Admin\Controllers\NotificationController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProductCategoryController.cs" />
     <Compile Include="Areas\Admin\Controllers\OrderController.cs" />
     <Compile Include="Areas\Admin\Controllers\ReportTypeOfAssetsController.cs" />
@@ -7590,6 +7591,7 @@
     <Content Include="Areas\Admin\Views\Customer\EditBusiness.cshtml" />
     <Content Include="Areas\Admin\Views\ErrorRequest\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Config\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Notification\Index.cshtml" />
     <None Include="Properties\PublishProfiles\ConVietLinh.pubxml" />
     <None Include="Properties\PublishProfiles\FLAT.pubxml" />
     <Content Include="Images\apple-touch-icon-precomposed.png" />

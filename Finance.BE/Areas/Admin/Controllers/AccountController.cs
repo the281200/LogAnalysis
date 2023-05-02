@@ -236,9 +236,8 @@ namespace WEB.Areas.Admin.Controllers
 
         public ActionResult _Notification()
         {
-            var user = db.Set<UserProfile>().Find(WebSecurity.GetUserId(User.Identity.Name));
-            ViewBag.IsRead = (user.IsReadNotification != true) ? false : true;
-            var totalUnRead = user.UnReadNotiCount ?? default;
+            var noti = db.Notification.Where(x => x.IsRead != true).Count();
+            var totalUnRead = noti != 0 ? noti : default;
             ViewBag.TotalCount = totalUnRead;
 
             return PartialView();
