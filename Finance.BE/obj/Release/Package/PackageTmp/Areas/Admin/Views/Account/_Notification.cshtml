@@ -1,23 +1,33 @@
-﻿    <div class="notification-header" id="notifi">
+﻿@{ 
+    int count = @ViewBag.TotalCount;
+}
+
+
+<div class="notification-header" id="notifi">
+    <a href="/Admin/Notification">
         <img src="/Content/themes/admin/img/notification.png" />
-        @if (ViewBag.IsRead != true)
+        @if (count > 0)
         {
             <div class="circle-noti">
                 <span> @ViewBag.TotalCount </span>
             </div>
         }
 
-    </div>
+    </a>
+</div>
 
-<script>
-    $("#notifi").click(function () {
 
-        $.post('@Url.Action("ChangeStatusReadNoti", "Account", new { area = "Admin"})',function (data) {
-            if (data.success) {
-                location.href = "/Admin/ContractWarnings";
-                    }
-            
+
+
+@*<script>
+        $("#notifi").click(function () {
+
+            $.post('@Url.Action("ChangeStatusReadNoti", "Account", new { area = "Admin"})',function (data) {
+                if (data.success) {
+                    location.href = "/Admin/ContractWarnings";
+                        }
+
+            });
+
         });
-
-    });
-</script>
+    </script>*@

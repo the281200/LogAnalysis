@@ -130,51 +130,51 @@
     <div class="container-fluid box-log">
         <div class="row log-content">
             <div class="col-sm-3 log-item">
-                <h2>Failed Request</h2><br />
+                <h2>Tổng số truy cập lỗi</h2><br />
                 <strong class="color-green"> @Model.FailedRequest</strong>
             </div>
             <div class="col-sm-3 log-item">
-                <h2>4xx Status Codes </h2><br />
+                <h2>Mã trạng thái 4xx</h2><br />
                 <strong class="color-blue">@Model.FourHundredStatusCodes</strong>
             </div>
             <div class="col-sm-3 log-item">
-                <h2>5xx Status Codes </h2><br />
+                <h2>Mã trạng thái 5xx</h2><br />
                 <strong class="color-yellow">@Model.FiveHundredStatusCodes</strong>
             </div>
             <div class="col-sm-3 log-item">
-                <h2>Bad Request Status Codes </h2><br />
+                <h2>Mã trạng thái 400 Bad Request</h2><br />
                 <strong class="color-red">@Model.BadRequestStatusCodes</strong>
             </div>
         </div>
         <div class="row log-content">
             <div class="col-sm-3 log-item">
-                <h2>Unauthorized Status Codes </h2><br />
+                <h2>Mã trạng thái 401 Unauthorized</h2><br />
                 <strong class="color-red">@Model.UnauthorizedStatusCodes</strong>
             </div>
             <div class="col-sm-3 log-item">
-                <h2>Forbiden Status Codes </h2><br />
+                <h2>Mã trạng thái 403 Forbiden </h2><br />
                 <strong class="color-yellow">@Model.ForbidenStatusCodes</strong>
             </div>
             <div class="col-sm-3 log-item">
-                <h2>NotFound Status Codes </h2><br />
+                <h2>Mã trạng thái 404 NotFound</h2><br />
                 <strong class="color-bluemix">@Model.NotFoundStatusCodes</strong>
             </div>
             <div class="col-sm-3 log-item">
-                <h2>Internal Server Error Status Codes </h2><br />
+                <h2>Mã trạng thái 500 Internal Server Error</h2><br />
                 <strong class="color-green">@Model.InternalServerErrorStatusCodes</strong>
             </div>
         </div>
         <div class="row log-content">
             <div class="col-sm-4 log-item">
-                <h2>Bad Gateway Status Codes </h2><br />
+                <h2>Mã trạng thái 502 Bad Gateway</h2><br />
                 <strong class="color-bluemix">@Model.BadGatewayStatusCodes</strong>
             </div>
             <div class="col-sm-4 log-item">
-                <h2>Service Unavailable Status Codes </h2><br />
+                <h2>Mã trạng thái 503 Service Unavailable</h2><br />
                 <strong class="color-green">@Model.ServiceUnavailableStatusCodes</strong>
             </div>
             <div class="col-sm-4 log-item">
-                <h2>Gateway Timeout Status Codes </h2><br />
+                <h2>Mã trạng thái 504 Gateway Timeout</h2><br />
                 <strong class="color-red">@Model.GatewayTimeoutStatusCodes</strong>
             </div>
         </div>
@@ -190,13 +190,13 @@
                     <div class="col-sm-6 p-0">
 
                         <div class="chart-cursor">
-                            <div class="text-chart">Top Paths</div>
+                            <div class="text-chart">Top đường dẫn truy cập lỗi nhiều nhất</div>
                             <canvas id="topPaths"></canvas>
                         </div>
                     </div>
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
-                            <div class="text-chart">Top Client IP</div>
+                            <div class="text-chart">Top IP khách truy cập lỗi nhiều nhất</div>
                             <canvas id="topClientIP"></canvas>
                         </div>
                     </div>
@@ -207,14 +207,14 @@
                 <div class="row ">
                     <div class="col-sm-6 p-0">
                         <div class="chart-cursor">
-                            <div class="text-chart">Top Protocol Version</div>
+                            <div class="text-chart">Top phiên bản giao thức của truy cập lỗi nhiều nhất</div>
                             <canvas id="topProtocolVersion"></canvas>
                         </div>
                     </div>
                     <div class="col-sm-6 p-0">
 
                         <div class="chart-cursor">
-                            <div class="text-chart">Top Http Method</div>
+                            <div class="text-chart">Top giao thức HTTP lỗi nhiều nhất</div>
                             <canvas id="topHttpMethod"></canvas>
                         </div>
                     </div>

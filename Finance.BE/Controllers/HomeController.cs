@@ -296,12 +296,9 @@ namespace WEB.Controllers
                     };
                     listLog.Add(log);
                 }
-
             }
             db.LogData.AddRange(listLog);
             db.SaveChanges();
-
-
         }
 
         public ActionResult RequestCheckContract()
@@ -617,52 +614,81 @@ namespace WEB.Controllers
             return abnormalIps;
         }
 
-/*        public Dictionary<string, int> AnalyzeLogData(List<LogData> logData, int threshold)
+        private bool IsTrafficSurge(List<LogData> logData, int thresholdSystem)
         {
-            Dictionary<string, int> ipRequestCounts = new Dictionary<string, int>();
 
+            var requestCounts = new Dictionary<DateTime, int>();
             foreach (var log in logData)
             {
-                string ipAddress = log.cIp;
-
-                if (ipRequestCounts.ContainsKey(ipAddress))
+                var minute = new DateTime(log.date.Year, log.date.Month, log.date.Day, log.date.Hour, log.date.Minute, 0);
+                if (requestCounts.ContainsKey(minute))
                 {
-                    ipRequestCounts[ipAddress]++;
+                    requestCounts[minute]++;
                 }
                 else
                 {
-                    ipRequestCounts[ipAddress] = 1;
+                    requestCounts[minute] = 1;
+                }
+                
+            }
+            foreach (var kvp in requestCounts)
+            {
+                if (kvp.Value > thresholdSystem)
+                {
+                    return true;
                 }
             }
 
-            Dictionary<string, int> abnormalIps = ipRequestCounts
-                .Where(ipCount => ipCount.Value > threshold)
-                .ToDictionary(ipCount => ipCount.Key, ipCount => ipCount.Value);
+            return false;
+        }
 
-            return abnormalIps;
-        }*/
 
         public void CheckDDOSAttack()
         {
             DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
             DateTime endTime = DateTime.Now;
-            int threshold = 100; // Ngưỡng cho phép tối đa 100 yêu cầu trong 1 phút
+            int threshold = 100; // Ngưỡng cho phép tối đa 100 yêu cầu/địa chỉ ip trong 1 phút
             var thresholdString = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault();
             if(thresholdString != null)
             {
                 threshold = Int16.Parse(thresholdString);
             }
-
-
+            int thresholdSystem = 100;// Ngưỡng cho phép tối đa 100 yêu cầu hệ thống trong 1 phút
+            var thresholdSystemString = db.WebConfigs.Where(x => x.Key == "thresholdSystem").Select(x => x.Value).FirstOrDefault();
+            if (thresholdSystemString != null)
+            {
+                thresholdSystem = Int16.Parse(thresholdSystemString);
+            }
+           
             List<LogData> logData = GetLogData(startTime, endTime);
+            var isTrafficSurge = IsTrafficSurge(logData, thresholdSystem);
+            if (isTrafficSurge)
+            {
+                string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách nhận được lượng truy cập lớn bất thường, có thể là tấn công DDOS.";
+                string detailAlert = "";
+                string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn nhận được lượng truy cập lớn bất thường ";
+                SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
+                var notification = new Notification
+                {
+                    CreatedAt = DateTime.Now,
+                    Title = titleMail,
+                    Content = detailAlert,
+                    Type = "tấn công DDOS",
+                    IsRead = false
+                };
+                db.Notification.Add(notification);
+                db.SaveChanges();
+            }
+
+
             Dictionary<string, int> abnormalIps = AnalyzeLogData(logData, threshold);
             if(abnormalIps.Count() > 0)
             {
                 foreach(var item in abnormalIps)
                 {
-                    string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách vừa bị tấn công DDOS";
-                    string detailAlert = "Địa chỉ IP máy tấn công: " + item.Key + "<br/>" + "Số lần truy cập trong khoảng thời gian 1 phút : " + item.Value;
-                    string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn bị tấn công DDOS";
+                    string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách nhận được lượng truy cập lớn bất thường, có thể là tấn công DDOS.";
+                    string detailAlert = "Địa chỉ IP máy truy cập: " + item.Key + "<br/>" + "Số lần truy cập trong khoảng thời gian 1 phút : " + item.Value;
+                    string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn nhận được lượng truy cập lớn bất thường từ địa chỉ ip: "+ item.Key;
                     SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
                     var notification = new Notification
                     {
@@ -722,9 +748,9 @@ namespace WEB.Controllers
                 bool result = IsXssAttack(item);
                 if (result)
                 {
-                    string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách vừa bị tấn công XSS";
+                    string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách có dấu hiệu bị tấn công XSS";
                     string detailAlert = "Địa chỉ IP máy tấn công: " + item.cIp + "<br/>";
-                    string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn bị tấn công XSS";
+                    string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn có dấu hiệu bị tấn công XSS";
                     SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
                     var notification = new Notification
                     {
@@ -845,9 +871,9 @@ namespace WEB.Controllers
             var result = IsPotentialBruteForceAttack(logData);
             if (result.Item1 == true)
             {
-                string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách vừa bị tấn công Brute Force";
+                string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách có dấu hiệu bị tấn công Brute Force";
                 string detailAlert = "Địa chỉ IP máy tấn công: " + result.Item2 + "<br/>";
-                string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn bị tấn công Brute Force";
+                string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn có dấu hiệu bị tấn công Brute Force";
                 SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
                 var notification = new Notification
                 {
@@ -863,7 +889,98 @@ namespace WEB.Controllers
             
 
         }
+
         //======================== End check Brute force attack ================================
+
+        //======================== Check SQL injection attack ================================
+        private Tuple<bool, string> IsPotentialSqlInjection(List<LogData> logData)
+        {
+            foreach(var item in logData)
+            {
+                // Check if request contains special characters
+                if ( item.csUriStem.Contains("'") || item.csUriStem.Contains(";") || item.csUriStem.Contains("--")
+                    || item.csUriStem.Contains("/*") || item.csUriStem.Contains("*/") || item.csUriStem.Contains("xp_")
+                    || item.csUriStem.Contains("sp_") || item.csUriStem.Contains("exec") || item.csUriStem.Contains("select")
+                    || item.csUriStem.Contains("update") || item.csUriStem.Contains("delete") || item.csUriStem.Contains("insert")
+                    || item.csUriStem.Contains("drop") || item.csUriStem.Contains("truncate") || item.csUriStem.Contains("alter")
+                    || item.csUriStem.Contains("create") || item.csUriStem.Contains("union") || item.csUriStem.Contains("into")
+                    || item.csUriStem.Contains("from") || item.csUriStem.Contains("where") || item.csUriStem.Contains("having")
+                    || item.csUriStem.Contains("group by") || item.csUriStem.Contains("order by") || item.csUriStem.Contains("'or'1'='1"))
+                {
+                    return Tuple.Create(true, item.cIp);
+                }
+
+                // Check if request contains dynamic values without proper protection
+                if (item.csUriStem.Contains("$") || item.csUriStem.Contains("@") || item.csUriStem.Contains("?")
+                    || item.csUriStem.Contains("%"))
+                {
+                    return Tuple.Create(true, item.cIp);
+                }
+
+                // Check if request contains user input without proper validation
+                if (item.csUriStem.Contains("=GET") || item.csUriStem.Contains("=POST") || item.csUriStem.Contains("=COOKIE")
+                    || item.csUriStem.Contains("=REQUEST") || item.csUriStem.Contains("=SERVER"))
+                {
+                    return Tuple.Create(true, item.cIp);
+                }
+
+                // Check if request contains special characters
+                if (item.csUriQuery.Contains("'") || item.csUriQuery.Contains(";") || item.csUriQuery.Contains("--")
+                    || item.csUriQuery.Contains("/*") || item.csUriQuery.Contains("*/") || item.csUriQuery.Contains("xp_")
+                    || item.csUriQuery.Contains("sp_") || item.csUriQuery.Contains("exec") || item.csUriQuery.Contains("select")
+                    || item.csUriQuery.Contains("update") || item.csUriQuery.Contains("delete") || item.csUriQuery.Contains("insert")
+                    || item.csUriQuery.Contains("drop") || item.csUriQuery.Contains("truncate") || item.csUriQuery.Contains("alter")
+                    || item.csUriQuery.Contains("create") || item.csUriQuery.Contains("union") || item.csUriQuery.Contains("into")
+                    || item.csUriQuery.Contains("from") || item.csUriQuery.Contains("where") || item.csUriQuery.Contains("having")
+                    || item.csUriQuery.Contains("group by") || item.csUriQuery.Contains("order by") || item.csUriQuery.Contains("'or'1'='1"))
+                {
+                    return Tuple.Create(true, item.cIp);
+                }
+
+                // Check if request contains dynamic values without proper protection
+                if (item.csUriQuery.Contains("$") || item.csUriQuery.Contains("@") || item.csUriQuery.Contains("?")
+                    || item.csUriQuery.Contains("%"))
+                {
+                    return Tuple.Create(true, item.cIp);
+                }
+
+                // Check if request contains user input without proper validation
+                if (item.csUriQuery.Contains("=GET") || item.csUriQuery.Contains("=POST") || item.csUriQuery.Contains("=COOKIE")
+                    || item.csUriQuery.Contains("=REQUEST") || item.csUriQuery.Contains("=SERVER"))
+                {
+                    return Tuple.Create(true, item.cIp);
+                }
+            }
+            return Tuple.Create(false, "");
+        }
+
+        public void CheckSQLInjectionAttack()
+        {
+            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime endTime = DateTime.Now;
+            List<LogData> logData = GetLogData(startTime, endTime);
+            var result = IsPotentialSqlInjection(logData);
+            if (result.Item1 == true)
+            {
+                string titleAlert = "Vào hồi " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + " Website của quý khách có dấu hiệu bị tấn công SQL Injection";
+                string detailAlert = "Địa chỉ IP máy tấn công: " + result.Item2 + "<br/>";
+                string titleMail = "[phantichnhatky.xyz] Cảnh báo trang web của bạn có dấu hiệu bị tấn công SQL Injection";
+                SendMailSystem(GetInfoConfigSendMail(), CreateTitleAndBody(titleAlert, detailAlert, titleMail));
+                var notification = new Notification
+                {
+                    CreatedAt = DateTime.Now,
+                    Title = titleMail,
+                    Content = detailAlert,
+                    Type = "tấn công SQL Injection",
+                    IsRead = false
+                };
+                db.Notification.Add(notification);
+                db.SaveChanges();
+            }
+
+
+        }
+        //======================== End check SQL injection attack ================================
         public ConfigSendMailInfo GetInfoConfigSendMail()
         {
             var getConfigInfo = db.WebConfigs.ToList();

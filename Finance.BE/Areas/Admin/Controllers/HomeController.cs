@@ -43,45 +43,6 @@ namespace WEB.Areas.Admin.Controllers
                     return RedirectToAction("Login", "Account", new { area = "Admin" });
                 }
             }
-
-            List<string> role = Roles.GetRolesForUser(WebHelpers.UserInfoHelper.GetUserData().UserName).ToList();
-
-
-            var buyAndSellBonds = db.BuyAndSellBonds.ToList();
-            var getNumInvestors = buyAndSellBonds.Where(x => x.IsActive != false).Select(x => x.CustomerId).Distinct().ToList().Count();
-
-            var getNumContract = buyAndSellBonds.Where(x => x.IsActive != false).Select(x => x.Id).ToList().Count();
-
-            var getSumValueContract = buyAndSellBonds.Where(x => x.IsActive != false).Select(x => x.Value).ToList().Sum();
-
-            var getSumInterestContract = db.IncurredPurchases.Where(x => (x.TransactionType == (int)(TypeTransaction.GetInterestByTime) || x.TransactionType == (int)(TypeTransaction.GetInterestOntime)) && x.IsActive != false).Select(x => x.AmountOfMoney).ToList().Sum();
-
-            var getSumSource = db.Periods.Where(x => x.IsActive != false && x.IncurredId != null && x.Incurred.IsActive != false && x.BuyAndSellBondId != 0).Select(x => x.Value).ToList().Sum();
-
-            ViewBag.NumInvestors = getNumInvestors;
-            long? sumValue = getSumValueContract + getSumInterestContract - getSumSource;
-            double sumValueDouble = Convert.ToDouble(sumValue);
-            double sumValueDetail = Convert.ToDouble(sumValue);
-            var SumValueView = "";
-            if (sumValueDouble >= 1000000000 && sumValueDouble <1000000000000)
-            {
-                double a = sumValueDouble / 1000000000;
-                sumValueDouble = Math.Round(a, 2); ;
-                SumValueView = sumValueDouble.ToString("G3", CultureInfo.InvariantCulture) +" "+"Tỷ đồng";
-            }
-            else if (sumValueDouble >= 1000000000000)
-            {
-                double a = sumValueDouble / 1000000000000;
-                sumValueDouble = Math.Round(a, 2); ;
-                SumValueView = sumValueDouble.ToString("G3", CultureInfo.InvariantCulture) + " " + "Nghìn tỷ đồng";
-            }
-            else
-            {
-                SumValueView = sumValueDouble.ToString("N0", CultureInfo.InvariantCulture) + " "+ "đ";
-            }
-            ViewBag.SumValueDetail = sumValueDetail.ToString("N0", CultureInfo.InvariantCulture) + " "+ "Đồng"; 
-            ViewBag.SumValueView = SumValueView;
-            ViewBag.NumContract = getNumContract;
             // query logdata overview
             var logData = db.LogData.AsNoTracking().ToList();
             var totalRequest = logData.Count();
