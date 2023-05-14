@@ -41,6 +41,13 @@ namespace WEB.Areas.Admin.Controllers
             var serviceUnavailableStatusCodes = logData.Where(x => x.scStatus == 503); //503
             var gatewayTimeoutStatusCodes = logData.Where(x => x.scStatus == 504); //504
 
+            var sumBytesSent = logData.Average(x => x.scBytes);
+            var sumBytesReceive = logData.Average(x => x.csBytes);
+            var averageTimeTaken = logData.Average(x => x.timeTaken);
+            var minBytesSent = logData.Min(x => x.scBytes);
+            var maxBytesSent = logData.Max(x => x.scBytes);
+            var minBytesReceive = logData.Min(x => x.csBytes);
+            var maxBytesReceive = logData.Max(x => x.csBytes);
             var errorsRequestStatusCode = new ErrorsRequestStatusCode()
             {
                 FailedRequest = failedRequest.Count(),
@@ -55,6 +62,20 @@ namespace WEB.Areas.Admin.Controllers
                 ServiceUnavailableStatusCodes = serviceUnavailableStatusCodes.Count(),
                 GatewayTimeoutStatusCodes = gatewayTimeoutStatusCodes.Count()
 
+            };
+            var requestPerformanceViewModel = new RequestPerformanceViewModel()
+            {
+                PercentSuccess = (totalRequest - failedRequest.Count()) / totalRequest * 100,
+                PercentFail = 100 -( (totalRequest - failedRequest.Count()) / totalRequest * 100 ),
+                PercentFail4xxStatus = fourHundredStatusCodes.Count()  / totalRequest * 100,
+                PercentFail5xxStatus = fiveHundredStatusCodes.Count() / totalRequest * 100,
+                AverageByteSent = sumBytesSent.Value,
+                AverageByteReceive = sumBytesReceive.Value,
+                AverageTimeTaken = averageTimeTaken.Value,
+                MinByteSent = minBytesSent.Value,
+                MaxByteSent = maxBytesSent.Value,
+                MinByteReceive = minBytesReceive.Value,
+                MaxByteReceive = maxBytesReceive.Value,
             };
             return View(errorsRequestStatusCode);
         }
@@ -86,7 +107,7 @@ namespace WEB.Areas.Admin.Controllers
             }
             var result = DownloadDriverPay(listData.OrderByDescending(x => x.ID).ToList());
             var fileStream = new MemoryStream(result);
-            return File(fileStream, "application/ms-excel", "Phien_truy_cap_loi_nhat_ky_may_chu.xlsx");
+            return File(fileStream, "application/ms-excel", "Du_lieu_nhat_ky_may_chu.xlsx");
         }
         public byte[] DownloadDriverPay(List<LogData> models)
         {
@@ -110,14 +131,6 @@ namespace WEB.Areas.Admin.Controllers
                     List<String> listNumber = new List<String>();
                     var queryPlan = from a in models
                                     group a by new { a.ID };
-
-                    /*                    var queryPlanForDriver = from a in models
-                                                                 group a by new { a.EmployeeName };*/
-
-                    /*                    foreach (var listPlan in queryPlan)
-                                        {
-                                            listNumber.Add(listPlan.First().NumberPlate);
-                                        }*/
 
                     if (models.Select(x => x.date).Min().Date == models.Select(x => x.date).Max().Date)
                     {
