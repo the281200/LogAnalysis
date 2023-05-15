@@ -7,17 +7,17 @@ namespace WEB.Models
 {
     public class RequestPerformanceViewModel
     {
-        public double PercentSuccess { set; get; }
-        public double PercentFail { set; get; }
-        public double PercentFail4xxStatus { set; get; }
-        public double PercentFail5xxStatus { set; get; }
-        public double AverageByteSent { set; get; }
-        public double AverageByteReceive { set; get; }
-        public double AverageTimeTaken { set; get; }
-        public int MinByteSent { set; get; }
-        public int MinByteReceive { set; get; }
-        public int MaxByteSent { set; get; }
-        public int MaxByteReceive { set; get; }
-        
+        public string PercentSuccess { set; get; }
+        public string PercentFail { set; get; }
+        public string PercentFail4xxStatus { set; get; }
+        public string PercentFail5xxStatus { set; get; }
+        public string AverageByteSent { set; get; }
+        public string AverageByteReceive { set; get; }
+        public string AverageTimeTaken { set; get; }
+        public string MinByteSent { set; get; }
+        public string MinByteReceive { set; get; }
+        public string MaxByteSent { set; get; }
+        public string MaxByteReceive { set; get; }
+        public string MaxTimeTaken { set; get; }
     }
 }

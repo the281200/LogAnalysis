@@ -419,6 +419,7 @@
     <Compile Include="Models\LogConstant.cs" />
     <Compile Include="Models\MailTitleAndBodyModel.cs" />
     <Compile Include="Models\NewViewModel.cs" />
+    <Compile Include="Models\RequestPerformanceViewModel.cs" />
     <Compile Include="Models\RequestStatusCodeModel.cs" />
     <Compile Include="Models\StatusCodeViewModel.cs" />
     <Compile Include="Models\UserProfileViewModel.cs" />

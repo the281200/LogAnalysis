@@ -20,26 +20,15 @@ namespace WEB.Areas.Admin.Controllers
     public class RequestPerformanceController : Controller
     {
         WebModels.WebContext db = new WebModels.WebContext();
-        CultureInfo culture;
+        CultureInfo culture = new CultureInfo("vi-VN");
         public ActionResult Index()
         {
             // query logdata overview
             var logData = db.LogData.AsNoTracking().ToList();
             var totalRequest = logData.Count();
-            var failedRequest = logData.Where(x => x.scStatus >= 400);//fail
-            var twoHundredStatusCodes = logData.Where(x => x.scStatus >= 200 && x.scStatus < 300); //200
-            var threeHundredStatusCodes = logData.Where(x => x.scStatus >= 300 && x.scStatus < 400);//300
-            var fourHundredStatusCodes = logData.Where(x => x.scStatus >= 400 && x.scStatus < 500);//400
-            var fiveHundredStatusCodes = logData.Where(x => x.scStatus >= 500);//500
-
-            var badRequestStatusCodes = logData.Where(x => x.scStatus == 400); //400
-            var unauthorizedStatusCodes = logData.Where(x => x.scStatus == 401); //401
-            var forbidenStatusCodes = logData.Where(x => x.scStatus == 403); //403
-            var notFoundStatusCodes = logData.Where(x => x.scStatus == 404); //404
-            var internalServerErrorStatusCodes = logData.Where(x => x.scStatus == 500); //500
-            var badGatewayStatusCodes = logData.Where(x => x.scStatus == 502); //502
-            var serviceUnavailableStatusCodes = logData.Where(x => x.scStatus == 503); //503
-            var gatewayTimeoutStatusCodes = logData.Where(x => x.scStatus == 504); //504
+            var failedRequest = logData.Where(x => x.scStatus >= 400).Count();//fail
+            var fourHundredStatusCodes = logData.Where(x => x.scStatus >= 400 && x.scStatus < 500).Count();//400
+            var fiveHundredStatusCodes = logData.Where(x => x.scStatus >= 500).Count();//500
 
             var sumBytesSent = logData.Average(x => x.scBytes);
             var sumBytesReceive = logData.Average(x => x.csBytes);
@@ -48,36 +37,27 @@ namespace WEB.Areas.Admin.Controllers
             var maxBytesSent = logData.Max(x => x.scBytes);
             var minBytesReceive = logData.Min(x => x.csBytes);
             var maxBytesReceive = logData.Max(x => x.csBytes);
-            var errorsRequestStatusCode = new ErrorsRequestStatusCode()
-            {
-                FailedRequest = failedRequest.Count(),
-                FourHundredStatusCodes = fourHundredStatusCodes.Count(),
-                FiveHundredStatusCodes = fiveHundredStatusCodes.Count(),
-                BadRequestStatusCodes = badRequestStatusCodes.Count(),
-                UnauthorizedStatusCodes = unauthorizedStatusCodes.Count(),
-                ForbidenStatusCodes = forbidenStatusCodes.Count(),
-                NotFoundStatusCodes = notFoundStatusCodes.Count(),
-                InternalServerErrorStatusCodes = internalServerErrorStatusCodes.Count(),
-                BadGatewayStatusCodes = badGatewayStatusCodes.Count(),
-                ServiceUnavailableStatusCodes = serviceUnavailableStatusCodes.Count(),
-                GatewayTimeoutStatusCodes = gatewayTimeoutStatusCodes.Count()
-
-            };
+            var maxTimeTaken = logData.Max(x => x.timeTaken);
+            double PercentSuccess = (totalRequest - failedRequest) / (double)totalRequest * 100;
+            double PercentFail = 100 - ((totalRequest - failedRequest) / (double)totalRequest * 100);
+            double PercentFail4xxStatus = fourHundredStatusCodes / (double)totalRequest * 100;
+            double PercentFail5xxStatus = fiveHundredStatusCodes / (double)totalRequest * 100;
             var requestPerformanceViewModel = new RequestPerformanceViewModel()
             {
-                PercentSuccess = (totalRequest - failedRequest.Count()) / totalRequest * 100,
-                PercentFail = 100 -( (totalRequest - failedRequest.Count()) / totalRequest * 100 ),
-                PercentFail4xxStatus = fourHundredStatusCodes.Count()  / totalRequest * 100,
-                PercentFail5xxStatus = fiveHundredStatusCodes.Count() / totalRequest * 100,
-                AverageByteSent = sumBytesSent.Value,
-                AverageByteReceive = sumBytesReceive.Value,
-                AverageTimeTaken = averageTimeTaken.Value,
-                MinByteSent = minBytesSent.Value,
-                MaxByteSent = maxBytesSent.Value,
-                MinByteReceive = minBytesReceive.Value,
-                MaxByteReceive = maxBytesReceive.Value,
+                PercentSuccess = Math.Round(PercentSuccess, 2).ToString("N2", culture),
+                PercentFail = Math.Round(PercentFail, 2).ToString("N2", culture),
+                PercentFail4xxStatus = Math.Round(PercentFail4xxStatus, 2).ToString("N2", culture),
+                PercentFail5xxStatus = Math.Round(PercentFail5xxStatus, 2).ToString("N2", culture),
+                AverageByteSent = Math.Round(sumBytesSent.Value, 2).ToString("N2", culture),
+                AverageByteReceive = Math.Round(sumBytesReceive.Value, 2).ToString("N2", culture),
+                AverageTimeTaken = Math.Round(averageTimeTaken.Value, 2).ToString("N2", culture),
+                MinByteSent = minBytesSent.Value.ToString("N0", culture),
+                MaxByteSent = maxBytesSent.Value.ToString("N0", culture),
+                MinByteReceive = minBytesReceive.Value.ToString("N0", culture),
+                MaxByteReceive = maxBytesReceive.Value.ToString("N0", culture),
+                MaxTimeTaken = maxTimeTaken.Value.ToString("N0", culture)
             };
-            return View(errorsRequestStatusCode);
+            return View(requestPerformanceViewModel);
         }
 
 
