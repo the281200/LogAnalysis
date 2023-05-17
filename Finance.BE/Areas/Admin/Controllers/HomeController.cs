@@ -28,9 +28,9 @@ namespace WEB.Areas.Admin.Controllers
     public class HomeController : Controller
     {
         WebModels.WebContext db = new WebModels.WebContext();
-        //
+        CultureInfo culture = new CultureInfo("vi-VN");
         // GET: /Admin/Home/
-        CultureInfo culture;
+
        
         public ActionResult Index()
         {
@@ -63,12 +63,12 @@ namespace WEB.Areas.Admin.Controllers
 
             var requestStatusCode = new RequestStatusCodeModel()
             {
-                TotalRequest = totalRequest,
-                FailedRequest = failedRequest.Count(),
-                TwoHundredStatusCodes = twoHundredStatusCodes.Count(),
-                ThreeHundredStatusCodes = threeHundredStatusCodes.Count(),
-                FourHundredStatusCodes = fourHundredStatusCodes.Count(),
-                FiveHundredStatusCodes = fiveHundredStatusCodes.Count(),
+                TotalRequest = totalRequest.ToString("N0", culture),
+                FailedRequest = failedRequest.Count().ToString("N0", culture),
+                TwoHundredStatusCodes = twoHundredStatusCodes.Count().ToString("N0", culture),
+                ThreeHundredStatusCodes = threeHundredStatusCodes.Count().ToString("N0", culture),
+                FourHundredStatusCodes = fourHundredStatusCodes.Count().ToString("N0", culture),
+                FiveHundredStatusCodes = fiveHundredStatusCodes.Count().ToString("N0", culture),
 
             };
             return View(requestStatusCode);

@@ -7,17 +7,17 @@ namespace WEB.Models
 {
     public class ErrorsRequestStatusCode
     {
-        public int FailedRequest { set; get; }
-        public int FourHundredStatusCodes { set; get; }
-        public int FiveHundredStatusCodes { set; get; }
-        public int BadRequestStatusCodes { set; get; }
-        public int UnauthorizedStatusCodes { set; get; }
-        public int ForbidenStatusCodes { set; get; }
-        public int NotFoundStatusCodes { set; get; }
-        public int InternalServerErrorStatusCodes { set; get; }
-        public int BadGatewayStatusCodes { set; get; }
-        public int ServiceUnavailableStatusCodes { set; get; }
-        public int GatewayTimeoutStatusCodes { set; get; }
+        public string FailedRequest { set; get; }
+        public string FourHundredStatusCodes { set; get; }
+        public string FiveHundredStatusCodes { set; get; }
+        public string BadRequestStatusCodes { set; get; }
+        public string UnauthorizedStatusCodes { set; get; }
+        public string ForbidenStatusCodes { set; get; }
+        public string NotFoundStatusCodes { set; get; }
+        public string InternalServerErrorStatusCodes { set; get; }
+        public string BadGatewayStatusCodes { set; get; }
+        public string ServiceUnavailableStatusCodes { set; get; }
+        public string GatewayTimeoutStatusCodes { set; get; }
 
         public string dataString { get; set; }
 

@@ -20,7 +20,7 @@ namespace WEB.Areas.Admin.Controllers
     public class ErrorRequestController : Controller
     {
         WebModels.WebContext db = new WebModels.WebContext();
-        CultureInfo culture;
+        CultureInfo culture = new CultureInfo("vi-VN");
         public ActionResult Index()
         {
             // query logdata overview
@@ -43,17 +43,17 @@ namespace WEB.Areas.Admin.Controllers
 
             var errorsRequestStatusCode = new ErrorsRequestStatusCode()
             {
-                FailedRequest = failedRequest.Count(),
-                FourHundredStatusCodes = fourHundredStatusCodes.Count(),
-                FiveHundredStatusCodes = fiveHundredStatusCodes.Count(),
-                BadRequestStatusCodes = badRequestStatusCodes.Count(),
-                UnauthorizedStatusCodes = unauthorizedStatusCodes.Count(),
-                ForbidenStatusCodes = forbidenStatusCodes.Count(),
-                NotFoundStatusCodes = notFoundStatusCodes.Count(),
-                InternalServerErrorStatusCodes = internalServerErrorStatusCodes.Count(),
-                BadGatewayStatusCodes = badGatewayStatusCodes.Count(),
-                ServiceUnavailableStatusCodes = serviceUnavailableStatusCodes.Count(),
-                GatewayTimeoutStatusCodes = gatewayTimeoutStatusCodes.Count()
+                FailedRequest = failedRequest.Count().ToString("N0", culture),
+                FourHundredStatusCodes = fourHundredStatusCodes.Count().ToString("N0", culture),
+                FiveHundredStatusCodes = fiveHundredStatusCodes.Count().ToString("N0", culture),
+                BadRequestStatusCodes = badRequestStatusCodes.Count().ToString("N0", culture),
+                UnauthorizedStatusCodes = unauthorizedStatusCodes.Count().ToString("N0", culture),
+                ForbidenStatusCodes = forbidenStatusCodes.Count().ToString("N0", culture),
+                NotFoundStatusCodes = notFoundStatusCodes.Count().ToString("N0", culture),
+                InternalServerErrorStatusCodes = internalServerErrorStatusCodes.Count().ToString("N0", culture),
+                BadGatewayStatusCodes = badGatewayStatusCodes.Count().ToString("N0", culture),
+                ServiceUnavailableStatusCodes = serviceUnavailableStatusCodes.Count().ToString("N0", culture),
+                GatewayTimeoutStatusCodes = gatewayTimeoutStatusCodes.Count().ToString("N0", culture)
 
             };
             return View(errorsRequestStatusCode);
