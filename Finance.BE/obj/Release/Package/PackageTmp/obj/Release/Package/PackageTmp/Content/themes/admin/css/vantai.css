@@ -335,7 +335,7 @@ a {
 }
 
 .content-right {
-    background-color: #daeded;
+/*    background-color: #daeded;*/
     padding: 1.75vw;
     max-height: calc(100vh - 84.72px);
     overflow: scroll;
