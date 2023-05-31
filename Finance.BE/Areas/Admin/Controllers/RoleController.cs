@@ -62,6 +62,7 @@ namespace WEB.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateInput(false)]
         public ActionResult Add([Bind(Exclude = "RoleId")] WebRole model)
         {
             if (ModelState.IsValid)

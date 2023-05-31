@@ -893,66 +893,66 @@ namespace WEB.Controllers
         //======================== End check Brute force attack ================================
 
         //======================== Check SQL injection attack ================================
-        private Tuple<bool, string> IsPotentialSqlInjection(List<LogData> logData)
+private Tuple<bool, string> IsPotentialSqlInjection(List<LogData> logData)
+{
+    foreach(var item in logData)
+    {
+        // Check if request contains special characters
+        if ( item.csUriStem.Contains("'") || item.csUriStem.Contains(";") || item.csUriStem.Contains("--")
+            || item.csUriStem.Contains("/*") || item.csUriStem.Contains("*/") || item.csUriStem.Contains("xp_")
+            || item.csUriStem.Contains("sp_") || item.csUriStem.Contains("exec") || item.csUriStem.Contains("select")
+            || item.csUriStem.Contains("update") || item.csUriStem.Contains("delete") || item.csUriStem.Contains("insert")
+            || item.csUriStem.Contains("drop") || item.csUriStem.Contains("truncate") || item.csUriStem.Contains("alter")
+            || item.csUriStem.Contains("create") || item.csUriStem.Contains("union") || item.csUriStem.Contains("into")
+            || item.csUriStem.Contains("from") || item.csUriStem.Contains("where") || item.csUriStem.Contains("having")
+            || item.csUriStem.Contains("group by") || item.csUriStem.Contains("order by") || item.csUriStem.Contains("'or'1'='1"))
         {
-            foreach(var item in logData)
-            {
-                // Check if request contains special characters
-                if ( item.csUriStem.Contains("'") || item.csUriStem.Contains(";") || item.csUriStem.Contains("--")
-                    || item.csUriStem.Contains("/*") || item.csUriStem.Contains("*/") || item.csUriStem.Contains("xp_")
-                    || item.csUriStem.Contains("sp_") || item.csUriStem.Contains("exec") || item.csUriStem.Contains("select")
-                    || item.csUriStem.Contains("update") || item.csUriStem.Contains("delete") || item.csUriStem.Contains("insert")
-                    || item.csUriStem.Contains("drop") || item.csUriStem.Contains("truncate") || item.csUriStem.Contains("alter")
-                    || item.csUriStem.Contains("create") || item.csUriStem.Contains("union") || item.csUriStem.Contains("into")
-                    || item.csUriStem.Contains("from") || item.csUriStem.Contains("where") || item.csUriStem.Contains("having")
-                    || item.csUriStem.Contains("group by") || item.csUriStem.Contains("order by") || item.csUriStem.Contains("'or'1'='1"))
-                {
-                    return Tuple.Create(true, item.cIp);
-                }
-
-                // Check if request contains dynamic values without proper protection
-                if (item.csUriStem.Contains("$") || item.csUriStem.Contains("@") || item.csUriStem.Contains("?")
-                    || item.csUriStem.Contains("%"))
-                {
-                    return Tuple.Create(true, item.cIp);
-                }
-
-                // Check if request contains user input without proper validation
-                if (item.csUriStem.Contains("=GET") || item.csUriStem.Contains("=POST") || item.csUriStem.Contains("=COOKIE")
-                    || item.csUriStem.Contains("=REQUEST") || item.csUriStem.Contains("=SERVER"))
-                {
-                    return Tuple.Create(true, item.cIp);
-                }
-
-                // Check if request contains special characters
-                if (item.csUriQuery.Contains("'") || item.csUriQuery.Contains(";") || item.csUriQuery.Contains("--")
-                    || item.csUriQuery.Contains("/*") || item.csUriQuery.Contains("*/") || item.csUriQuery.Contains("xp_")
-                    || item.csUriQuery.Contains("sp_") || item.csUriQuery.Contains("exec") || item.csUriQuery.Contains("select")
-                    || item.csUriQuery.Contains("update") || item.csUriQuery.Contains("delete") || item.csUriQuery.Contains("insert")
-                    || item.csUriQuery.Contains("drop") || item.csUriQuery.Contains("truncate") || item.csUriQuery.Contains("alter")
-                    || item.csUriQuery.Contains("create") || item.csUriQuery.Contains("union") || item.csUriQuery.Contains("into")
-                    || item.csUriQuery.Contains("from") || item.csUriQuery.Contains("where") || item.csUriQuery.Contains("having")
-                    || item.csUriQuery.Contains("group by") || item.csUriQuery.Contains("order by") || item.csUriQuery.Contains("'or'1'='1"))
-                {
-                    return Tuple.Create(true, item.cIp);
-                }
-
-                // Check if request contains dynamic values without proper protection
-                if (item.csUriQuery.Contains("$") || item.csUriQuery.Contains("@") || item.csUriQuery.Contains("?")
-                    || item.csUriQuery.Contains("%"))
-                {
-                    return Tuple.Create(true, item.cIp);
-                }
-
-                // Check if request contains user input without proper validation
-                if (item.csUriQuery.Contains("=GET") || item.csUriQuery.Contains("=POST") || item.csUriQuery.Contains("=COOKIE")
-                    || item.csUriQuery.Contains("=REQUEST") || item.csUriQuery.Contains("=SERVER"))
-                {
-                    return Tuple.Create(true, item.cIp);
-                }
-            }
-            return Tuple.Create(false, "");
+            return Tuple.Create(true, item.cIp);
         }
+
+        // Check if request contains dynamic values without proper protection
+        if (item.csUriStem.Contains("$") || item.csUriStem.Contains("@") || item.csUriStem.Contains("?")
+            || item.csUriStem.Contains("%"))
+        {
+            return Tuple.Create(true, item.cIp);
+        }
+
+        // Check if request contains user input without proper validation
+        if (item.csUriStem.Contains("=GET") || item.csUriStem.Contains("=POST") || item.csUriStem.Contains("=COOKIE")
+            || item.csUriStem.Contains("=REQUEST") || item.csUriStem.Contains("=SERVER"))
+        {
+            return Tuple.Create(true, item.cIp);
+        }
+
+        // Check if request contains special characters
+        if (item.csUriQuery.Contains("'") || item.csUriQuery.Contains(";") || item.csUriQuery.Contains("--")
+            || item.csUriQuery.Contains("/*") || item.csUriQuery.Contains("*/") || item.csUriQuery.Contains("xp_")
+            || item.csUriQuery.Contains("sp_") || item.csUriQuery.Contains("exec") || item.csUriQuery.Contains("select")
+            || item.csUriQuery.Contains("update") || item.csUriQuery.Contains("delete") || item.csUriQuery.Contains("insert")
+            || item.csUriQuery.Contains("drop") || item.csUriQuery.Contains("truncate") || item.csUriQuery.Contains("alter")
+            || item.csUriQuery.Contains("create") || item.csUriQuery.Contains("union") || item.csUriQuery.Contains("into")
+            || item.csUriQuery.Contains("from") || item.csUriQuery.Contains("where") || item.csUriQuery.Contains("having")
+            || item.csUriQuery.Contains("group by") || item.csUriQuery.Contains("order by") || item.csUriQuery.Contains("'or'1'='1"))
+        {
+            return Tuple.Create(true, item.cIp);
+        }
+
+        // Check if request contains dynamic values without proper protection
+        if (item.csUriQuery.Contains("$") || item.csUriQuery.Contains("@") || item.csUriQuery.Contains("?")
+            || item.csUriQuery.Contains("%"))
+        {
+            return Tuple.Create(true, item.cIp);
+        }
+
+        // Check if request contains user input without proper validation
+        if (item.csUriQuery.Contains("=GET") || item.csUriQuery.Contains("=POST") || item.csUriQuery.Contains("=COOKIE")
+            || item.csUriQuery.Contains("=REQUEST") || item.csUriQuery.Contains("=SERVER"))
+        {
+            return Tuple.Create(true, item.cIp);
+        }
+    }
+    return Tuple.Create(false, "");
+}
 
         public void CheckSQLInjectionAttack()
         {

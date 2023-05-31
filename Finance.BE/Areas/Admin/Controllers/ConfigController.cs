@@ -34,13 +34,14 @@ namespace WEB.Areas.Admin.Controllers
                 Threshold = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault(),
                 LinkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").Select(x => x.Value).FirstOrDefault(),
                 LoginAttempt = db.WebConfigs.Where(x => x.Key == "LoginAttempt").Select(x => x.Value).FirstOrDefault(),
-
+                XssTitle = db.WebConfigs.Where(x => x.Key == "XssTitle").Select(x => x.Value).FirstOrDefault(),
             };
             return View(model);
         }
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateInput(false)]
         public JsonResult ChangeConfig(WebConfigViewModel model)
         {
             var EmailReceive = db.WebConfigs.Where(x => x.Key == "email-receive").FirstOrDefault();
@@ -49,6 +50,7 @@ namespace WEB.Areas.Admin.Controllers
             var Threshold = db.WebConfigs.Where(x => x.Key == "threshold").FirstOrDefault();
             var LinkLog = db.WebConfigs.Where(x => x.Key == "LinkLog").FirstOrDefault();
             var LoginAttempt = db.WebConfigs.Where(x => x.Key == "LoginAttempt").FirstOrDefault();
+            var XssTitle = db.WebConfigs.Where(x => x.Key == "XssTitle").FirstOrDefault();
 
             EmailReceive.Value = model.EmailReceive;
             EmailSend.Value = model.EmailSend;
@@ -56,7 +58,7 @@ namespace WEB.Areas.Admin.Controllers
             Threshold.Value = model.Threshold;
             LinkLog.Value = model.LinkLog;
             LoginAttempt.Value = model.LoginAttempt;
-
+            XssTitle.Value = model.XssTitle;
             db.SaveChanges();
             return Json(new { Success = true });
             

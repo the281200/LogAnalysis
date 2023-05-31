@@ -17,5 +17,7 @@ namespace WEB.Models
         public string Threshold { set; get; }
         public string LinkLog { set; get; }
         public string LoginAttempt { set; get; }
+
+        public string XssTitle { set; get; }
     }
 }
