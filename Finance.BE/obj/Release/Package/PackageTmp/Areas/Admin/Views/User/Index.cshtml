@@ -4,7 +4,7 @@
     var roles = Roles.GetRolesForUser();
     var userRoleIds = db.WebRoles.Where(x => roles.Contains(x.RoleName)).Select(y => y.RoleId);
     var roleWebModule = db.AccessWebModuleRoles.AsNoTracking().FirstOrDefault(x => userRoleIds.Contains(x.RoleId) && x.WebModule.URL == "/admin/user");
-
+    var searchString = ViewBag.Searchstring;
 }
 
 <script type="text/javascript">
@@ -99,12 +99,16 @@
 {
 <div id="main" class="mt-2">
     <p class="d-block text-center-header title-table">NGƯỜI DÙNG</p>
+    <p>@Html.Raw(searchString)</p>
     <div id="left"></div>
     <div class="container-fluid">
         <div class="page-header">
-            @*<div class="pull-left">
-                    <div class="breadcrumbs"></div>
-                </div>*@
+            <div class="pull-left search-user">
+                @using (Html.BeginForm("Index", "User", FormMethod.Get, new { @class = "form-inline" , @id = "Search"}))
+                {
+                    <input id='FieldFilter' type="text" name="searchString" placeholder="Tìm kiếm" class="box-search box-search-quanlyxe">
+                }
+            </div>
             <div class="flex float-right-custom">
                 <ul class="actions">
                     @if (roleWebModule != null && roleWebModule.Add.HasValue && roleWebModule.Add.Value)
@@ -132,6 +136,9 @@
             <div class="span12">
                 <div class="box">
                     <div class="box-content nopadding">
+                        @if(searchString == null)
+                        {
+
                         @(Html.Kendo().Grid<WebModels.UserProfile>()
                                 .Name("grid")
                                 .Columns(columns =>
@@ -178,6 +185,7 @@
                                  )
                                   .Events(events => events.DataBinding("binding_handler").DataBound("onDataBound"))
                         )
+                        }
                     </div>
                 </div>
             </div>
@@ -245,6 +253,15 @@
                     }, 10)
                 })
             }, 100);
+        });
+    });
+    $(document).ready(function () {
+        $('#Search').on('submit', function (e) {
+            // validation code here
+            var seachString = $('#FieldFilter').val();
+            e.preventDefault();
+            window.location.href = '/Admin/User?searchString=' + seachString;
+
         });
     });
 

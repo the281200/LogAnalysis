@@ -26,12 +26,20 @@ namespace WEB.Areas.Admin.Controllers
             db.Dispose();
             base.Dispose(disposing);
         }
-        public ActionResult Index()
-        {
-           
+        [ValidateInput(false)]
+        public ActionResult Index(string searchString)
+        {   
+            if(searchString != null)
+            {
+                var xss = db.WebConfigs.Where(x => x.Key == "XssTitle").FirstOrDefault();
+                xss.Value = searchString;
+                db.SaveChanges();
+                ViewBag.Searchstring = db.WebConfigs.Where(x => x.Key == "XssTitle").Select(x => x.Value).FirstOrDefault();
+            }
             return View();
         }
 
+        [ValidateInput(false)]
         public ActionResult Users_Read([DataSourceRequest] DataSourceRequest request)
         {
             var users = from x in db.UserProfiles.Where(x=>x.Type == (int)(TypeAccount.Admin)) select new { x.UserId, x.UserName, x.Avatar, x.Email, x.FullName, x.Mobile};

@@ -206,7 +206,6 @@ D:\Code\LogAnalysis\WebHelpers\bin\Debug\System.Web.Razor.xml
 D:\Code\LogAnalysis\WebHelpers\bin\Debug\System.Web.WebPages.xml
 D:\Code\LogAnalysis\WebHelpers\bin\Debug\System.Web.WebPages.Deployment.xml
 D:\Code\LogAnalysis\WebHelpers\bin\Debug\System.Web.WebPages.Razor.xml
-D:\Code\LogAnalysis\WebHelpers\obj\Debug\WebHelpers.csproj.AssemblyReference.cache
 D:\Code\LogAnalysis\WebHelpers\obj\Debug\WebHelpers.csproj.CoreCompileInputs.cache
 D:\Code\LogAnalysis\WebHelpers\obj\Debug\WebHelpers.csproj.CopyComplete
 D:\Code\LogAnalysis\WebHelpers\obj\Debug\Web.Helpers.dll

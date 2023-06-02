@@ -713,29 +713,35 @@ namespace WEB.Controllers
 
         public bool IsXssAttack(LogData logData)
         {
-            string uriStem = logData.csUriStem;
+            string uriStem = logData.csUriQuery;
             bool isXssAttack = false;
+            if (uriStem != null)
+            {
+ 
 
-            // Kiểm tra chuỗi đầu vào có chứa các ký tự đặc biệt như <, >, &, ' hay " không.
-            if (uriStem.Contains("<") || uriStem.Contains(">") || uriStem.Contains("&") || uriStem.Contains("'") || uriStem.Contains("\""))
-            {
-                isXssAttack = true;
-            }
-            else
-            {
-                // Kiểm tra chuỗi đầu vào có chứa các thẻ HTML không.
-                string[] htmlTags = new string[] { "<script", "<img", "<iframe", "<form", "<a", "<body", "<html", "<meta" };
-                foreach (string tag in htmlTags)
+                // Kiểm tra chuỗi đầu vào có chứa các ký tự đặc biệt như <, >, &, ' hay " không.
+                if (uriStem.Contains("<") || uriStem.Contains(">") || uriStem.Contains("&") || uriStem.Contains("'") || uriStem.Contains("\""))
                 {
-                    if (uriStem.Contains(tag))
+                    isXssAttack = true;
+                }
+                else
+                {
+                    // Kiểm tra chuỗi đầu vào có chứa các thẻ HTML không.
+                    string[] htmlTags = new string[] { "script", "img", "iframe", "form", "body", "html", "meta", "alert" };
+                    foreach (string tag in htmlTags)
                     {
-                        isXssAttack = true;
-                        break;
+                        if (uriStem.Contains(tag))
+                        {
+                            isXssAttack = true;
+                            break;
+                        }
                     }
                 }
-            }
 
+                return isXssAttack;
+            }
             return isXssAttack;
+
         }
 
         public void CheckXSSAttack()

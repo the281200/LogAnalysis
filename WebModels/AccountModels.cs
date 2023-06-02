@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Globalization;
+using System.Web.Mvc;
 using System.Web.Security;
 
 
@@ -45,6 +46,7 @@ namespace WebModels
         //}
         private string _userName = string.Empty;
         [Key]
+        [AllowHtml]
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
         [Required(ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "RequiredUserName")]
@@ -55,75 +57,83 @@ namespace WebModels
             get { return _userName.Trim(); }
             set { _userName = value.Trim(); }
         }
+        [AllowHtml]
         [Required(ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "RequiredFulllName")]
         [Display(ResourceType = typeof(AccountResources), Name = "FulllName")]
 
         public string FullName { get; set; }
+        [AllowHtml]
         [RegularExpression(@"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}", ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "EmailNotValid")]
         [Display(ResourceType = typeof(AccountResources), Name = "Email")]
         [Required(ErrorMessage = "Vui lòng nhập email")]
         public string Email { get; set; }
-       /* [RegularExpression(@"^(84|0[3|5|7|8|9])+([0-9]{8})\b$", ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "MobileNotValid")]*/
+        [AllowHtml]
+        /* [RegularExpression(@"^(84|0[3|5|7|8|9])+([0-9]{8})\b$", ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "MobileNotValid")]*/
         [Display(ResourceType = typeof(AccountResources), Name = "Mobile")]
         public string Mobile { get; set; }
+        [AllowHtml]
         [Display(ResourceType = typeof(AccountResources), Name = "Avatar")]
         public string Avatar { get; set; }
+        [AllowHtml]
         [Display(ResourceType = typeof(AccountResources), Name = "Position")]
         public string Position { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Loại người dùng")]
         public int? Type { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Hộ chiếu")]
         public string Passport { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Địa chỉ")]
         public string Address { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Thông tin")]
         public string Infomation { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Invite Code")]
         public string InviteCode { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Is Active")]
         public bool? IsActive { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Giới tính")]
         public int? Gender { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Người tạo")]
         public int? CreatedBy { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Ngày tạo")]
         public DateTime? CreatedAt { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Người sửa")]
         public int? ModifiedBy { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Ngày sửa")]
         public DateTime? ModifiedAt { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Khách hàng kích hoạt tài khoản")]
         public bool? IsCustomerActive { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Trạng thái gửi mail và kích hoạt tài khoản")]
         public int? CustomerActive { get; set; }
+        [AllowHtml]
         public Boolean? IsReadNotification { get; set; }
+        [AllowHtml]
         public DateTime? DateNotification { get; set; }
+        [AllowHtml]
         public int? UnReadNotiCount { get; set; }
         [Display(Name = "Người đại diện theo pháp luật")]
         public string LegalRepresentative { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Chức vụ người đại diện")]
         public string RepresentativePosition { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Số đăng ký kinh doanh")]
         public string BusinessRegistrationNumber { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Người đại diện theo ủy quyền")]
         public string AuthorizedPerson { get; set; }
-
+        [AllowHtml]
         [Display(Name = "Số ủy quyền")]
         public string AuthorizationNumber { get; set; }
     }
@@ -163,7 +173,7 @@ namespace WebModels
         
         [DataType(DataType.Password)]
         [Display(Name = "Xác nhận mật khẩu")]
-        [Compare("NewPassword", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
+        [System.ComponentModel.DataAnnotations.Compare("NewPassword", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
       
         public string ConfirmPassword { get; set; }
     }
@@ -223,7 +233,7 @@ namespace WebModels
         [DataType(DataType.Password)]
         [Display(ResourceType = typeof(AccountResources), Name = "ConfirmPassword")]
         [Required(ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "RequiredConfirmPassword")]
-        [Compare("Password", ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "PasswordNotMatch")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessageResourceType = typeof(AccountResources), ErrorMessageResourceName = "PasswordNotMatch")]
         public string ConfirmPassword { get; set; }
 
         public int? PartnerID { get; set; }
