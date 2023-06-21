@@ -645,7 +645,7 @@ namespace WEB.Controllers
 
         public void CheckDDOSAttack()
         {
-            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime startTime = DateTime.Now.AddMinutes(-2); // Lấy dữ liệu nhật ký trong 2 phút trước
             DateTime endTime = DateTime.Now;
             int threshold = 100; // Ngưỡng cho phép tối đa 100 yêu cầu/địa chỉ ip trong 1 phút
             var thresholdString = db.WebConfigs.Where(x => x.Key == "threshold").Select(x => x.Value).FirstOrDefault();
@@ -746,7 +746,7 @@ namespace WEB.Controllers
 
         public void CheckXSSAttack()
         {
-            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime startTime = DateTime.Now.AddMinutes(-2); // Lấy dữ liệu nhật ký trong 10 phút trước
             DateTime endTime = DateTime.Now;
             List<LogData> logData = GetLogData(startTime, endTime);
             foreach(var item in logData)
@@ -841,7 +841,7 @@ namespace WEB.Controllers
         private Tuple<bool, string> IsPotentialBruteForceAttack(List<LogData> logData)
         {
             var endTime = DateTime.Now;
-            var startTime = endTime.AddMinutes(-10);
+            var startTime = endTime.AddMinutes(-2);
 
             int loginAttempt = 10;
             var loginAttemptString = db.WebConfigs.Where(x => x.Key == "LoginAttempt").Select(x => x.Value).FirstOrDefault();
@@ -871,7 +871,7 @@ namespace WEB.Controllers
 
         public void CheckBruteForceAttack()
         {
-            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime startTime = DateTime.Now.AddMinutes(-2); // Lấy dữ liệu nhật ký trong 10 phút trước
             DateTime endTime = DateTime.Now;
             List<LogData> logData = GetLogData(startTime, endTime);
             var result = IsPotentialBruteForceAttack(logData);
@@ -962,7 +962,7 @@ private Tuple<bool, string> IsPotentialSqlInjection(List<LogData> logData)
 
         public void CheckSQLInjectionAttack()
         {
-            DateTime startTime = DateTime.Now.AddMinutes(-10); // Lấy dữ liệu nhật ký trong 10 phút trước
+            DateTime startTime = DateTime.Now.AddMinutes(-2); // Lấy dữ liệu nhật ký trong 10 phút trước
             DateTime endTime = DateTime.Now;
             List<LogData> logData = GetLogData(startTime, endTime);
             var result = IsPotentialSqlInjection(logData);
